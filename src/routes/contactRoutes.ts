@@ -1,0 +1,9 @@
+import express, {Router} from 'express';
+import contactController from '../controller/contactController';
+
+const router: Router = express.Router();
+
+router.get('/contact', contactController.getContactTable)
+router.get('/contact/:id', contactController.getContactData)
+
+export default router

@@ -1,0 +1,215 @@
+import { Request, Response } from 'express';
+import customerModel from '../model/customerModel';
+
+async function getCustomerTable(req: Request, res: Response) {
+    try {
+        const page = req.query.page === undefined ? "0" : req.query.page as string;
+        const index = (10 * (parseInt(page) - 1)) + 1;
+        const filterCustomerName = req.query.filter !== undefined ? req.query.filter as string : "";
+
+        const result = await customerModel.getCustomerTable(index, filterCustomerName);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function getCustomerData(req: Request, res: Response) {
+    try {
+        const result = await customerModel.getCustomerData(req.params.id);
+        if (result.customer.length === 0) {
+            res.status(422).json({ status: 0, message: "Data not found in the database" })
+        } else {
+            res.status(200).json({ status: 1, message: "ok", response: result })
+        }
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function deleteCustomer(req: Request, res: Response) {
+    try {
+        await customerModel.deleteCustomer(req.params.id);
+        res.status(200).json({ status: 1, message: "deleted successfully" })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function createCustomerData(req: Request, res: Response) {
+    try {
+        const body = req.body;
+        // const result = await customerModel.createCustomerDataSecure(
+        //     {
+        //         customer: {
+        //             customer_name: "บริษัท saran จำกัด",
+        //             sales_type_code_id: 28,
+        //             customer_type_code_id: 31,
+        //         },
+        //         contact: [
+        //             {
+        //                 contact_code_id: 1,
+        //                 value: "30320502"
+        //             }
+        //         ],
+        //         addressNew: [
+        //             {
+        //                 name: "เกษตร",
+        //                 house_no: "b",
+        //                 village_no: "c",
+        //                 alley: "d",
+        //                 road: "e",
+        //                 sub_district: "f",
+        //                 district: "g",
+        //                 province: "h",
+        //                 postal_code: "10220"
+        //             },
+        //             {
+        //                 name: "รัชโยธิน",
+        //                 house_no: "b",
+        //                 village_no: "c",
+        //                 alley: "d",
+        //                 road: "e",
+        //                 sub_district: "f",
+        //                 district: "g",
+        //                 province: "h",
+        //                 postal_code: "10220"
+        //             }
+        //         ],
+        //         addressExist: [],
+        //         personNew: [
+        //             {
+        //                 person: {
+        //                     nickname: "นิสิต",
+        //                     title_code_id: 1,
+        //                     firstname: "",
+        //                     lastname: "",
+        //                     description: "ยินดี"
+        //                 },
+        //                 contact: [
+        //                     {
+        //                         contact_code_id: 1,
+        //                         value: "092394123"
+        //                     }
+        //                 ],
+        //                 addressNew: [
+        //                     {
+        //                         name: "นิสิตลาดพร้าว",
+        //                         house_no: "b",
+        //                         village_no: "c",
+        //                         alley: "d",
+        //                         road: "e",
+        //                         sub_district: "f",
+        //                         district: "g",
+        //                         province: "h",
+        //                         postal_code: "i"
+        //                     }
+        //                 ],
+        //                 addressExist: []
+        //             },
+        //             {
+        //                 person: {
+        //                     nickname: "นิสิต จฬ",
+        //                     title_code_id: 1,
+        //                     firstname: "",
+        //                     lastname: "",
+        //                     description: "ยินดี"
+        //                 },
+        //                 contact: [
+        //                     {
+        //                         contact_code_id: 1,
+        //                         value: "092394123"
+        //                     }
+        //                 ],
+        //                 addressNew: [
+        //                     {
+        //                         name: "ลาดพร้าวจฬ",
+        //                         house_no: "b",
+        //                         village_no: "c",
+        //                         alley: "d",
+        //                         road: "e",
+        //                         sub_district: "f",
+        //                         district: "g",
+        //                         province: "h",
+        //                         postal_code: "i"
+        //                     }
+        //                 ],
+        //                 addressExist: [2,3]
+        //             },
+        //         ],
+        //         personExist: []
+        //     }
+        // )
+        const result = await customerModel.createCustomerDataSecure(body)
+        res.status(201).json({ status: 0, message: "created successfully" })
+    } catch (err: any) {
+        const message = err.originalError.message
+
+        if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
+            res.status(422).json({ status: 0, message: "Cannot insert duplicate customer_name", response: err })
+        }
+
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function updateCustomerData(req: Request, res: Response) {
+    try {
+        const customerId = req.params.id;
+        const body = req.body;
+        // const result = await customerModel.updateCustomerDataSecure(
+        //     {
+        //         customer: {
+        //             customer_id: 2,
+        //             customer_name: "บริษัท สมหวัง จำกัด",
+        //             sales_type_code_id: 29,
+        //             customer_type_code_id: 32,
+        //         },
+        //         contact: [
+        //             {
+        //                 contact_code_id: 1,
+        //                 value: "30320502"
+        //             }
+        //         ],
+        //         addressNew: [],
+        //         addressExist: [],
+        //         personNew: [
+        //             {
+        //                 person: {
+        //                     nickname: "เฮียตี๋",
+        //                     title_code_id: 1,
+        //                     firstname: "จักรพันธ์",
+        //                     lastname: "",
+        //                     description: "เจ้าของธุรกิจ"
+        //                 },
+        //                 contact: [
+        //                     {
+        //                         contact_code_id: 1,
+        //                         value: "034241221"
+        //                     }
+        //                 ],
+        //                 addressNew: [],
+        //                 addressExist: []
+        //             },
+        //         ],
+        //         personExist: [5],
+        //     }
+        // )
+        const result = await customerModel.updateCustomerDataSecure(customerId, body);
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err: any) {
+        const message = err.originalError.message
+
+        if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
+            res.status(422).json({ status: 0, message: "Cannot update duplicate customer_name", response: err })
+        } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
+            res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
+        } else if (message.includes('UC_Customer_Person') && message.includes('duplicate key')) {
+            res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and person", response: err })
+        }
+
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+export default { getCustomerTable, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 
