@@ -1,6 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const bp = require("body-parser")
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bp from "body-parser"
@@ -10,10 +7,18 @@ import addressRoutes from "./routes/addressRoutes";
 import contactRoutes from "./routes/contactRoutes";
 import relationRoutes from "./routes/relationRoutes";
 import masterCodeRoutes from "./routes/masterCodeRoutes";
-// const customerRouter = require("./routes/");
+
 const app = express();
 
 app.use(cors());
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // ให้ทุกโดเมนสามารถเข้าถึงได้
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // กำหนด HTTP Methods ที่อนุญาต
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // กำหนด HTTP Headers ที่อนุญาต
+    res.setHeader('Access-Control-Allow-Credentials', 'true'); // อนุญาตให้ใช้ credentials (เช่น cookies)
+    next();
+});
+
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 
@@ -23,7 +28,7 @@ app.use((req: Request, res: Response, next: () => void) => {
 });
 
 app.get('/', (req, res) => {
-    res.json({message: "Hello World"})
+    res.json({ message: "Hello World" })
 })
 
 app.use('/', customerRoutes);
@@ -33,7 +38,7 @@ app.use('/', contactRoutes);
 app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
 
-const PORT = 3005
+const PORT = 3001
 app.listen(PORT, () => {
     console.log('server is running on port : ' + PORT)
 })

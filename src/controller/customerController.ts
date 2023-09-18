@@ -147,9 +147,9 @@ async function createCustomerData(req: Request, res: Response) {
 
         if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
             res.status(422).json({ status: 0, message: "Cannot insert duplicate customer_name", response: err })
+        } else {
+            res.status(500).json({ status: 0, message: "failed from server", response: err })
         }
-
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
@@ -206,9 +206,9 @@ async function updateCustomerData(req: Request, res: Response) {
             res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
         } else if (message.includes('UC_Customer_Person') && message.includes('duplicate key')) {
             res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and person", response: err })
+        } else {
+            res.status(500).json({ status: 0, message: "failed from server", response: err })
         }
-
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 

@@ -9,10 +9,18 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                SELECT person_id, fullname, mobile, email, description
+                SELECT person_id, fullname, mobile, email, description, role
                 FROM (
                     SELECT
                         p.person_id, p.fullname, m.mobile, e.email, p.description,
+                        STUFF ((
+                            SELECT ', ' + M.value
+                            FROM DevelopERP..Person_Role PR
+                            LEFT JOIN DevelopERP..MasterCode M
+                            ON PR.role_code_id = M.code_id
+                            WHERE PR.person_id = p.person_id
+                            FOR XML PATH('')
+                        ), 1, 2, '') AS role,
                         CAST(ROW_NUMBER () OVER (ORDER BY p.person_id) AS INT) AS RowNum
                     FROM (
                         SELECT 
@@ -75,17 +83,22 @@ async function getPersonData(personId: string) {
                 LEFT JOIN DevelopERP..MasterCode m
                 on p.title_code_id = m.code_id
                 WHERE person_id = @person_id
+
+                SELECT 
+                    role_code_id, value AS role_type
+                FROM DevelopERP..Person_Role PR
+                LEFT JOIN DevelopERP..MasterCode M
+                ON PR.role_code_id = M.code_id
+                WHERE person_id = @person_id
                 
                 SELECT
-                    SubQuery.customer_id, customer_name, sales_type_code_id, customer_type_code_id, COALESCE(phone, '') as phone, COALESCE(email, '') as email
+                    t1.customer_id, customer_name, phone, email
                 FROM (
                     SELECT
                         C.customer_id,
                         C.customer_name,
-                        C.sales_type_code_id,
-                        C.customer_type_code_id,
-                        Cphone.value AS phone,
-                        Cemail.value AS email,
+                        COALESCE(Cphone.value, '-') AS phone,
+                        COALESCE(Cemail.value, '-') AS email,
                         ROW_NUMBER() OVER (ORDER BY C.customer_id) AS RowNum
                     FROM DevelopERP..Customer C
                     LEFT JOIN (
@@ -102,14 +115,13 @@ async function getPersonData(personId: string) {
                         GROUP BY customer_id
                     ) Cemail
                     ON C.customer_id = Cemail.customer_id AND Cemail.contact_code_id = 3
-                ) AS SubQuery
-                LEFT JOIN DevelopERP..Customer_Person cp
-                ON SubQuery.customer_id = cp.customer_id
-                LEFT JOIN DevelopERP..Person p
-                ON cp.person_id = p.person_id
-                WHERE p.person_id = @person_id
+                ) t1
+                LEFT JOIN DevelopERP..Customer_Person CP
+                ON t1.customer_id = CP.customer_id
+                WHERE CP.person_id = @person_id
 
                 SELECT
+                    c.contact_id,
                     m.value as contact_type,
                     c.value as contact_value
                 FROM DevelopERP..Person p
@@ -130,9 +142,10 @@ async function getPersonData(personId: string) {
             `)
         return {
             person: result.recordsets[0][0],
-            customer: result.recordsets[1],
-            contact: result.recordsets[2],
-            address: result.recordsets[3]
+            role: result.recordsets[1],
+            customer: result.recordsets[2],
+            contact: result.recordsets[3],
+            address: result.recordsets[4]
         };
     } catch (err) {
         throw err;

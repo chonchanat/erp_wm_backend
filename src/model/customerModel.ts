@@ -12,39 +12,37 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-            SELECT
-                customer_id, customer_name, sales_type_code_id, customer_type_code_id, COALESCE(phone, '-') as telephone, COALESCE(email, '-') as email
-            FROM (
                 SELECT
-                    C.customer_id,
-                    C.customer_name,
-                    C.sales_type_code_id,
-                    C.customer_type_code_id,
-                    Cphone.value AS phone,
-                    Cemail.value AS email,
-                    ROW_NUMBER() OVER (ORDER BY C.customer_id) AS RowNum
-                FROM DevelopERP..Customer C
-                LEFT JOIN (
-                    SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                    FROM DevelopERP..Contact
-                    WHERE contact_code_id = 2
-                    GROUP BY customer_id
-                ) Cphone
-                ON C.customer_id = Cphone.customer_id AND Cphone.contact_code_id = 2
-                LEFT JOIN(
-                    SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                    FROM DevelopERP..Contact
-                    WHERE contact_code_id = 3
-                    GROUP BY customer_id
-                ) Cemail
-                ON C.customer_id = Cemail.customer_id AND Cemail.contact_code_id = 3
-                WHERE C.customer_name LIKE @customer_name AND isArchived = 0
-            ) AS SubQuery
-            WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
+                    customer_id, customer_name, phone AS telephone, email
+                FROM (
+                    SELECT
+                        C.customer_id,
+                        C.customer_name,
+                        COALESCE(Cphone.value, '-') AS phone,
+                        COALESCE(Cemail.value, '-') AS email,
+                        ROW_NUMBER() OVER (ORDER BY C.customer_id) AS RowNum
+                    FROM DevelopERP..Customer C
+                    LEFT JOIN (
+                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
+                        FROM DevelopERP..Contact
+                        WHERE contact_code_id = 2
+                        GROUP BY customer_id
+                    ) Cphone
+                    ON C.customer_id = Cphone.customer_id AND Cphone.contact_code_id = 2
+                    LEFT JOIN(
+                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
+                        FROM DevelopERP..Contact
+                        WHERE contact_code_id = 3
+                        GROUP BY customer_id
+                    ) Cemail
+                    ON C.customer_id = Cemail.customer_id AND Cemail.contact_code_id = 3
+                    WHERE C.customer_name LIKE @customer_name AND isArchived = 0
+                ) AS t1
+                WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
 
-            SELECT COUNT(*) AS count_data 
-            FROM DevelopERP..Customer
-            WHERE customer_name LIKE @customer_name AND isArchived = 0
+                SELECT COUNT(*) AS count_data 
+                FROM DevelopERP..Customer
+                WHERE customer_name LIKE @customer_name AND isArchived = 0
             `)
         return {
             customer: result.recordsets[0],
@@ -67,21 +65,21 @@ async function getCustomerData(customerId: string) {
                 ON C.sales_type_code_id = MC1.code_id
                 INNER JOIN DevelopERP..MasterCode MC2
                 ON C.customer_type_code_id = MC2.code_id
-                WHERE customer_id = @customer_id
+                WHERE customer_id = @customer_id AND isArchived = 0
                 
                 SELECT P.person_id, 
                     COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '') AS fullname,
                     COALESCE(CTemail.value, '-') AS email,
                     COALESCE(CTmobile.value, '-') AS mobile,
-                    COALESCE(P.description, '-') AS description
-                    /*, STUFF((
+                    COALESCE(P.description, '-') AS description, 
+                    STUFF((
                         SELECT ', ' + M.value
                         FROM DevelopERP..Person_Role PR
                         LEFT JOIN DevelopERP..MasterCode M
                         ON PR.role_code_id = M.code_id
                         WHERE PR.person_id = P.person_id
                         FOR XML PATH('')
-                    ), 1, 2, '') AS role */
+                    ), 1, 2, '') AS role
                 FROM DevelopERP..Person P
                 LEFT JOIN DevelopERP..Customer_Person CP
                 ON P.person_id = CP.person_id
@@ -161,55 +159,55 @@ async function deleteCustomer(customerId: string) {
 }
 
 const customerQuery = `
-INSERT INTO chonTest..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, update_date, create_by, isArchived)
+INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, update_date, create_by, isArchived)
 OUTPUT INSERTED.customer_id
 VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @update_date, @create_by, @isArchived)
 `;
 const addressQuery = `
-INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code)
+INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code)
 OUTPUT INSERTED.address_id
 VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code)
 `;
 const addressCustomerQuery = `
-INSERT INTO chonTest..Address_Customer (customer_id, address_id)
+INSERT INTO DevelopERP..Address_Customer (customer_id, address_id)
 VALUES (@customer_id, @address_id)
 `;
 const addressMasterCodeQuery = `
-INSERT INTO chonTest..Address_MasterCode (address_id, address_type_code_id)
+INSERT INTO DevelopERP..Address_MasterCode (address_id, address_type_code_id)
 VALUES (@address_id, @address_type_code_id)
 `
 const addressCustomerDeleteQuery = `
-DELETE FROM chonTest..Address_Customer
+DELETE FROM DevelopERP..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO chonTest..Contact (customer_id, value, contact_code_id)
+INSERT INTO DevelopERP..Contact (customer_id, value, contact_code_id)
 VALUES (@customer_id, @value, @contact_code_id)
 `;
 const contactDeleteQuery = `
-UPDATE chonTest..Contact
+UPDATE DevelopERP..Contact
 SET customer_id = NULL
 WHERE contact_id = @contact_id
 `
 const personQuery = `
-INSERT INTO chonTest..Person (firstname, lastname, nickname, title_code_id, description)
+INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description)
 OUTPUT INSERTED.person_id
 VALUES (@firstname, @lastname, @nickname, @title_code_id, @description)
 `;
 const personDeleteQuery = `
-DELETE FROM chonTest..Customer_Person
+DELETE FROM DevelopERP..Customer_Person
 WHERE customer_id = @customer_id AND person_id = @person_id
 `
 const customerPersonQuery = `
-INSERT INTO chonTest..Customer_Person (customer_id, person_id)
+INSERT INTO DevelopERP..Customer_Person (customer_id, person_id)
 VALUES (@customer_id, @person_id)
 `
 const addressPersonQuery = `
-INSERT INTO chonTest..Address_Person (person_id, address_id)
+INSERT INTO DevelopERP..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO chonTest..Contact (person_id, value, contact_code_id)
+INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id)
 VALUES (@person_id, @value, @contact_code_id)
 `
 
@@ -355,7 +353,7 @@ async function updateCustomerDataSecure(customerId: string, body: CustomerType) 
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Customer
+                UPDATE DevelopERP..Customer
                 SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, update_date = @update_date
                 WHERE customer_id = @customer_id
             `)
@@ -463,7 +461,7 @@ async function updateCustomerDataSecure(customerId: string, body: CustomerType) 
                     .query(contactPersonQuery)
             }
         }
-        // 
+        
         for (const person of body.personDelete) {
             let personDeleteResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
@@ -476,7 +474,7 @@ async function updateCustomerDataSecure(customerId: string, body: CustomerType) 
                 .input('person_id', sql.INT, person)
                 .query(customerPersonQuery)
         }
-
+        //
         await transaction.commit();
 
     } catch (err) {
