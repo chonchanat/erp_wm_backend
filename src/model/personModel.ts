@@ -9,43 +9,7 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                SELECT person_id, fullname, mobile, email, description, role
-                FROM (
-                    SELECT
-                        p.person_id, p.fullname, m.mobile, e.email, p.description,
-                        STUFF ((
-                            SELECT ', ' + M.value
-                            FROM DevelopERP..Person_Role PR
-                            LEFT JOIN DevelopERP..MasterCode M
-                            ON PR.role_code_id = M.code_id
-                            WHERE PR.person_id = p.person_id
-                            FOR XML PATH('')
-                        ), 1, 2, '') AS role,
-                        CAST(ROW_NUMBER () OVER (ORDER BY p.person_id) AS INT) AS RowNum
-                    FROM (
-                        SELECT 
-                            person_id,
-                            COALESCE(firstname + ' ', '') + COALESCE(lastname + ' ', '') + COALESCE('(' + nickname + ')', '') AS fullname,
-                            COALESCE(description, '-') as description
-                        FROM DevelopERP..Person
-                    ) p
-                    LEFT JOIN (
-                        SELECT person_id, MAX(value) AS email
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 3
-                        GROUP BY person_id
-                    ) e
-                    ON p.person_id = e.person_id
-                    LEFT JOIN (
-                        SELECT person_id, MAX(value) AS mobile
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 2
-                        GROUP BY person_id
-                    ) m
-                    ON p.person_id = m.person_id
-                    WHERE p.fullname LIKE @fullname
-                ) SubQuery
-                WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
+                EXEC DevelopERP..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -90,54 +54,47 @@ async function getPersonData(personId: string) {
                 LEFT JOIN DevelopERP..MasterCode M
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
-                
-                SELECT
-                    t1.customer_id, customer_name, phone, email
-                FROM (
-                    SELECT
-                        C.customer_id,
-                        C.customer_name,
-                        COALESCE(Cphone.value, '-') AS phone,
-                        COALESCE(Cemail.value, '-') AS email,
-                        ROW_NUMBER() OVER (ORDER BY C.customer_id) AS RowNum
-                    FROM DevelopERP..Customer C
-                    LEFT JOIN (
-                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 2
-                        GROUP BY customer_id
-                    ) Cphone
-                    ON C.customer_id = Cphone.customer_id AND Cphone.contact_code_id = 2
-                    LEFT JOIN(
-                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 3
-                        GROUP BY customer_id
-                    ) Cemail
-                    ON C.customer_id = Cemail.customer_id AND Cemail.contact_code_id = 3
-                ) t1
+
+                DECLARE @customerTable TABLE (
+                    customer_id INT,
+                    customer_name NVARCHAR(MAX),
+                    telephone NVARCHAR(MAX),
+                    email NVARCHAR(MAX)
+                )
+                INSERT INTO @customerTable
+                EXEC DevelopERP..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
+                SELECT C.customer_id, C.customer_name, C.telephone, C.email
+                FROM @customerTable AS C
                 LEFT JOIN DevelopERP..Customer_Person CP
-                ON t1.customer_id = CP.customer_id
+                ON C.customer_id = CP.customer_id
                 WHERE CP.person_id = @person_id
 
-                SELECT
-                    c.contact_id,
-                    m.value as contact_type,
-                    c.value as contact_value
-                FROM DevelopERP..Person p
-                LEFT JOIN DevelopERP..Contact c
-                ON p.person_id = c.person_id
-                LEFT JOIN DevelopERP..MasterCode m
-                ON c.contact_code_id = m.code_id
-                WHERE p.person_id = @person_id
+                DECLARE @contactTable TABLE (
+                    contact_id INT,
+                    value NVARCHAR(MAX),
+                    contact_type NVARCHAR(MAX),
+                    owner_name NVARCHAR(MAX),
+                    customer_id INT,
+                    person_id INT
+                )
+                INSERT INTO @contactTable
+                EXEC getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT contact_id, value, contact_type
+                FROM @contactTable
+                WHERE person_id = @person_id
 
-                SELECT *
-                FROM DevelopERP..Person p
-                INNER JOIN DevelopERP..Address_Person ap
-                ON p.person_id = ap.person_id
-                INNER JOIN DevelopERP..Address a
-                ON ap.address_id = a.address_id
-                WHERE p.person_id = @person_id
+                DECLARE @addressTable TABLE (
+                    address_id INT,
+                    location NVARCHAR(MAX),
+                    address_type NVARCHAR(MAX)
+                )
+                INSERT INTO @addressTable
+                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                SELECT A.address_id, A.location, A.address_type
+                FROM @addressTable A
+                LEFT JOIN DevelopERP..Address_Person AP
+                ON A.address_id = AP.address_id
+                WHERE AP.person_id = @person_id
                 
             `)
         return {
@@ -151,5 +108,53 @@ async function getPersonData(personId: string) {
         throw err;
     }
 }
+
+async function createPersonData(body: any) {
+    let transaction;
+    try {
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction;
+        await transaction.begin();
+
+        let personResult = await transaction.request()
+            .input('firstname', sql.NVARCHAR, body.person.firstName)
+            .input('lastname', sql.NVARCHAR, body.person.lastname)
+            .input('nickname', sql.NVARCHAR, body.person.nickname)
+            .input('title_code_id', sql.INT, body.person.title_code_id)
+            .input('description', sql.NVARCHAR, body.person.description)
+            .query(`
+                INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description)
+                OUTPUT inserted.person_id
+                VALUES (@firstname, @lastname, @nickname, @title_code_id, @description)
+            `)
+        let person_id = personResult.recordset[0].person_id
+
+        for (const role of body.role) {
+            let roleResult = await transaction.request()
+                .input('person_id', sql.INT, person_id)
+                .input('role_code_id', sql.INT, role.role_code_id)
+                .query(`
+                    INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
+                    VALUES (@person_id, @role_code_id)
+                `)
+        }
+
+        for (const customer of body.customerExist) {
+            let customerResult = await transaction.request()
+                .input('person_id', sql.INT, person_id)
+                .input('customer_id', sql.INT, customer)
+                .query(`
+                    INSERT INTO DevelopERP..Customer_Person (person_id, customer_id)
+                    VALUES (@person_id, @customer_id)
+                `)
+        }
+
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
 
 export default { getPersonTable, getPersonData }

@@ -140,7 +140,7 @@ async function createCustomerData(req: Request, res: Response) {
         //         personExist: []
         //     }
         // )
-        const result = await customerModel.createCustomerDataSecure(body)
+        const result = await customerModel.createCustomerData(body)
         res.status(201).json({ status: 0, message: "created successfully" })
     } catch (err: any) {
         const message = err.originalError.message
@@ -195,7 +195,7 @@ async function updateCustomerData(req: Request, res: Response) {
         //         personExist: [5],
         //     }
         // )
-        const result = await customerModel.updateCustomerDataSecure(customerId, body);
+        const result = await customerModel.updateCustomerData(customerId, body);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err: any) {
         const message = err.originalError.message

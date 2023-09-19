@@ -10,36 +10,7 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('lastIndex', sql.INT, index + 9)
             // .query('EXEC DevelopERP..getAddressTable @index');
             .query(`
-                SELECT address_id, location, address_type
-                    FROM (
-                        SELECT 
-                            *,
-                            CAST(ROW_NUMBER () OVER (ORDER BY address_id) AS INT) AS RowNum
-                        FROM (
-                            SELECT 
-                                A.address_id,
-                                COALESCE(A.name + ', ', '') + 
-                                COALESCE(A.house_no + ', ', '') +
-                                COALESCE('หมู่ที่ ' + A.village_no + ', ', '') + 
-                                COALESCE('ซอย' + A.alley + ', ', '') +
-                                COALESCE('ถนน' + A.road + ', ', '') + 
-                                COALESCE(A.sub_district + ', ', '') +
-                                COALESCE(A.district + ', ', '') +
-                                COALESCE(A.province + ', ', '') +
-                                COALESCE(A.postal_code , '') as location,
-                                STUFF((
-                                    SELECT ', ' + M.value
-                                    FROM DevelopERP..Address_MasterCode AM
-                                    LEFT JOIN DevelopERP..MasterCode M
-                                    ON AM.address_type_code_id = M.code_id
-                                    WHERE AM.address_id = A.address_id
-                                    FOR XML PATH('')
-                                ), 1, 2, '') AS address_type
-                            FROM DevelopERP..Address A
-                        ) t1
-                        WHERE location LIKE @location
-                    ) t2            
-                WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
+                EXEC DevelopERP..getAddressTable @location = @location, @firstIndex= @firstIndex, @lastIndex= @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (

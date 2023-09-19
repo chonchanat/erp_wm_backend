@@ -38,7 +38,7 @@ app.use('/', contactRoutes);
 app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
 
-const PORT = 3001
+const PORT = 3005
 app.listen(PORT, () => {
     console.log('server is running on port : ' + PORT)
 })

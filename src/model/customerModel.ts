@@ -12,33 +12,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                SELECT
-                    customer_id, customer_name, phone AS telephone, email
-                FROM (
-                    SELECT
-                        C.customer_id,
-                        C.customer_name,
-                        COALESCE(Cphone.value, '-') AS phone,
-                        COALESCE(Cemail.value, '-') AS email,
-                        ROW_NUMBER() OVER (ORDER BY C.customer_id) AS RowNum
-                    FROM DevelopERP..Customer C
-                    LEFT JOIN (
-                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 2
-                        GROUP BY customer_id
-                    ) Cphone
-                    ON C.customer_id = Cphone.customer_id AND Cphone.contact_code_id = 2
-                    LEFT JOIN(
-                        SELECT customer_id, min(contact_code_id) as contact_code_id, max(value) as value
-                        FROM DevelopERP..Contact
-                        WHERE contact_code_id = 3
-                        GROUP BY customer_id
-                    ) Cemail
-                    ON C.customer_id = Cemail.customer_id AND Cemail.contact_code_id = 3
-                    WHERE C.customer_name LIKE @customer_name AND isArchived = 0
-                ) AS t1
-                WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
+                EXEC DevelopERP..getCustomerTable @customer_name = @customer_name, @firstIndex= 0, @lastIndex = 0
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP..Customer
@@ -66,66 +40,46 @@ async function getCustomerData(customerId: string) {
                 INNER JOIN DevelopERP..MasterCode MC2
                 ON C.customer_type_code_id = MC2.code_id
                 WHERE customer_id = @customer_id AND isArchived = 0
-                
-                SELECT P.person_id, 
-                    COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '') AS fullname,
-                    COALESCE(CTemail.value, '-') AS email,
-                    COALESCE(CTmobile.value, '-') AS mobile,
-                    COALESCE(P.description, '-') AS description, 
-                    STUFF((
-                        SELECT ', ' + M.value
-                        FROM DevelopERP..Person_Role PR
-                        LEFT JOIN DevelopERP..MasterCode M
-                        ON PR.role_code_id = M.code_id
-                        WHERE PR.person_id = P.person_id
-                        FOR XML PATH('')
-                    ), 1, 2, '') AS role
-                FROM DevelopERP..Person P
+
+                DECLARE @personTable TABLE (
+                    person_id INT,
+                    fullname NVARCHAR(MAX),
+                    mobile NVARCHAR(MAX),
+                    email NVARCHAR(MAX),
+                    description NVARCHAR(MAX),
+                    role NVARCHAR(MAX)
+                )
+                INSERT INTO @personTable
+                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
+                FROM @personTable P
                 LEFT JOIN DevelopERP..Customer_Person CP
                 ON P.person_id = CP.person_id
-                LEFT JOIN (
-                    SELECT person_id, min(contact_code_id) as contact_code_id, max(value) as value
-                    FROM DevelopERP..Contact
-                    WHERE contact_code_id = 3
-                    GROUP BY person_id
-                ) CTemail
-                ON P.person_id = CTemail.person_id AND CTemail.contact_code_id = 3
-                LEFT JOIN (
-                    SELECT person_id, min(contact_code_id) as contact_code_id, max(value) as value
-                    FROM DevelopERP..Contact
-                    WHERE contact_code_id = 2
-                    GROUP BY person_id
-                ) CTmobile
-                ON P.person_id = CTmobile.person_id AND CTmobile.contact_code_id = 2
                 WHERE CP.customer_id = @customer_id
                 
-                SELECT 
-                    CT.contact_id, M.value AS contact_type, CT.value AS value
-                FROM DevelopERP..Contact CT
-                LEFT JOIN DevelopERP..MasterCode M
-                ON CT.contact_code_id = M.code_id
-                WHERE CT.customer_id = 92
+                DECLARE @contactTable TABLE (
+                    contact_id INT,
+                    value NVARCHAR(MAX),
+                    contact_type NVARCHAR(MAX),
+                    owner_name NVARCHAR(MAX),
+                    customer_id INT,
+                    person_id INT
+                )
+                INSERT INTO @contactTable
+                EXEC getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT contact_id, value, contact_type
+                FROM @contactTable
+                WHERE customer_id = @customer_id
 
-                SELECT 
-                    A.address_id,
-                    COALESCE(A.name + ', ', '') + 
-                    COALESCE(A.house_no + ', ', '') +
-                    COALESCE('หมู่ที่ ' + A.village_no + ', ', '') + 
-                    COALESCE('ซอย' + A.alley + ', ', '') +
-                    COALESCE('ถนน' + A.road + ', ', '') + 
-                    COALESCE(A.sub_district + ', ', '') +
-                    COALESCE(A.district + ', ', '') +
-                    COALESCE(A.province + ', ', '') +
-                    COALESCE(A.postal_code , '') as location,
-                    STUFF((
-                        SELECT ', ' + M.value
-                        FROM DevelopERP..Address_MasterCode AM
-                        LEFT JOIN DevelopERP..MasterCode M
-                        ON AM.address_type_code_id = M.code_id
-                        WHERE AM.address_id = A.address_id
-                        FOR XML PATH('')
-                    ), 1, 2, '') AS address_type
-                FROM DevelopERP..Address A
+                DECLARE @addressTable TABLE (
+                    address_id INT,
+                    location NVARCHAR(MAX),
+                    address_type NVARCHAR(MAX)
+                )
+                INSERT INTO @addressTable
+                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                SELECT A.address_id, A.location, A.address_type
+                FROM @addressTable A
                 LEFT JOIN DevelopERP..Address_Customer AC
                 ON A.address_id = AC.address_id
                 WHERE AC.customer_id = @customer_id
@@ -211,7 +165,7 @@ INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id)
 VALUES (@person_id, @value, @contact_code_id)
 `
 
-async function createCustomerDataSecure(body: CustomerType) {
+async function createCustomerData(body: CustomerType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -338,7 +292,7 @@ async function createCustomerDataSecure(body: CustomerType) {
     }
 }
 
-async function updateCustomerDataSecure(customerId: string, body: CustomerType) {
+async function updateCustomerData(customerId: string, body: CustomerType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -483,4 +437,4 @@ async function updateCustomerDataSecure(customerId: string, body: CustomerType) 
     }
 }
 
-export default { getCustomerTable, getCustomerData, deleteCustomer, createCustomerDataSecure, updateCustomerDataSecure } 
+export default { getCustomerTable, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 
