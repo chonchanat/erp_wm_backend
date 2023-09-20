@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import customerModel from '../model/customerModel';
 
 async function getCustomerTable(req: Request, res: Response) {
@@ -36,7 +36,7 @@ async function deleteCustomer(req: Request, res: Response) {
     }
 }
 
-async function createCustomerData(req: Request, res: Response) {
+async function createCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = req.body;
         // const result = await customerModel.createCustomerDataSecure(
@@ -142,18 +142,12 @@ async function createCustomerData(req: Request, res: Response) {
         // )
         const result = await customerModel.createCustomerData(body)
         res.status(201).json({ status: 1, message: "created successfully" })
-    } catch (err: any) {
-        const message = err.originalError.message
-
-        if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
-            res.status(422).json({ status: 0, message: "Cannot insert duplicate customer_name", response: err })
-        } else {
-            res.status(500).json({ status: 0, message: "failed from server", response: err })
-        }
+    } catch (err) {
+        next(err);
     }
 }
 
-async function updateCustomerData(req: Request, res: Response) {
+async function updateCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
         const customerId = req.params.id;
         const body = req.body;
@@ -197,18 +191,8 @@ async function updateCustomerData(req: Request, res: Response) {
         // )
         const result = await customerModel.updateCustomerData(customerId, body);
         res.status(200).json({ status: 1, message: "updated successfully" })
-    } catch (err: any) {
-        const message = err.originalError.message
-
-        if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
-            res.status(422).json({ status: 0, message: "Cannot update duplicate customer_name", response: err })
-        } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
-            res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
-        } else if (message.includes('UC_Customer_Person') && message.includes('duplicate key')) {
-            res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and person", response: err })
-        } else {
-            res.status(500).json({ status: 0, message: "failed from server", response: err })
-        }
+    } catch (err) {
+        next(err);
     }
 }
 

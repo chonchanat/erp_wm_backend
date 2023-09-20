@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import personModel from "../model/personModel";
 
 async function getPersonTable(req: Request, res: Response) {
@@ -42,13 +42,13 @@ async function createPersonData(req: Request, res: Response) {
     }
 }
 
-async function updatePersonDate(req: Request, res: Response) {
+async function updatePersonDate(req: Request, res: Response, next: NextFunction) {
     try {
         const body = req.body;
         const result = await personModel.updatePersonDate(req.params.id, body);
         res.status(200).json({ status: 1, message: "updated successfully"})
     } catch (err) {
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
+        next(err);
     }
 }
 

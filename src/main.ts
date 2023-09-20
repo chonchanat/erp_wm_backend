@@ -8,6 +8,8 @@ import contactRoutes from "./routes/contactRoutes";
 import relationRoutes from "./routes/relationRoutes";
 import masterCodeRoutes from "./routes/masterCodeRoutes";
 
+import handleError from "./middleware/handleError";
+
 const app = express();
 
 app.use(cors());
@@ -27,16 +29,18 @@ app.use((req: Request, res: Response, next: () => void) => {
     next();
 });
 
+// route
 app.get('/', (req, res) => {
     res.json({ message: "Hello World" })
 })
-
 app.use('/', customerRoutes);
 app.use('/', personRoutes);
 app.use('/', addressRoutes);
 app.use('/', contactRoutes);
 app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
+
+app.use(handleError.duplicateError)
 
 const PORT = 3005
 app.listen(PORT, () => {
