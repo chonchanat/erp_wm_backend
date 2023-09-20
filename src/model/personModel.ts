@@ -1,5 +1,6 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
+import { getDateTime } from "../utils"
 
 async function getPersonTable(index: number, filterPerson: string) {
     try {
@@ -109,52 +110,254 @@ async function getPersonData(personId: string) {
     }
 }
 
+async function deletePerson(personId: string) {
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('person_id', sql.INT, personId)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE chonTest..Person
+                SET isArchived = 1, update_date = @update_date
+                WHERE person_id = @person_id
+            `)
+    } catch (err) {
+        throw err;
+    }
+}
+
+const personQuery = `
+    INSERT INTO chonTest..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
+    OUTPUT inserted.person_id
+    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @isArchived)
+`
+const roleQuery = `
+    INSERT INTO chonTest..Person_Role (person_id, role_code_id)
+    VALUES (@person_id, @role_code_id)
+`
+const roleDeleteQuery = `
+    DELETE FROM chonTest..Person_Role
+    WHERE person_id = @person_id AND role_code_id = @role_code_id
+`
+const customerPersonQuery = `
+    INSERT INTO chonTest..Customer_Person (person_id, customer_id)
+    VALUES (@person_id, @customer_id)
+`
+const customerPersonDeleteQuery = `
+    DELETE FROM chonTest..Customer_Person
+    WHERE person_id = @person_id AND customer_id = @customer_id
+`
+const contactQuery = `
+    INSERT INTO chonTest..Contact (person_id, value, contact_code_id)
+    VALUES (@person_id, @value, @contact_code_id)
+`
+const contactDeleteQuery = `
+    UPDATE chonTest..Contact
+    SET person_id = NULL
+    WHERE contact_id = @contact_id
+`
+const addressQuery = `
+    INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code)
+    OUTPUT INSERTED.address_id
+    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code)
+`
+const addressPersonQuery = `
+    INSERT INTO chonTest..Address_Person (person_id, address_id)
+    VALUES (@person_id, @address_id)
+`
+const addressPersonDeleteQuery =`
+    DELETE FROM chonTest..Address_Person
+    WHERE person_id = @person_id AND address_id = @address_id
+`
+const addressMasterCodeQuery = `
+    INSERT INTO chonTest..Address_MasterCode (address_id, address_type_code_id)
+    VALUES (@address_id, @address_type_code_id)
+`
+
 async function createPersonData(body: any) {
     let transaction;
     try {
+        let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
-        transaction = pool.transaction;
-        await transaction.begin();
+        transaction = pool.transaction();
+        await transaction.begin()
 
         let personResult = await transaction.request()
-            .input('firstname', sql.NVARCHAR, body.person.firstName)
-            .input('lastname', sql.NVARCHAR, body.person.lastname)
-            .input('nickname', sql.NVARCHAR, body.person.nickname)
+            .input('firstname', sql.NVARCHAR, body.person.firstname === "" ? null : body.person.firstname)
+            .input('lastname', sql.NVARCHAR, body.person.lastname === "" ? null : body.person.lastname)
+            .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
-            .input('description', sql.NVARCHAR, body.person.description)
-            .query(`
-                INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description)
-                OUTPUT inserted.person_id
-                VALUES (@firstname, @lastname, @nickname, @title_code_id, @description)
-            `)
+            .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
+            .input('create_by', sql.INT, body.create_by)
+            .input('create_date', sql.DATETIME, datetime)
+            .input('isArchived', sql.INT, 0)
+            .query(personQuery)
         let person_id = personResult.recordset[0].person_id
 
         for (const role of body.role) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
-                .input('role_code_id', sql.INT, role.role_code_id)
-                .query(`
-                    INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
-                    VALUES (@person_id, @role_code_id)
-                `)
+                .input('role_code_id', sql.INT, role)
+                .query(roleQuery)
         }
 
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('customer_id', sql.INT, customer)
-                .query(`
-                    INSERT INTO DevelopERP..Customer_Person (person_id, customer_id)
-                    VALUES (@person_id, @customer_id)
-                `)
+                .query(customerPersonQuery)
+        }
+
+        for (const contact of body.contact) {
+            let contactResult = await transaction.request()
+                .input('person_id', sql.INT, person_id)
+                .input('value', sql.NVARCHAR, contact.value)
+                .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .query(contactQuery)
+        }
+
+        for (const address of body.addressNew) {
+            let addressResult = await transaction.request()
+                .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
+                .input('house_no', sql.NVARCHAR, address.house_no === "" ? null : address.house_no)
+                .input('village_no', sql.NVARCHAR, address.village_no === "" ? null : address.village_no)
+                .input('alley', sql.NVARCHAR, address.alley === "" ? null : address.alley)
+                .input('road', sql.NVARCHAR, address.road === "" ? null : address.road)
+                .input('sub_district', sql.NVARCHAR, address.sub_district === "" ? null : address.sub_district)
+                .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
+                .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
+                .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
+                .query(addressQuery)
+            const address_id = addressResult.recordset[0].address_id
+            let addressPersonResult = await transaction.request()
+                .input('person_id', sql.INT, person_id)
+                .input('address_id', sql.INT, address_id)
+                .query(addressPersonQuery)
+            let addressMasterCodeResult = await transaction.request()
+                .input('address_id', sql.INT, address_id)
+                .input('address_type_code_id', sql.INT, address.address_type_code_id)
+                .query(addressMasterCodeQuery)
+        }
+
+        for (const address of body.addressExist) {
+            let addressResult = await transaction.request()
+                .input('person_id', sql.INT, person_id)
+                .input('address_id', sql.INT, address)
+                .query(addressPersonQuery)
         }
 
         await transaction.commit();
+
     } catch (err) {
         await transaction.rollback();
         throw err;
     }
 }
 
+async function updatePersonDate (personId: string, body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
 
-export default { getPersonTable, getPersonData }
+        let personResult = await transaction.request()
+            .input('person_id', sql.INT, personId)
+            .input('firstname', sql.NVARCHAR, body.person.firstname === "" ? null : body.person.firstname)
+            .input('lastname', sql.NVARCHAR, body.person.lastname === "" ? null : body.person.lastname)
+            .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
+            .input('title_code_id', sql.INT, body.person.title_code_id)
+            .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE chonTest..Person
+                SET firstname = @firstname, lastname = @lastname, nickname = @nickname, title_code_id = @title_code_id, description = @description, update_date = @update_date
+                WHERE person_id = @person_id
+            `)
+
+            for (const role of body.roleDelete) {
+                let roleResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('role_code_id', sql.INT, role)
+                    .query(roleDeleteQuery)
+            }
+            for (const role of body.role) {
+                let roleResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('role_code_id', sql.INT, role)
+                    .query(roleQuery)
+            }
+
+            for (const customer of body.customerDelete) {
+                let customerResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('customer_id', sql.INT, customer)
+                    .query(customerPersonDeleteQuery)
+            }
+            for (const customer of body.customerExist) {
+                let customerResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('customer_id', sql.INT, customer)
+                    .query(customerPersonQuery)
+            }
+
+            for (const contact of body.contactDelete) {
+                let contactResult = await transaction.request()
+                    .input('contact_id', sql.INT, contact)
+                    .query(contactDeleteQuery)
+            }
+            for (const contact of body.contact) {
+                let contactResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('value', sql.NVARCHAR, contact.value)
+                    .input('contact_code_id', sql.INT, contact.contact_code_id)
+                    .query(contactQuery)
+            }
+
+            for (const address of body.addressNew) {
+                let addressResult = await transaction.request()
+                    .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
+                    .input('house_no', sql.NVARCHAR, address.house_no === "" ? null : address.house_no)
+                    .input('village_no', sql.NVARCHAR, address.village_no === "" ? null : address.village_no)
+                    .input('alley', sql.NVARCHAR, address.alley === "" ? null : address.alley)
+                    .input('road', sql.NVARCHAR, address.road === "" ? null : address.road)
+                    .input('sub_district', sql.NVARCHAR, address.sub_district === "" ? null : address.sub_district)
+                    .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
+                    .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
+                    .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
+                    .query(addressQuery)
+                const address_id = addressResult.recordset[0].address_id
+                let addressPersonResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('address_id', sql.INT, address_id)
+                    .query(addressPersonQuery)
+                let addressMasterCodeResult = await transaction.request()
+                    .input('address_id', sql.INT, address_id)
+                    .input('address_type_code_id', sql.INT, address.address_type_code_id)
+                    .query(addressMasterCodeQuery)
+            }
+
+            for (const address of body.addressDelete) {
+                let addressResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('address_id', sql.INT, address)
+                    .query(addressPersonDeleteQuery)
+            }
+            for (const address of body.addressExist) {
+                let addressResult = await transaction.request()
+                    .input('person_id', sql.INT, personId)
+                    .input('address_id', sql.INT, address)
+                    .query(addressPersonQuery)
+            }
+
+        await transaction.commit();
+    
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+export default { getPersonTable, getPersonData, deletePerson, createPersonData, updatePersonDate }

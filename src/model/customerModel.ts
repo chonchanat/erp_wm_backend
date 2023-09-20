@@ -12,7 +12,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                EXEC DevelopERP..getCustomerTable @customer_name = @customer_name, @firstIndex= 0, @lastIndex = 0
+                EXEC DevelopERP..getCustomerTable @customer_name = @customer_name, @firstIndex= @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP..Customer
@@ -113,9 +113,9 @@ async function deleteCustomer(customerId: string) {
 }
 
 const customerQuery = `
-INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, update_date, create_by, isArchived)
+INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, isArchived)
 OUTPUT INSERTED.customer_id
-VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @update_date, @create_by, @isArchived)
+VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @create_by, @isArchived)
 `;
 const addressQuery = `
 INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code)
@@ -179,7 +179,6 @@ async function createCustomerData(body: CustomerType) {
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('create_date', sql.DATETIME, datetime)
-            .input('update_date', sql.DATETIME, null)
             .input('create_by', sql.INT, body.create_by)
             .input('isArchived', sql.INT, 0)
             .query(customerQuery)

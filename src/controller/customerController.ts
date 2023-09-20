@@ -141,7 +141,7 @@ async function createCustomerData(req: Request, res: Response) {
         //     }
         // )
         const result = await customerModel.createCustomerData(body)
-        res.status(201).json({ status: 0, message: "created successfully" })
+        res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err: any) {
         const message = err.originalError.message
 
