@@ -99,13 +99,22 @@ async function getPersonData(personId: string) {
                 WHERE AP.person_id = @person_id
                 
             `)
+        // return {
+        //     person: result.recordsets[0][0],
+        //     role: result.recordsets[1],
+        //     customer: result.recordsets[2],
+        //     contact: result.recordsets[3],
+        //     address: result.recordsets[4]
+        // };
         return {
-            person: result.recordsets[0][0],
-            role: result.recordsets[1],
+            person: {
+                ...result.recordsets[0][0],
+                role: result.recordsets[1],
+            },
             customer: result.recordsets[2],
             contact: result.recordsets[3],
             address: result.recordsets[4]
-        };
+        }
     } catch (err) {
         throw err;
     }
@@ -167,7 +176,7 @@ const addressPersonQuery = `
     INSERT INTO chonTest..Address_Person (person_id, address_id)
     VALUES (@person_id, @address_id)
 `
-const addressPersonDeleteQuery =`
+const addressPersonDeleteQuery = `
     DELETE FROM chonTest..Address_Person
     WHERE person_id = @person_id AND address_id = @address_id
 `
@@ -196,7 +205,7 @@ async function createPersonData(body: any) {
             .query(personQuery)
         let person_id = personResult.recordset[0].person_id
 
-        for (const role of body.role) {
+        for (const role of body.person.role) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('role_code_id', sql.INT, role)
@@ -256,7 +265,7 @@ async function createPersonData(body: any) {
     }
 }
 
-async function updatePersonDate (personId: string, body: any) {
+async function updatePersonDate(personId: string, body: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -278,83 +287,83 @@ async function updatePersonDate (personId: string, body: any) {
                 WHERE person_id = @person_id
             `)
 
-            for (const role of body.roleDelete) {
-                let roleResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('role_code_id', sql.INT, role)
-                    .query(roleDeleteQuery)
-            }
-            for (const role of body.role) {
-                let roleResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('role_code_id', sql.INT, role)
-                    .query(roleQuery)
-            }
+        for (const role of body.person.roleDelete) {
+            let roleResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('role_code_id', sql.INT, role)
+                .query(roleDeleteQuery)
+        }
+        for (const role of body.person.role) {
+            let roleResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('role_code_id', sql.INT, role)
+                .query(roleQuery)
+        }
 
-            for (const customer of body.customerDelete) {
-                let customerResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('customer_id', sql.INT, customer)
-                    .query(customerPersonDeleteQuery)
-            }
-            for (const customer of body.customerExist) {
-                let customerResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('customer_id', sql.INT, customer)
-                    .query(customerPersonQuery)
-            }
+        for (const customer of body.customerDelete) {
+            let customerResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('customer_id', sql.INT, customer)
+                .query(customerPersonDeleteQuery)
+        }
+        for (const customer of body.customerExist) {
+            let customerResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('customer_id', sql.INT, customer)
+                .query(customerPersonQuery)
+        }
 
-            for (const contact of body.contactDelete) {
-                let contactResult = await transaction.request()
-                    .input('contact_id', sql.INT, contact)
-                    .query(contactDeleteQuery)
-            }
-            for (const contact of body.contact) {
-                let contactResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('value', sql.NVARCHAR, contact.value)
-                    .input('contact_code_id', sql.INT, contact.contact_code_id)
-                    .query(contactQuery)
-            }
+        for (const contact of body.contactDelete) {
+            let contactResult = await transaction.request()
+                .input('contact_id', sql.INT, contact)
+                .query(contactDeleteQuery)
+        }
+        for (const contact of body.contact) {
+            let contactResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('value', sql.NVARCHAR, contact.value)
+                .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .query(contactQuery)
+        }
 
-            for (const address of body.addressNew) {
-                let addressResult = await transaction.request()
-                    .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
-                    .input('house_no', sql.NVARCHAR, address.house_no === "" ? null : address.house_no)
-                    .input('village_no', sql.NVARCHAR, address.village_no === "" ? null : address.village_no)
-                    .input('alley', sql.NVARCHAR, address.alley === "" ? null : address.alley)
-                    .input('road', sql.NVARCHAR, address.road === "" ? null : address.road)
-                    .input('sub_district', sql.NVARCHAR, address.sub_district === "" ? null : address.sub_district)
-                    .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
-                    .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
-                    .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                    .query(addressQuery)
-                const address_id = addressResult.recordset[0].address_id
-                let addressPersonResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('address_id', sql.INT, address_id)
-                    .query(addressPersonQuery)
-                let addressMasterCodeResult = await transaction.request()
-                    .input('address_id', sql.INT, address_id)
-                    .input('address_type_code_id', sql.INT, address.address_type_code_id)
-                    .query(addressMasterCodeQuery)
-            }
+        for (const address of body.addressNew) {
+            let addressResult = await transaction.request()
+                .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
+                .input('house_no', sql.NVARCHAR, address.house_no === "" ? null : address.house_no)
+                .input('village_no', sql.NVARCHAR, address.village_no === "" ? null : address.village_no)
+                .input('alley', sql.NVARCHAR, address.alley === "" ? null : address.alley)
+                .input('road', sql.NVARCHAR, address.road === "" ? null : address.road)
+                .input('sub_district', sql.NVARCHAR, address.sub_district === "" ? null : address.sub_district)
+                .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
+                .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
+                .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
+                .query(addressQuery)
+            const address_id = addressResult.recordset[0].address_id
+            let addressPersonResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('address_id', sql.INT, address_id)
+                .query(addressPersonQuery)
+            let addressMasterCodeResult = await transaction.request()
+                .input('address_id', sql.INT, address_id)
+                .input('address_type_code_id', sql.INT, address.address_type_code_id)
+                .query(addressMasterCodeQuery)
+        }
 
-            for (const address of body.addressDelete) {
-                let addressResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('address_id', sql.INT, address)
-                    .query(addressPersonDeleteQuery)
-            }
-            for (const address of body.addressExist) {
-                let addressResult = await transaction.request()
-                    .input('person_id', sql.INT, personId)
-                    .input('address_id', sql.INT, address)
-                    .query(addressPersonQuery)
-            }
+        for (const address of body.addressDelete) {
+            let addressResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('address_id', sql.INT, address)
+                .query(addressPersonDeleteQuery)
+        }
+        for (const address of body.addressExist) {
+            let addressResult = await transaction.request()
+                .input('person_id', sql.INT, personId)
+                .input('address_id', sql.INT, address)
+                .query(addressPersonQuery)
+        }
 
         await transaction.commit();
-    
+
     } catch (err) {
         await transaction.rollback();
         throw err;
