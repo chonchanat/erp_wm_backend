@@ -5,5 +5,6 @@ const router: Router = express.Router();
 
 router.get('/contact', contactController.getContactTable)
 router.get('/contact/:id', contactController.getContactData)
+router.delete('/contact/:id', contactController.deleteContact)
 
 export default router

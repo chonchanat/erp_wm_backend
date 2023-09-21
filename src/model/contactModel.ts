@@ -62,4 +62,57 @@ async function getContactData(contactId: string) {
     }
 }
 
-export default { getContactTable, getContactData }
+async function deleteContact(contactId: string) {
+    try { 
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('contact_id', sql.INT, contactId)
+            .query(`
+                UPDATE chonTest..Contact
+                SET isArchived = 1
+                WHERE contact_id = @contact_id
+            `)
+    } catch (err) {
+        console.log(err)
+        throw err;
+    }
+}
+
+// async function createContactData(body: any) {
+//     let transaction;
+//     try {
+//         let datetime = getDateTime();
+//         let pool = await sql.connect(devConfig);
+//         transaction = pool.transaction();
+//         await transaction.begin();
+
+//         let contactResult = await transaction.request()
+//             .input('')
+
+//         await transaction.commit();
+
+//     } catch (err) {
+//         await transaction.rollback();
+//         throw err;
+//     }
+// }
+
+// async function updateContactData(body: any) {
+//     let transaction;
+//     try {
+//         let datetime = getDateTime();
+//         let pool = await sql.connect(devConfig);
+//         transaction = pool.transaction();
+//         await transaction.begin();
+
+//         let contactResult = await transaction.request()
+
+//         await transaction.commit();
+
+//     } catch (err) {
+//         await transaction.rollback();
+//         throw err;
+//     }
+// }
+
+export default { getContactTable, getContactData, deleteContact }

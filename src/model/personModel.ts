@@ -159,12 +159,12 @@ const customerPersonDeleteQuery = `
     WHERE person_id = @person_id AND customer_id = @customer_id
 `
 const contactQuery = `
-    INSERT INTO chonTest..Contact (person_id, value, contact_code_id)
-    VALUES (@person_id, @value, @contact_code_id)
+    INSERT INTO chonTest..Contact (person_id, value, contact_code_id, isArchived)
+    VALUES (@person_id, @value, @contact_code_id, 0)
 `
 const contactDeleteQuery = `
     UPDATE chonTest..Contact
-    SET person_id = NULL
+    SET isArchived = 1
     WHERE contact_id = @contact_id
 `
 const addressQuery = `

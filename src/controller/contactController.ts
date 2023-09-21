@@ -22,4 +22,14 @@ async function getContactData(req: Request, res: Response) {
         res.status(500).json({ status: 0, message: 'failed from server', response: err })
     }
 }
-export default { getContactTable, getContactData }
+
+async function deleteContact(req: Request, res: Response) {
+    try {
+        await contactModel.deleteContact(req.params.id)
+        res.status(200).json({ status: 1, message: 'deleted successfully' })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'failed from server', response: err })
+    }
+}
+
+export default { getContactTable, getContactData, deleteContact }

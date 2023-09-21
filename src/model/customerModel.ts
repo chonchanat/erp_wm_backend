@@ -135,12 +135,12 @@ DELETE FROM chonTest..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO chonTest..Contact (customer_id, value, contact_code_id)
-VALUES (@customer_id, @value, @contact_code_id)
+INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, isArchived)
+VALUES (@customer_id, @value, @contact_code_id, 0)
 `;
 const contactDeleteQuery = `
 UPDATE chonTest..Contact
-SET customer_id = NULL
+SET isArchived = 1
 WHERE contact_id = @contact_id
 `
 const personQuery = `
@@ -161,8 +161,8 @@ INSERT INTO chonTest..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO chonTest..Contact (person_id, value, contact_code_id)
-VALUES (@person_id, @value, @contact_code_id)
+INSERT INTO chonTest..Contact (person_id, value, contact_code_id, isArchived)
+VALUES (@person_id, @value, @contact_code_id, 0)
 `
 
 async function createCustomerData(body: CustomerType) {
@@ -349,7 +349,6 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
 
         for (const contact of body.contactDelete) {
             let contactDeleteResult = await transaction.request()
-                .input('customer_id', sql.INT, customerId)
                 .input('contact_id', sql.INT, contact)
                 .query(contactDeleteQuery)
         }
