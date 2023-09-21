@@ -9,10 +9,10 @@ async function getContactTable(index: number, filterValue: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('value', sql.NVARCHAR, "%" + filterValue + "%")
             .query(`
-                EXEC DevelopERP..getContactTable @value = @value, @firstIndex= @firstIndex, @lastIndex= @lastIndex
+                EXEC chonTest..getContactTable @value = @value, @firstIndex= @firstIndex, @lastIndex= @lastIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP..Contact
+                FROM chonTest..Contact
                 WHERE value LIKE @value
             `)
         return {
@@ -47,12 +47,12 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM DevelopERP..Contact ct
-                LEFT JOIN DevelopERP..Customer c
+                FROM chonTest..Contact ct
+                LEFT JOIN chonTest..Customer c
                 ON ct.customer_id = c.customer_id
-                LEFT JOIN DevelopERP..Person p
+                LEFT JOIN chonTest..Person p
                 ON ct.person_id = p.person_id
-                LEFT JOIN DevelopERP..MasterCode m
+                LEFT JOIN chonTest..MasterCode m
                 ON ct.contact_code_id = m.code_id
                 WHERE ct.contact_id = @contact_id
             `)

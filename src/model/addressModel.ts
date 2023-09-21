@@ -8,9 +8,9 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('location', sql.NVARCHAR, "%" + filterLocation + "%")
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
-            // .query('EXEC DevelopERP..getAddressTable @index');
+            // .query('EXEC chonTest..getAddressTable @index');
             .query(`
-                EXEC DevelopERP..getAddressTable @location = @location, @firstIndex= @firstIndex, @lastIndex= @lastIndex
+                EXEC chonTest..getAddressTable @location = @location, @firstIndex= @firstIndex, @lastIndex= @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -24,7 +24,7 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(district + ', ', '') +
                         COALESCE(province + ', ', '') +
                         COALESCE(postal_code , '') as location
-                        FROM DevelopERP..Address
+                        FROM chonTest..Address
                 ) t
                 WHERE location LIKE @location
             `)
@@ -55,20 +55,20 @@ async function getAddressData(addressId: string) {
                     COALESCE(A.postal_code, '') AS postal_code,
                     STUFF((
                         SELECT ', ' + M.value
-                        FROM DevelopERP..Address_MasterCode AM
-                        LEFT JOIN DevelopERP..MasterCode M
+                        FROM chonTest..Address_MasterCode AM
+                        LEFT JOIN chonTest..MasterCode M
                         ON AM.address_type_code_id = M.code_id
                         WHERE AM.address_id = A.address_id
                         FOR XML PATH('')
                     ), 1, 2, '') AS address_type
-                FROM DevelopERP..Address A
+                FROM chonTest..Address A
                 WHERE A.address_id = @address_id
 
                 SELECT
                     am.address_type_code_id,
                     m.value as address_type
-                FROM DevelopERP..Address_MasterCode am
-                LEFT JOIN DevelopERP..MasterCode m
+                FROM chonTest..Address_MasterCode am
+                LEFT JOIN chonTest..MasterCode m
                 ON am.address_type_code_id = m.code_id
                 WHERE am.address_id = @address_id
             `)

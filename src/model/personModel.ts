@@ -10,16 +10,17 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                EXEC DevelopERP..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC chonTest..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
                     SELECT 
                     person_id,
-                    COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname
-                    FROM DevelopERP..Person
+                    COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
+                    isArchived
+                    FROM chonTest..Person
                 ) t
-                WHERE fullname LIKE @fullname
+                WHERE fullname LIKE @fullname AND isArchived = 0
             `)
         return {
             person: result.recordsets[0],
@@ -44,15 +45,15 @@ async function getPersonData(personId: string) {
                     m.code_id as title_code_id,
                     m.value as title_type,
                     COALESCE(p.description, '') as description
-                FROM DevelopERP..Person p
-                LEFT JOIN DevelopERP..MasterCode m
+                FROM chonTest..Person p
+                LEFT JOIN chonTest..MasterCode m
                 on p.title_code_id = m.code_id
-                WHERE person_id = @person_id
+                WHERE person_id = @person_id AND isArchived = 0
 
                 SELECT 
                     role_code_id, value AS role_type
-                FROM DevelopERP..Person_Role PR
-                LEFT JOIN DevelopERP..MasterCode M
+                FROM chonTest..Person_Role PR
+                LEFT JOIN chonTest..MasterCode M
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
 
@@ -63,10 +64,10 @@ async function getPersonData(personId: string) {
                     email NVARCHAR(MAX)
                 )
                 INSERT INTO @customerTable
-                EXEC DevelopERP..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
+                EXEC chonTest..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable AS C
-                LEFT JOIN DevelopERP..Customer_Person CP
+                LEFT JOIN chonTest..Customer_Person CP
                 ON C.customer_id = CP.customer_id
                 WHERE CP.person_id = @person_id
 
@@ -79,7 +80,7 @@ async function getPersonData(personId: string) {
                     person_id INT
                 )
                 INSERT INTO @contactTable
-                EXEC getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC chonTest..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT contact_id, value, contact_type
                 FROM @contactTable
                 WHERE person_id = @person_id
@@ -90,10 +91,10 @@ async function getPersonData(personId: string) {
                     address_type NVARCHAR(MAX)
                 )
                 INSERT INTO @addressTable
-                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                EXEC chonTest..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
                 SELECT A.address_id, A.location, A.address_type
                 FROM @addressTable A
-                LEFT JOIN DevelopERP..Address_Person AP
+                LEFT JOIN chonTest..Address_Person AP
                 ON A.address_id = AP.address_id
                 WHERE AP.person_id = @person_id
                 

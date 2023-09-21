@@ -17,7 +17,7 @@ async function getCustomerTable(req: Request, res: Response) {
 async function getCustomerData(req: Request, res: Response) {
     try {
         const result = await customerModel.getCustomerData(req.params.id);
-        if (result.customer.length === 0) {
+        if (result.customer === undefined) {
             res.status(422).json({ status: 0, message: "Data not found in the database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })
