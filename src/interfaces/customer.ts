@@ -15,7 +15,7 @@ interface Address {
     district: string;
     province: string;
     postal_code: string;
-    address_type_code_id: number;
+    address_type_code_id: number[];
 }
 
 interface Contact {
@@ -37,10 +37,12 @@ interface Person {
     nickname: string;
     title_code_id: number;
     description: string;
+    role: number[];
 }
 
 export interface CustomerType {
     create_by?: number;
+    update_by?: number;
     customer: Customer;
     addressNew: Address[];
     addressExist: number[];

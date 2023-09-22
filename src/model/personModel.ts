@@ -168,9 +168,9 @@ const contactDeleteQuery = `
     WHERE contact_id = @contact_id
 `
 const addressQuery = `
-    INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code)
+    INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
     OUTPUT INSERTED.address_id
-    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code)
+    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
 `
 const addressPersonQuery = `
     INSERT INTO chonTest..Address_Person (person_id, address_id)
@@ -238,16 +238,21 @@ async function createPersonData(body: any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
+                .input('create_by', sql.INT, body.create_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address_id)
                 .query(addressPersonQuery)
-            let addressMasterCodeResult = await transaction.request()
-                .input('address_id', sql.INT, address_id)
-                .input('address_type_code_id', sql.INT, address.address_type_code_id)
-                .query(addressMasterCodeQuery)
+            for (const addressMasterCode of address.address_type_code_id) {
+                let addressMaterCodeResult = await transaction.request()
+                    .input('address_id', sql.INT, address_id)
+                    .input('address_type_code_id', sql.INT, addressMasterCode)
+                    .query(addressMasterCodeQuery)
+            }
         }
 
         for (const address of body.addressExist) {
@@ -337,16 +342,21 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
+                .input('create_by', sql.INT, body.update_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address_id)
                 .query(addressPersonQuery)
-            let addressMasterCodeResult = await transaction.request()
-                .input('address_id', sql.INT, address_id)
-                .input('address_type_code_id', sql.INT, address.address_type_code_id)
-                .query(addressMasterCodeQuery)
+            for (const addressMasterCode of address.addres_type_code_id) {
+                let addressMasterCodeResult = await transaction.request()
+                    .input('addrsss_id', sql.INT, address_id)
+                    .input('address_type_code_id', sql.INT, addressMasterCode)
+                    .query(addressMasterCodeQuery)
+            }
         }
 
         for (const address of body.addressDelete) {
