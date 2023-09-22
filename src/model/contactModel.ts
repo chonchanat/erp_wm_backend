@@ -1,3 +1,5 @@
+import { getDateTime } from "../utils"
+
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
@@ -64,12 +66,14 @@ async function getContactData(contactId: string) {
 
 async function deleteContact(contactId: string) {
     try { 
+        let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('contact_id', sql.INT, contactId)
+            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE chonTest..Contact
-                SET isArchived = 1
+                SET isArchived = 1, update_date = @update_date
                 WHERE contact_id = @contact_id
             `)
     } catch (err) {

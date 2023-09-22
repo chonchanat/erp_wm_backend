@@ -159,13 +159,13 @@ const customerPersonDeleteQuery = `
     WHERE person_id = @person_id AND customer_id = @customer_id
 `
 const contactQuery = `
-    INSERT INTO chonTest..Contact (person_id, value, contact_code_id, isArchived)
-    VALUES (@person_id, @value, @contact_code_id, 0)
+    INSERT INTO chonTest..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
+    VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `
 const contactDeleteQuery = `
     UPDATE chonTest..Contact
     SET isArchived = 1
-    WHERE contact_id = @contact_id
+    WHERE contact_id = @contact_id AND person_id = @person_id
 `
 const addressQuery = `
     INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
@@ -224,6 +224,9 @@ async function createPersonData(body: any) {
                 .input('person_id', sql.INT, person_id)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .input('create_by', sql.INT, body.create_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -277,7 +280,6 @@ async function updatePersonDate(personId: string, body: any) {
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
-
         let personResult = await transaction.request()
             .input('person_id', sql.INT, personId)
             .input('firstname', sql.NVARCHAR, body.person.firstname === "" ? null : body.person.firstname)
@@ -320,6 +322,7 @@ async function updatePersonDate(personId: string, body: any) {
 
         for (const contact of body.contactDelete) {
             let contactResult = await transaction.request()
+                .input('person_id',sql.INT, personId)
                 .input('contact_id', sql.INT, contact)
                 .query(contactDeleteQuery)
         }
@@ -328,6 +331,9 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('person_id', sql.INT, personId)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .input('create_by', sql.INT, body.create_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(contactQuery)
         }
 

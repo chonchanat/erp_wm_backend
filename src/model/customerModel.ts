@@ -135,13 +135,13 @@ DELETE FROM chonTest..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, isArchived)
-VALUES (@customer_id, @value, @contact_code_id, 0)
+INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, craete_by, create_date, isArchived)
+VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `;
 const contactDeleteQuery = `
 UPDATE chonTest..Contact
 SET isArchived = 1
-WHERE contact_id = @contact_id
+WHERE contact_id = @contact_id AND customer_id = @customer_id
 `
 const personQuery = `
 INSERT INTO chonTest..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
@@ -165,8 +165,8 @@ INSERT INTO chonTest..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO chonTest..Contact (person_id, value, contact_code_id, isArchived)
-VALUES (@person_id, @value, @contact_code_id, 0)
+INSERT INTO chonTest..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
+VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `
 
 async function createCustomerData(body: CustomerType) {
@@ -228,6 +228,9 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .input('create_by', sql.INT, body.create_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -296,6 +299,9 @@ async function createCustomerData(body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
+                    .input('create_by', sql.INT, body.create_by)
+                    .input('create_date', sql.DATETIME, datetime)
+                    .input('isArchived', sql.INT, 0)
                     .query(contactPersonQuery)
             }
         }
@@ -362,7 +368,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .query(addressMasterCodeQuery)
             }
         }
-        
+
         for (const address of body.addressDelete) {
             let addressDeleteResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
@@ -378,6 +384,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
 
         for (const contact of body.contactDelete) {
             let contactDeleteResult = await transaction.request()
+                .input('customer_id', sql.INT, customerId)
                 .input('contact_id', sql.INT, contact)
                 .query(contactDeleteQuery)
         }
@@ -386,6 +393,9 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
+                .input('create_by', sql.INT, body.update_by)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('isArchived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -413,7 +423,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('role_code_id', sql.INT, role)
                     .query(roleQuery)
             }
-            
+
             for (const address of person.addressNew) {
                 let addressResult = await transaction.request()
                     .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
@@ -454,10 +464,13 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
+                    .input('create_by', sql.INT, body.update_by)
+                    .input('create_date', sql.DATETIME, datetime)
+                    .input('isArchived', sql.INT, 0)
                     .query(contactPersonQuery)
             }
         }
-        
+
         for (const person of body.personDelete) {
             let personDeleteResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
