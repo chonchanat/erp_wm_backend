@@ -5,7 +5,9 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
     const message = err.originalError.message
 
     if (message.includes('UC_CustomerName') && message.includes('duplicate key')) {
-        res.status(422).json({ status: 0, message: "Cannot update duplicate customer_name", response: err })
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate customer_name", response: err })
+    } else if (message.includes('UC_FleetName') && message.includes('duplicate key')) {
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate fleet_name", response: err })
     } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
     } else if (message.includes('UC_Address_MasterCode') && message.includes('duplicate key')) {
@@ -16,6 +18,8 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and person", response: err })
     } else if (message.includes('UC_Person_Role') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for person and role", response: err })
+    } else if (message.includes('UC_Customer_Fleet') && message.includes('duplicate key')) {
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and fleet", response: err })
     } else {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
     }

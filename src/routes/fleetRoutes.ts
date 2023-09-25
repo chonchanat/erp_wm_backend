@@ -5,5 +5,8 @@ const router: Router = express.Router();
 
 router.get('/fleet', fleetController.getFleetTable);
 router.get('/fleet/:id', fleetController.getFleetData);
+router.delete('/fleet/:id', fleetController.deleteFleet);
+router.post('/fleet', fleetController.createFleetData);
+router.put('/fleet/:id', fleetController.updateFleetData);
 
 export default router;

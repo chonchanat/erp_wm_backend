@@ -17,10 +17,41 @@ async function getFleetTable(req: Request, res: Response) {
 async function getFleetData(req: Request, res: Response) {
     try {
         const result = await fleetModel.getFleetData(req.params.id);
-        res.status(200).json({status: 1, message: "ok", response: result})
+        res.status(200).json({ status: 1, message: "ok", response: result })
     } catch (err) {
-        res.status(500).json({status: 0, message: "failed from server", response: err})
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
-export default { getFleetTable, getFleetData }
+async function deleteFleet(req: Request, res: Response) {
+    try {
+        await fleetModel.deleteFleet(req.params.id);
+        res.status(200).json({ status: 1, message: "deleted successfully" })
+    } catch (err) {
+        res.status(500).json({ status: 0, meesage: "failed from serverss", response: err })
+    }
+}
+
+async function createFleetData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const body = req.body;
+
+        await fleetModel.createFleetData(body);
+        res.status(201).json({ status: 1, message: "created successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function updateFleetData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const body = req.body;
+
+        await fleetModel.updateFleetData(req.params.id, body);
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getFleetTable, getFleetData, deleteFleet, createFleetData, updateFleetData }
