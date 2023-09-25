@@ -331,7 +331,7 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('person_id', sql.INT, personId)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('create_by', sql.INT, body.create_by)
+                .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
                 .input('isArchived', sql.INT, 0)
                 .query(contactQuery)

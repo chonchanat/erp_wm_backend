@@ -135,7 +135,7 @@ DELETE FROM chonTest..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, craete_by, create_date, isArchived)
+INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, create_by, create_date, isArchived)
 VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `;
 const contactDeleteQuery = `

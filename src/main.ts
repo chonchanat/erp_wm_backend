@@ -7,6 +7,7 @@ import addressRoutes from "./routes/addressRoutes";
 import contactRoutes from "./routes/contactRoutes";
 import relationRoutes from "./routes/relationRoutes";
 import masterCodeRoutes from "./routes/masterCodeRoutes";
+import fleetRoutes from "./routes/fleetRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -39,8 +40,9 @@ app.use('/', addressRoutes);
 app.use('/', contactRoutes);
 app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
+app.use('/', fleetRoutes);
 
-app.use(handleError.duplicateError)
+app.use(handleError.duplicateError);
 
 const PORT = 3005
 app.listen(PORT, () => {
