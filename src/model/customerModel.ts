@@ -83,12 +83,26 @@ async function getCustomerData(customerId: string) {
                 LEFT JOIN chonTest..Address_Customer AC
                 ON A.address_id = AC.address_id
                 WHERE AC.customer_id = @customer_id
+
+                DECLARE @fleetTable TABLE (
+                    fleet_id INT,
+                    fleet_name NVARCHAR(MAX),
+                    parent_fleet_id INT
+                )
+                INSERT INTO @fleetTable
+                EXEC chonTest..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
+                FROM @fleetTable F
+                LEFT JOIN chonTest..Customer_Fleet CF
+                ON F.fleet_id = CF.fleet_id
+                WHERE CF.customer_id = @customer_id
             `)
         return {
             customer: result.recordsets[0][0],
             person: result.recordsets[1],
             contact: result.recordsets[2],
             address: result.recordsets[3],
+            fleet: result.recordsets[4],
         };
     } catch (err) {
         throw err;

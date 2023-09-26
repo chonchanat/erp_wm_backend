@@ -15,7 +15,7 @@ async function getContactTable(index: number, filterValue: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM chonTest..Contact
-                WHERE value LIKE @value
+                WHERE value LIKE @value AND isArchived = 0
             `)
         return {
             contact: result.recordsets[0],
@@ -49,14 +49,14 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM chonTest..Contact ct
+                FROM chonTest..Contact ct 
                 LEFT JOIN chonTest..Customer c
                 ON ct.customer_id = c.customer_id
                 LEFT JOIN chonTest..Person p
                 ON ct.person_id = p.person_id
                 LEFT JOIN chonTest..MasterCode m
                 ON ct.contact_code_id = m.code_id
-                WHERE ct.contact_id = @contact_id
+                WHERE ct.contact_id = @contact_id AND ct.isArchived = 0
             `)
         return result.recordsets[0][0]
     } catch (err) {
