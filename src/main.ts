@@ -8,6 +8,7 @@ import contactRoutes from "./routes/contactRoutes";
 import relationRoutes from "./routes/relationRoutes";
 import masterCodeRoutes from "./routes/masterCodeRoutes";
 import fleetRoutes from "./routes/fleetRoutes";
+import billingRoutes from "./routes/billingLocationRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -41,6 +42,7 @@ app.use('/', contactRoutes);
 app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
 app.use('/', fleetRoutes);
+app.use('/', billingRoutes);
 
 app.use(handleError.duplicateError);
 

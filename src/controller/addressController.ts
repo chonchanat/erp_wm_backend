@@ -3,7 +3,7 @@ import addressModel from '../model/addressModel';
 
 async function getAddressTable(req: Request, res: Response) {
     try {
-        const page = req.query.page === undefined ? "1" : req.query.page as string;
+        const page = req.query.page === undefined ? "0" : req.query.page as string;
         const index = (10 * (parseInt(page) - 1)) + 1;
         const filterLocation = req.query.filter !== undefined ? req.query.filter as string : "";
 

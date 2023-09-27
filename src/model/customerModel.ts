@@ -27,7 +27,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
     }
 }
 
-async function getCustomerData(customerId: string) {
+ async function getCustomerData(customerId: string) {
     try {
         let pool = await sql.connect(devConfig)
         let result = await pool.request()

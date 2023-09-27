@@ -8,6 +8,8 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         res.status(422).json({ status: 0, message: "Cannot insert duplicate customer_name", response: err })
     } else if (message.includes('UC_FleetName') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate fleet_name", response: err })
+    } else if (message.includes('UC_BillingLocationName_TIN') && message.includes('duplicate key')) {
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate name and tin", response: err })
     } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
     } else if (message.includes('UC_Address_MasterCode') && message.includes('duplicate key')) {
