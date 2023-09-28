@@ -99,13 +99,7 @@ async function getPersonData(personId: string) {
                 WHERE AP.person_id = @person_id
                 
             `)
-        // return {
-        //     person: result.recordsets[0][0],
-        //     role: result.recordsets[1],
-        //     customer: result.recordsets[2],
-        //     contact: result.recordsets[3],
-        //     address: result.recordsets[4]
-        // };
+            
         return {
             person: {
                 ...result.recordsets[0][0],

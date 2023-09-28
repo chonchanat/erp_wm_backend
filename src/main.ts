@@ -9,6 +9,7 @@ import relationRoutes from "./routes/relationRoutes";
 import masterCodeRoutes from "./routes/masterCodeRoutes";
 import fleetRoutes from "./routes/fleetRoutes";
 import billingRoutes from "./routes/billingLocationRoutes";
+import vehicleRoutes from "./routes/vehicleRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -43,10 +44,11 @@ app.use('/', relationRoutes);
 app.use('/', masterCodeRoutes);
 app.use('/', fleetRoutes);
 app.use('/', billingRoutes);
+app.use('/', vehicleRoutes);
 
 app.use(handleError.duplicateError);
 
-const PORT = 3001
+const PORT = 3005
 app.listen(PORT, () => {
     console.log('server is running on port : ' + PORT)
 })
