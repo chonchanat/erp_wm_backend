@@ -46,7 +46,7 @@ app.use('/', billingRoutes);
 
 app.use(handleError.duplicateError);
 
-const PORT = 3005
+const PORT = 3001
 app.listen(PORT, () => {
     console.log('server is running on port : ' + PORT)
 })

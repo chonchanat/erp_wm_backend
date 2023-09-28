@@ -40,6 +40,16 @@ interface Person {
     role: number[];
 }
 
+interface Vehicle {
+    frame_no: number;
+    license_plate: string;
+    number_of_shaft: number;
+    number_of_wheel: number;
+    number_of_tire: number;
+    person_id: number;
+    billing_location_id: number;
+}
+
 export interface CustomerType {
     create_by?: number;
     update_by?: number;
@@ -52,4 +62,7 @@ export interface CustomerType {
     personNew: Persons[];
     personExist: number[];
     personDelete: number[];
+    vehicleNew: Vehicle[];
+    vehicleExist: number[];
+    vehicleDelete: number[];
 }

@@ -326,6 +326,34 @@ async function createCustomerData(body: CustomerType) {
                 .input('person_id', sql.INT, person)
                 .query(customerPersonQuery)
         }
+        
+        for (const vehicle of body.vehicleNew) {
+            let vehicleResult = await transaction.request()
+                .input('frame_no', sql.INT, vehicle.frame_no)
+                .input('license_plate', sql.INT, vehicle.license_plate)
+                .input('number_of_shaft', sql.INT, vehicle.number_of_shaft)
+                .input('number_of_wheel', sql.INT, vehicle.number_of_wheel)
+                .input('number_of_tire', sql.INT, vehicle.number_of_tire)
+                .input('person_id', sql.INT, vehicle.person_id)
+                .input('billing_location_id', sql.INT, vehicle.billing_location_id)
+                .input('create_by', sql.INT, body.create_by)
+                .input('create_date', sql.DATE, datetime)
+                .input('isArchived', sql.INT, 0)
+                .query(`
+                    INSERT INTO chonTest..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
+                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
+                `)
+        }
+
+        for (const vehicle of body.vehicleExist) {
+            let vehicleResult = await transaction.request()
+                .input('customer_id', sql.INT, customer_id)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    INSERT INTO chonTest..Customer_Vehicle (customer_id, vehicle_id)
+                    VALUES (@customer_id, @vehicle_id)
+                `)
+        }
 
         await transaction.commit();
 
@@ -498,6 +526,44 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .query(customerPersonQuery)
         }
         //
+
+        for (const vehicle of body.vehicleNew) {
+            let vehicleResult = await transaction.request()
+                .input('frame_no', sql.INT, vehicle.frame_no)
+                .input('license_plate', sql.INT, vehicle.license_plate)
+                .input('number_of_shaft', sql.INT, vehicle.number_of_shaft)
+                .input('number_of_wheel', sql.INT, vehicle.number_of_wheel)
+                .input('number_of_tire', sql.INT, vehicle.number_of_tire)
+                .input('person_id', sql.INT, vehicle.person_id)
+                .input('billing_location_id', sql.INT, vehicle.billing_location_id)
+                .input('create_by', sql.INT, body.update_by)
+                .input('create_date', sql.DATE, datetime)
+                .input('isArchived', sql.INT, 0)
+                .query(`
+                    INSERT INTO chonTest..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
+                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
+                `)
+        }
+
+        for (const vehicle of body.vehicleDelete) {
+            let vehicleDeleteResult = await transaction.request()
+                .input('customer_id', sql.INT, customerId)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    DELETE FROM chonTest..Customer_Vehicle
+                    WHERE customer_id = @customer_id AND vehicle_id = @vehicle_id
+                `)
+        }
+        for (const vehicle of body.vehicleExist) {
+            let vehicleResult = await transaction.request()
+                .input('customer_id', sql.INT, customerId)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    INSERT INTO chonTest..Customer_Vehicle (customer_id, vehicle_id)
+                    VALUES (@customer_id, @vehicle_id)
+                `)
+        }
+
         await transaction.commit();
 
     } catch (err) {

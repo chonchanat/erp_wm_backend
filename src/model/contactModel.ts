@@ -11,7 +11,18 @@ async function getContactTable(index: number, filterValue: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('value', sql.NVARCHAR, "%" + filterValue + "%")
             .query(`
-                EXEC chonTest..getContactTable @value = @value, @firstIndex= @firstIndex, @lastIndex= @lastIndex
+                DECLARE @contactTable TABLE (
+                    contact_id INT,
+                    value NVARCHAR(MAX),
+                    contact_type NVARCHAR(MAX),
+                    owner_name NVARCHAR(MAX),
+                    person_id INT,
+                    customer_id INT
+                )
+                INSERT INTO @contactTable
+                EXEC chonTest..getContactTable @value = '%', @firstIndex= 0, @lastIndex= 0
+                SELECT contact_id, value, contact_type, owner_name 
+                FROM @contactTable
 
                 SELECT COUNT(*) AS count_data
                 FROM chonTest..Contact
