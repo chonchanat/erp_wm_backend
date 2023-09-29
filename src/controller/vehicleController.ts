@@ -8,7 +8,7 @@ async function getVehicleTable(req: Request, res: Response) {
         const filter = req.query.filter !== undefined ? req.query.filter as string : "";
 
         const result = await vehicleModel.getVehicleTable(index, filter)
-        res.status(200).json({ status: 1, message: "ok", response: result})
+        res.status(200).json({ status: 1, message: "ok", response: result })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server" })
     }
@@ -17,10 +17,23 @@ async function getVehicleTable(req: Request, res: Response) {
 async function getVehicleData(req: Request, res: Response) {
     try {
         const result = await vehicleModel.getVehicleData(req.params.id);
-        res.status(200).json({ status: 1, message: "ok", response: result})
+        if (result.vehicle === undefined) {
+            res.status(422).json({ status: 0, message: "Data not found in the Database" })
+        } else {
+            res.status(200).json({ status: 1, message: "ok", response: result })
+        }
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server" })
     }
 }
 
-export default { getVehicleTable, getVehicleData }
+async function deleteVehicle(req: Request, res: Response) {
+    try {
+        await vehicleModel.deleteVehicle(req.params.id)
+        res.status(200).json({ status: 1, message: "deleted successfully" })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server" })
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle }

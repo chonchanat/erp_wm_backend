@@ -1,3 +1,5 @@
+import { getDateTime } from "../utils";
+
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
@@ -25,7 +27,7 @@ async function getVehicleTable(index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM chonTest..Vehicle
-                WHERE license_plate LIKE '%'
+                WHERE license_plate LIKE '%' AND isArchived = 0
             `)
         return {
             vehicle: result.recordsets[0],
@@ -44,6 +46,7 @@ async function getVehicleData(vehicleId: string) {
             .query(`
                 SELECT vehicle_id, frame_no, license_plate, model_code_id, registration_province_code_id, registration_type_code_id, driving_license_code_id, number_of_shaft, number_of_wheel, number_of_tire, vehicle_type_code_id
                 FROM chonTest..Vehicle
+                WHERE vehicle_id = @vehicle_id AND isArchived = 0
 
                 DECLARE @customerTable TABLE (
                     customer_id INT,
@@ -52,7 +55,7 @@ async function getVehicleData(vehicleId: string) {
                     email NVARCHAR(MAX)
                 )
                 INSERT INTO @customerTable
-                EXEC chonTest..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
+                EXEC chonTest..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable AS C
                 LEFT JOIN chonTest..Vehicle V
@@ -86,4 +89,21 @@ async function getVehicleData(vehicleId: string) {
     }
 }
 
-export default { getVehicleTable, getVehicleData }
+async function deleteVehicle (vehicleId: string) {
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('vehicle_id', sql.INT, vehicleId)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE chonTest..Vehicle
+                SET isArchived = 1, update_date = @update_date
+                WHERE vehicle_id = @vehicle_id
+            `)
+    } catch (err) {
+        throw err;
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle }
