@@ -10,7 +10,7 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                EXEC chonTest..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -18,7 +18,7 @@ async function getPersonTable(index: number, filterPerson: string) {
                     person_id,
                     COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
                     isArchived
-                    FROM chonTest..Person
+                    FROM DevelopERP..Person
                 ) t
                 WHERE fullname LIKE @fullname AND isArchived = 0
             `)
@@ -45,15 +45,15 @@ async function getPersonData(personId: string) {
                     m.code_id as title_code_id,
                     m.value as title_type,
                     COALESCE(p.description, '') as description
-                FROM chonTest..Person p
-                LEFT JOIN chonTest..MasterCode m
+                FROM DevelopERP..Person p
+                LEFT JOIN DevelopERP..MasterCode m
                 on p.title_code_id = m.code_id
                 WHERE person_id = @person_id AND isArchived = 0
 
                 SELECT 
                     role_code_id, value AS role_type
-                FROM chonTest..Person_Role PR
-                LEFT JOIN chonTest..MasterCode M
+                FROM DevelopERP..Person_Role PR
+                LEFT JOIN DevelopERP..MasterCode M
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
 
@@ -64,10 +64,10 @@ async function getPersonData(personId: string) {
                     email NVARCHAR(MAX)
                 )
                 INSERT INTO @customerTable
-                EXEC chonTest..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable AS C
-                LEFT JOIN chonTest..Customer_Person CP
+                LEFT JOIN DevelopERP..Customer_Person CP
                 ON C.customer_id = CP.customer_id
                 WHERE CP.person_id = @person_id
 
@@ -80,7 +80,7 @@ async function getPersonData(personId: string) {
                     person_id INT
                 )
                 INSERT INTO @contactTable
-                EXEC chonTest..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT contact_id, value, contact_type
                 FROM @contactTable
                 WHERE person_id = @person_id
@@ -91,10 +91,10 @@ async function getPersonData(personId: string) {
                     address_type NVARCHAR(MAX)
                 )
                 INSERT INTO @addressTable
-                EXEC chonTest..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
                 SELECT A.address_id, A.location, A.address_type
                 FROM @addressTable A
-                LEFT JOIN chonTest..Address_Person AP
+                LEFT JOIN DevelopERP..Address_Person AP
                 ON A.address_id = AP.address_id
                 WHERE AP.person_id = @person_id
                 
@@ -122,7 +122,7 @@ async function deletePerson(personId: string) {
             .input('person_id', sql.INT, personId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Person
+                UPDATE DevelopERP..Person
                 SET isArchived = 1, update_date = @update_date
                 WHERE person_id = @person_id
             `)
@@ -132,50 +132,50 @@ async function deletePerson(personId: string) {
 }
 
 const personQuery = `
-    INSERT INTO chonTest..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
+    INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
     OUTPUT inserted.person_id
     VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @isArchived)
 `
 const roleQuery = `
-    INSERT INTO chonTest..Person_Role (person_id, role_code_id)
+    INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
     VALUES (@person_id, @role_code_id)
 `
 const roleDeleteQuery = `
-    DELETE FROM chonTest..Person_Role
+    DELETE FROM DevelopERP..Person_Role
     WHERE person_id = @person_id AND role_code_id = @role_code_id
 `
 const customerPersonQuery = `
-    INSERT INTO chonTest..Customer_Person (person_id, customer_id)
+    INSERT INTO DevelopERP..Customer_Person (person_id, customer_id)
     VALUES (@person_id, @customer_id)
 `
 const customerPersonDeleteQuery = `
-    DELETE FROM chonTest..Customer_Person
+    DELETE FROM DevelopERP..Customer_Person
     WHERE person_id = @person_id AND customer_id = @customer_id
 `
 const contactQuery = `
-    INSERT INTO chonTest..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
+    INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
     VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `
 const contactDeleteQuery = `
-    UPDATE chonTest..Contact
+    UPDATE DevelopERP..Contact
     SET isArchived = 1
     WHERE contact_id = @contact_id AND person_id = @person_id
 `
 const addressQuery = `
-    INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
+    INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
     OUTPUT INSERTED.address_id
     VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
 `
 const addressPersonQuery = `
-    INSERT INTO chonTest..Address_Person (person_id, address_id)
+    INSERT INTO DevelopERP..Address_Person (person_id, address_id)
     VALUES (@person_id, @address_id)
 `
 const addressPersonDeleteQuery = `
-    DELETE FROM chonTest..Address_Person
+    DELETE FROM DevelopERP..Address_Person
     WHERE person_id = @person_id AND address_id = @address_id
 `
 const addressMasterCodeQuery = `
-    INSERT INTO chonTest..Address_MasterCode (address_id, address_type_code_id)
+    INSERT INTO DevelopERP..Address_MasterCode (address_id, address_type_code_id)
     VALUES (@address_id, @address_type_code_id)
 `
 
@@ -283,7 +283,7 @@ async function updatePersonDate(personId: string, body: any) {
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Person
+                UPDATE DevelopERP..Person
                 SET firstname = @firstname, lastname = @lastname, nickname = @nickname, title_code_id = @title_code_id, description = @description, update_date = @update_date
                 WHERE person_id = @person_id
             `)

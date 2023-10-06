@@ -12,10 +12,10 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                EXEC chonTest..getCustomerTable @customer_name = @customer_name, @firstIndex= @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP..getCustomerTable @customer_name = @customer_name, @firstIndex= @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
-                FROM chonTest..Customer
+                FROM DevelopERP..Customer
                 WHERE customer_name LIKE @customer_name AND isArchived = 0
             `)
         return {
@@ -34,10 +34,10 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('customer_id', sql.INT, customerId)
             .query(`
                 SELECT C.customer_id, C.customer_name, C.sales_type_code_id, MC1.value AS sales_type, C.customer_type_code_id, MC2.value as customer_type
-                FROM chonTest..Customer C
-                INNER JOIN chonTest..MasterCode MC1
+                FROM DevelopERP..Customer C
+                INNER JOIN DevelopERP..MasterCode MC1
                 ON C.sales_type_code_id = MC1.code_id
-                INNER JOIN chonTest..MasterCode MC2
+                INNER JOIN DevelopERP..MasterCode MC2
                 ON C.customer_type_code_id = MC2.code_id
                 WHERE customer_id = @customer_id AND isArchived = 0
 
@@ -50,10 +50,10 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                     role NVARCHAR(MAX)
                 )
                 INSERT INTO @personTable
-                EXEC chonTest..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
                 FROM @personTable P
-                LEFT JOIN chonTest..Customer_Person CP
+                LEFT JOIN DevelopERP..Customer_Person CP
                 ON P.person_id = CP.person_id
                 WHERE CP.customer_id = @customer_id
                 
@@ -66,7 +66,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                     person_id INT
                 )
                 INSERT INTO @contactTable
-                EXEC chonTest..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT contact_id, value, contact_type
                 FROM @contactTable
                 WHERE customer_id = @customer_id
@@ -77,10 +77,10 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                     address_type NVARCHAR(MAX)
                 )
                 INSERT INTO @addressTable
-                EXEC chonTest..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
                 SELECT A.address_id, A.location, A.address_type
                 FROM @addressTable A
-                LEFT JOIN chonTest..Address_Customer AC
+                LEFT JOIN DevelopERP..Address_Customer AC
                 ON A.address_id = AC.address_id
                 WHERE AC.customer_id = @customer_id
 
@@ -90,10 +90,10 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                     parent_fleet_id INT
                 )
                 INSERT INTO @fleetTable
-                EXEC chonTest..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
                 FROM @fleetTable F
-                LEFT JOIN chonTest..Customer_Fleet CF
+                LEFT JOIN DevelopERP..Customer_Fleet CF
                 ON F.fleet_id = CF.fleet_id
                 WHERE CF.customer_id = @customer_id
             `)
@@ -117,7 +117,7 @@ async function deleteCustomer(customerId: string) {
             .input('customer_id', sql.INT, customerId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Customer
+                UPDATE DevelopERP..Customer
                 SET isArchived = 1, update_date = @update_date
                 WHERE customer_id = @customer_id
             `)
@@ -127,59 +127,59 @@ async function deleteCustomer(customerId: string) {
 }
 
 const customerQuery = `
-INSERT INTO chonTest..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, isArchived)
+INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, isArchived)
 OUTPUT INSERTED.customer_id
 VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @create_by, @isArchived)
 `;
 const addressQuery = `
-INSERT INTO chonTest..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
 OUTPUT INSERTED.address_id
 VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
 `;
 const addressCustomerQuery = `
-INSERT INTO chonTest..Address_Customer (customer_id, address_id)
+INSERT INTO DevelopERP..Address_Customer (customer_id, address_id)
 VALUES (@customer_id, @address_id)
 `;
 const addressMasterCodeQuery = `
-INSERT INTO chonTest..Address_MasterCode (address_id, address_type_code_id)
+INSERT INTO DevelopERP..Address_MasterCode (address_id, address_type_code_id)
 VALUES (@address_id, @address_type_code_id)
 `
 const addressCustomerDeleteQuery = `
-DELETE FROM chonTest..Address_Customer
+DELETE FROM DevelopERP..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO chonTest..Contact (customer_id, value, contact_code_id, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Contact (customer_id, value, contact_code_id, create_by, create_date, isArchived)
 VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `;
 const contactDeleteQuery = `
-UPDATE chonTest..Contact
+UPDATE DevelopERP..Contact
 SET isArchived = 1
 WHERE contact_id = @contact_id AND customer_id = @customer_id
 `
 const personQuery = `
-INSERT INTO chonTest..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
 OUTPUT INSERTED.person_id
 VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @isArchived)
 `;
 const roleQuery = `
-INSERT INTO chonTest..Person_Role (person_id, role_code_id)
+INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
 VALUES (@person_id, @role_code_id)
 `
 const personDeleteQuery = `
-DELETE FROM chonTest..Customer_Person
+DELETE FROM DevelopERP..Customer_Person
 WHERE customer_id = @customer_id AND person_id = @person_id
 `
 const customerPersonQuery = `
-INSERT INTO chonTest..Customer_Person (customer_id, person_id)
+INSERT INTO DevelopERP..Customer_Person (customer_id, person_id)
 VALUES (@customer_id, @person_id)
 `
 const addressPersonQuery = `
-INSERT INTO chonTest..Address_Person (person_id, address_id)
+INSERT INTO DevelopERP..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO chonTest..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
 VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
 `
 
@@ -340,7 +340,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('create_date', sql.DATE, datetime)
                 .input('isArchived', sql.INT, 0)
                 .query(`
-                    INSERT INTO chonTest..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
+                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
                     VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
                 `)
         }
@@ -350,7 +350,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    INSERT INTO chonTest..Customer_Vehicle (customer_id, vehicle_id)
+                    INSERT INTO DevelopERP..Customer_Vehicle (customer_id, vehicle_id)
                     VALUES (@customer_id, @vehicle_id)
                 `)
         }
@@ -378,7 +378,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Customer
+                UPDATE DevelopERP..Customer
                 SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, update_date = @update_date
                 WHERE customer_id = @customer_id
             `)
@@ -540,7 +540,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('create_date', sql.DATE, datetime)
                 .input('isArchived', sql.INT, 0)
                 .query(`
-                    INSERT INTO chonTest..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
+                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
                     VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
                 `)
         }
@@ -550,7 +550,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    DELETE FROM chonTest..Customer_Vehicle
+                    DELETE FROM DevelopERP..Customer_Vehicle
                     WHERE customer_id = @customer_id AND vehicle_id = @vehicle_id
                 `)
         }
@@ -559,7 +559,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    INSERT INTO chonTest..Customer_Vehicle (customer_id, vehicle_id)
+                    INSERT INTO DevelopERP..Customer_Vehicle (customer_id, vehicle_id)
                     VALUES (@customer_id, @vehicle_id)
                 `)
         }

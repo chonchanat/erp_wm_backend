@@ -20,13 +20,13 @@ async function getVehicleTable(index: number, filter: string) {
                         COALESCE(V.vehicle_type_code_id, '-') AS vehicle_type, 
                         COALESCE(V.model_code_id, '-') AS model_code,
                         ROW_NUMBER () OVER (ORDER BY V.vehicle_id) AS RowNum
-                    FROM chonTest..Vehicle V
+                    FROM DevelopERP..Vehicle V
                     WHERE V.license_plate LIKE @license_plate AND V.isArchived = 0
                 ) t1
                 WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
 
                 SELECT COUNT(*) AS count_data
-                FROM chonTest..Vehicle
+                FROM DevelopERP..Vehicle
                 WHERE license_plate LIKE '%' AND isArchived = 0
             `)
         return {
@@ -45,7 +45,7 @@ async function getVehicleData(vehicleId: string) {
             .input('vehicle_id', sql.INT, vehicleId)
             .query(`
                 SELECT vehicle_id, frame_no, license_plate, model_code_id, registration_province_code_id, registration_type_code_id, driving_license_code_id, number_of_shaft, number_of_wheel, number_of_tire, vehicle_type_code_id
-                FROM chonTest..Vehicle
+                FROM DevelopERP..Vehicle
                 WHERE vehicle_id = @vehicle_id AND isArchived = 0
 
                 DECLARE @customerTable TABLE (
@@ -55,10 +55,10 @@ async function getVehicleData(vehicleId: string) {
                     email NVARCHAR(MAX)
                 )
                 INSERT INTO @customerTable
-                EXEC chonTest..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable AS C
-                LEFT JOIN chonTest..Vehicle V
+                LEFT JOIN DevelopERP..Vehicle V
                 ON C.customer_id = V.customer_id
                 WHERE V.customer_id = C.customer_id
 
@@ -71,10 +71,10 @@ async function getVehicleData(vehicleId: string) {
                     role NVARCHAR(MAX)
                 )
                 INSERT INTO @personTable
-                EXEC chonTest..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
                 FROM @personTable P
-                LEFT JOIN chonTest..Vehicle V
+                LEFT JOIN DevelopERP..Vehicle V
                 ON P.person_id = V.person_id
                 WHERE V.person_id = P.person_id
             `)
@@ -97,7 +97,7 @@ async function deleteVehicle (vehicleId: string) {
             .input('vehicle_id', sql.INT, vehicleId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Vehicle
+                UPDATE DevelopERP..Vehicle
                 SET isArchived = 1, update_date = @update_date
                 WHERE vehicle_id = @vehicle_id
             `)

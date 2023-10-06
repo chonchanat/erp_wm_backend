@@ -20,12 +20,12 @@ async function getContactTable(index: number, filterValue: string) {
                     customer_id INT
                 )
                 INSERT INTO @contactTable
-                EXEC chonTest..getContactTable @value = '%', @firstIndex= 0, @lastIndex= 0
+                EXEC DevelopERP..getContactTable @value = '%', @firstIndex= 0, @lastIndex= 0
                 SELECT contact_id, value, contact_type, owner_name 
                 FROM @contactTable
 
                 SELECT COUNT(*) AS count_data
-                FROM chonTest..Contact
+                FROM DevelopERP..Contact
                 WHERE value LIKE @value AND isArchived = 0
             `)
         return {
@@ -60,12 +60,12 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM chonTest..Contact ct 
-                LEFT JOIN chonTest..Customer c
+                FROM DevelopERP..Contact ct 
+                LEFT JOIN DevelopERP..Customer c
                 ON ct.customer_id = c.customer_id
-                LEFT JOIN chonTest..Person p
+                LEFT JOIN DevelopERP..Person p
                 ON ct.person_id = p.person_id
-                LEFT JOIN chonTest..MasterCode m
+                LEFT JOIN DevelopERP..MasterCode m
                 ON ct.contact_code_id = m.code_id
                 WHERE ct.contact_id = @contact_id AND ct.isArchived = 0
             `)
@@ -83,7 +83,7 @@ async function deleteContact(contactId: string) {
             .input('contact_id', sql.INT, contactId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE chonTest..Contact
+                UPDATE DevelopERP..Contact
                 SET isArchived = 1, update_date = @update_date
                 WHERE contact_id = @contact_id
             `)
