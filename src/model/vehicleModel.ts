@@ -11,23 +11,25 @@ async function getVehicleTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                SELECT vehicle_id, license_plate, frame_no, vehicle_type, model_code
+                SELECT vehicle_id, license_plate, frame_no, vehicle_type, model
                 FROM (
                     SELECT  
                         V.vehicle_id, 
                         COALESCE(V.license_plate, '-') AS license_plate, 
                         COALESCE(V.frame_no, '-') AS frame_no, 
                         COALESCE(V.vehicle_type_code_id, '-') AS vehicle_type, 
-                        COALESCE(V.model_code_id, '-') AS model_code,
+                        VM.brand + ' ' + VM.model AS model,
                         ROW_NUMBER () OVER (ORDER BY V.vehicle_id) AS RowNum
                     FROM DevelopERP..Vehicle V
-                    WHERE V.license_plate LIKE @license_plate AND V.isArchived = 0
+                    LEFT JOIN DevelopERP..VehicleModel VM
+                    ON V.vehicle_model_id = VM.vehicle_model_id
+                    WHERE V.license_plate LIKE '%' AND V.is_archived = 0
                 ) t1
                 WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP..Vehicle
-                WHERE license_plate LIKE '%' AND isArchived = 0
+                WHERE license_plate LIKE '%' AND is_archived = 0
             `)
         return {
             vehicle: result.recordsets[0],
@@ -46,7 +48,7 @@ async function getVehicleData(vehicleId: string) {
             .query(`
                 SELECT vehicle_id, frame_no, license_plate, model_code_id, registration_province_code_id, registration_type_code_id, driving_license_code_id, number_of_shaft, number_of_wheel, number_of_tire, vehicle_type_code_id
                 FROM DevelopERP..Vehicle
-                WHERE vehicle_id = @vehicle_id AND isArchived = 0
+                WHERE vehicle_id = @vehicle_id AND is_archived = 0
 
                 DECLARE @customerTable TABLE (
                     customer_id INT,
@@ -98,7 +100,7 @@ async function deleteVehicle (vehicleId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP..Vehicle
-                SET isArchived = 1, update_date = @update_date
+                SET is_archived = 1, update_date = @update_date
                 WHERE vehicle_id = @vehicle_id
             `)
     } catch (err) {

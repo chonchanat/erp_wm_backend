@@ -98,11 +98,11 @@ async function createAddressData(body: any) {
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
             .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
-            .input('isArchived', sql.INT, 0)
+            .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
+                INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
                 OUTPUT INSERTED.address_id
-                VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
+                VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
             `)
         let address_id = addressResult.recordset[0].address_id
 
@@ -187,7 +187,7 @@ async function deleteAddress(addressId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP..Address
-                SET isArchived = 1, update_date = @update_date
+                SET is_archived = 1, update_date = @update_date
                 WHERE address_id = @address_id
             `)
 

@@ -14,7 +14,7 @@ async function getFleetTable(index: number, filterFleet: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP..Fleet
-                WHERE fleet_name LIKE @fleet_name AND isArchived = 0
+                WHERE fleet_name LIKE @fleet_name AND is_archived = 0
             `)
         return {
             fleet: result.recordsets[0],
@@ -47,9 +47,9 @@ async function getFleetData(fleetId: string) {
                 EXEC DevelopERP..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable C
-                LEFT JOIN DevelopERP..Customer_Fleet CF
-                ON C.customer_id = CF.customer_id
-                WHERE CF.fleet_id = @fleet_id
+                LEFT JOIN DevelopERP..Fleet_Customer FC
+                ON C.customer_id = FC.customer_id
+                WHERE FC.fleet_id = @fleet_id
             `)
 
         return {
@@ -80,7 +80,7 @@ async function deleteFleet(fleetId: string) {
                 )
                 
                 UPDATE DevelopERP..Fleet
-                SET isArchived = 1
+                SET is_archived = 1
                 WHERE fleet_id IN ( 
                     SELECT fleet_id
                     FROM RecursiveCTE
@@ -104,11 +104,11 @@ async function createFleetData(body: any) {
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id ? body.fleet.parent_fleet_id : null) 
             .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
-            .input('isArchived', sql.INT, 0)
+            .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP..Fleet (fleet_name, parent_fleet_id, create_by, create_date, isArchived)
+                INSERT INTO DevelopERP..Fleet (fleet_name, parent_fleet_id, create_by, create_date, is_archived)
                 OUTPUT INSERTED.fleet_id
-                VALUES (@fleet_name, @parent_fleet_id, @create_by, @create_date, @isArchived)
+                VALUES (@fleet_name, @parent_fleet_id, @create_by, @create_date, @is_archived)
             `)
         let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -117,7 +117,7 @@ async function createFleetData(body: any) {
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleet_id)
                 .query(`
-                    INSERT INTO DevelopERP..Customer_Fleet (customer_id, fleet_id)
+                    INSERT INTO DevelopERP..Fleet_Customer (customer_id, fleet_id)
                     VALUES (@customer_id, @fleet_id)
                 `)
         }
@@ -154,7 +154,7 @@ async function updateFleetData(fleetId: string, body: any) {
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleetId)
                 .query(`
-                    DELETE FROM DevelopERP..Customer_Fleet
+                    DELETE FROM DevelopERP..Fleet_Customer
                     WHERE fleet_id = @fleet_id AND customer_id = @customer_id
                 `)
         }
@@ -163,7 +163,7 @@ async function updateFleetData(fleetId: string, body: any) {
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleetId)
                 .query(`
-                    INSERT INTO DevelopERP..Customer_Fleet (customer_id, fleet_id)
+                    INSERT INTO DevelopERP..Fleet_Customer (customer_id, fleet_id)
                     VALUES (@customer_id, @fleet_id)
                 `)
         }

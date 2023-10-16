@@ -48,7 +48,7 @@ app.use('/', vehicleRoutes);
 
 app.use(handleError.duplicateError);
 
-const PORT = 3001
-app.listen(PORT, () => {
+const PORT = 3005
+app.listen(PORT, "10.0.102.54",() => {
     console.log('server is running on port : ' + PORT)
 })

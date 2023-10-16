@@ -20,7 +20,7 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and person", response: err })
     } else if (message.includes('UC_Person_Role') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for person and role", response: err })
-    } else if (message.includes('UC_Customer_Fleet') && message.includes('duplicate key')) {
+    } else if (message.includes('UC_Fleet_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and fleet", response: err })
     } else {
         res.status(500).json({ status: 0, message: "failed from server", response: err })

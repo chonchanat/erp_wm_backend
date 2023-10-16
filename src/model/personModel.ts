@@ -17,10 +17,10 @@ async function getPersonTable(index: number, filterPerson: string) {
                     SELECT 
                     person_id,
                     COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
-                    isArchived
+                    is_archived
                     FROM DevelopERP..Person
                 ) t
-                WHERE fullname LIKE @fullname AND isArchived = 0
+                WHERE fullname LIKE @fullname AND is_archived = 0
             `)
         return {
             person: result.recordsets[0],
@@ -48,7 +48,7 @@ async function getPersonData(personId: string) {
                 FROM DevelopERP..Person p
                 LEFT JOIN DevelopERP..MasterCode m
                 on p.title_code_id = m.code_id
-                WHERE person_id = @person_id AND isArchived = 0
+                WHERE person_id = @person_id AND is_archived = 0
 
                 SELECT 
                     role_code_id, value AS role_type
@@ -123,7 +123,7 @@ async function deletePerson(personId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP..Person
-                SET isArchived = 1, update_date = @update_date
+                SET is_archived = 1, update_date = @update_date
                 WHERE person_id = @person_id
             `)
     } catch (err) {
@@ -132,9 +132,9 @@ async function deletePerson(personId: string) {
 }
 
 const personQuery = `
-    INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
+    INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, is_archived)
     OUTPUT inserted.person_id
-    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @isArchived)
+    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @is_archived)
 `
 const roleQuery = `
     INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
@@ -153,18 +153,18 @@ const customerPersonDeleteQuery = `
     WHERE person_id = @person_id AND customer_id = @customer_id
 `
 const contactQuery = `
-    INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
-    VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
+    INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, is_archived)
+    VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
 `
 const contactDeleteQuery = `
     UPDATE DevelopERP..Contact
-    SET isArchived = 1
+    SET is_archived = 1
     WHERE contact_id = @contact_id AND person_id = @person_id
 `
 const addressQuery = `
-    INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
+    INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
     OUTPUT INSERTED.address_id
-    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
+    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
 `
 const addressPersonQuery = `
     INSERT INTO DevelopERP..Address_Person (person_id, address_id)
@@ -195,7 +195,7 @@ async function createPersonData(body: any) {
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
             .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
-            .input('isArchived', sql.INT, 0)
+            .input('is_archived', sql.INT, 0)
             .query(personQuery)
         let person_id = personResult.recordset[0].person_id
 
@@ -220,7 +220,7 @@ async function createPersonData(body: any) {
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -237,7 +237,7 @@ async function createPersonData(body: any) {
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
@@ -327,7 +327,7 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -344,7 +344,7 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()

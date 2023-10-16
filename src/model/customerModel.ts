@@ -16,7 +16,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP..Customer
-                WHERE customer_name LIKE @customer_name AND isArchived = 0
+                WHERE customer_name LIKE @customer_name AND is_archived = 0
             `)
         return {
             customer: result.recordsets[0],
@@ -39,7 +39,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 ON C.sales_type_code_id = MC1.code_id
                 INNER JOIN DevelopERP..MasterCode MC2
                 ON C.customer_type_code_id = MC2.code_id
-                WHERE customer_id = @customer_id AND isArchived = 0
+                WHERE customer_id = @customer_id AND is_archived = 0
 
                 DECLARE @personTable TABLE (
                     person_id INT,
@@ -93,7 +93,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 EXEC DevelopERP..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
                 FROM @fleetTable F
-                LEFT JOIN DevelopERP..Customer_Fleet CF
+                LEFT JOIN DevelopERP..Fleet_Customer CF
                 ON F.fleet_id = CF.fleet_id
                 WHERE CF.customer_id = @customer_id
             `)
@@ -118,7 +118,7 @@ async function deleteCustomer(customerId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP..Customer
-                SET isArchived = 1, update_date = @update_date
+                SET is_archived = 1, update_date = @update_date
                 WHERE customer_id = @customer_id
             `)
     } catch (err) {
@@ -127,14 +127,14 @@ async function deleteCustomer(customerId: string) {
 }
 
 const customerQuery = `
-INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, isArchived)
+INSERT INTO DevelopERP..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, is_archived)
 OUTPUT INSERTED.customer_id
-VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @create_by, @isArchived)
+VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @create_by, @is_archived)
 `;
 const addressQuery = `
-INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
 OUTPUT INSERTED.address_id
-VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @isArchived)
+VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
 `;
 const addressCustomerQuery = `
 INSERT INTO DevelopERP..Address_Customer (customer_id, address_id)
@@ -149,18 +149,18 @@ DELETE FROM DevelopERP..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO DevelopERP..Contact (customer_id, value, contact_code_id, create_by, create_date, isArchived)
-VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
+INSERT INTO DevelopERP..Contact (customer_id, value, contact_code_id, create_by, create_date, is_archived)
+VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
 `;
 const contactDeleteQuery = `
 UPDATE DevelopERP..Contact
-SET isArchived = 1
+SET is_archived = 1
 WHERE contact_id = @contact_id AND customer_id = @customer_id
 `
 const personQuery = `
-INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, isArchived)
+INSERT INTO DevelopERP..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, is_archived)
 OUTPUT INSERTED.person_id
-VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @isArchived)
+VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @is_archived)
 `;
 const roleQuery = `
 INSERT INTO DevelopERP..Person_Role (person_id, role_code_id)
@@ -179,8 +179,8 @@ INSERT INTO DevelopERP..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, isArchived)
-VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @isArchived)
+INSERT INTO DevelopERP..Contact (person_id, value, contact_code_id, create_by, create_date, is_archived)
+VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
 `
 
 async function createCustomerData(body: CustomerType) {
@@ -198,7 +198,7 @@ async function createCustomerData(body: CustomerType) {
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('create_date', sql.DATETIME, datetime)
             .input('create_by', sql.INT, body.create_by)
-            .input('isArchived', sql.INT, 0)
+            .input('is_archived', sql.INT, 0)
             .query(customerQuery)
         let customer_id = customerResult.recordset[0].customer_id
 
@@ -215,7 +215,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
@@ -244,7 +244,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -258,7 +258,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(personQuery)
             let person_id = personResult.recordset[0].person_id
             let personCustomerResult = await transaction.request()
@@ -286,7 +286,7 @@ async function createCustomerData(body: CustomerType) {
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('create_by', sql.INT, body.create_by)
                     .input('create_date', sql.DATETIME, datetime)
-                    .input('isArchived', sql.INT, 0)
+                    .input('is_archived', sql.INT, 0)
                     .query(addressQuery)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
@@ -315,7 +315,7 @@ async function createCustomerData(body: CustomerType) {
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
                     .input('create_by', sql.INT, body.create_by)
                     .input('create_date', sql.DATETIME, datetime)
-                    .input('isArchived', sql.INT, 0)
+                    .input('is_archived', sql.INT, 0)
                     .query(contactPersonQuery)
             }
         }
@@ -338,10 +338,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('billing_location_id', sql.INT, vehicle.billing_location_id)
                 .input('create_by', sql.INT, body.create_by)
                 .input('create_date', sql.DATE, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
-                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
+                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, is_archived)
+                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @is_archived)
                 `)
         }
 
@@ -396,7 +396,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
@@ -437,7 +437,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
 
@@ -451,7 +451,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(personQuery)
             let person_id = personResult.recordset[0].person_id
             let personCustomerResult = await transaction.request()
@@ -479,7 +479,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('create_by', sql.INT, body.update_by)
                     .input('create_date', sql.DATETIME, datetime)
-                    .input('isArchived', sql.INT, 0)
+                    .input('is_archived', sql.INT, 0)
                     .query(addressQuery)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
@@ -508,7 +508,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
                     .input('create_by', sql.INT, body.update_by)
                     .input('create_date', sql.DATETIME, datetime)
-                    .input('isArchived', sql.INT, 0)
+                    .input('is_archived', sql.INT, 0)
                     .query(contactPersonQuery)
             }
         }
@@ -538,10 +538,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('billing_location_id', sql.INT, vehicle.billing_location_id)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATE, datetime)
-                .input('isArchived', sql.INT, 0)
+                .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, isArchived)
-                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @isArchived)
+                    INSERT INTO DevelopERP..Vehicle (frame_no, license_plate, number_of_shaft, number_of_wheel, number_of_tire, person_id, billing_location_id, create_by, create_date, is_archived)
+                    VALUES (@frame_no, @license_plate, @number_of_shaft, @number_of_wheel, @number_of_tire, @person_id, @billing_location_id, @create_by, @create_date, @is_archived)
                 `)
         }
 
