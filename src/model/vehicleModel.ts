@@ -11,21 +11,19 @@ async function getVehicleTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
+                DECLARE @vehicleTable TABLE (
+                    vehicle_id INT, 
+                    license_plate NVARCHAR(MAX), 
+                    frame_no NVARCHAR(MAX), 
+                    vehicle_type NVARCHAR(MAX), 
+                    model NVARCHAR(MAX), 
+                    customer_id INT, 
+                    person_id INT
+                )
+                INSERT INTO @vehicleTable
+                EXEC DevelopERP..getVehicleTable @license_plate = @license_plate, @firstIndex= @firstIndex, @lastIndex = @lastIndex
                 SELECT vehicle_id, license_plate, frame_no, vehicle_type, model
-                FROM (
-                    SELECT  
-                        V.vehicle_id, 
-                        COALESCE(V.license_plate, '-') AS license_plate, 
-                        COALESCE(V.frame_no, '-') AS frame_no, 
-                        COALESCE(V.vehicle_type_code_id, '-') AS vehicle_type, 
-                        VM.brand + ' ' + VM.model AS model,
-                        ROW_NUMBER () OVER (ORDER BY V.vehicle_id) AS RowNum
-                    FROM DevelopERP..Vehicle V
-                    LEFT JOIN DevelopERP..VehicleModel VM
-                    ON V.vehicle_model_id = VM.vehicle_model_id
-                    WHERE V.license_plate LIKE '%' AND V.is_archived = 0
-                ) t1
-                WHERE (@firstIndex = 0 OR @lastIndex = 0 OR RowNum BETWEEN @firstIndex AND @lastIndex)
+                FROM @vehicleTable
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP..Vehicle

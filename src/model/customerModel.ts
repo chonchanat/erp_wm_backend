@@ -27,7 +27,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
     }
 }
 
- async function getCustomerData(customerId: string) {
+async function getCustomerData(customerId: string) {
     try {
         let pool = await sql.connect(devConfig)
         let result = await pool.request()
@@ -41,22 +41,19 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 ON C.customer_type_code_id = MC2.code_id
                 WHERE customer_id = @customer_id AND is_archived = 0
 
-                DECLARE @personTable TABLE (
-                    person_id INT,
-                    fullname NVARCHAR(MAX),
-                    mobile NVARCHAR(MAX),
-                    email NVARCHAR(MAX),
-                    description NVARCHAR(MAX),
-                    role NVARCHAR(MAX)
+                DECLARE @fleetTable TABLE (
+                    fleet_id INT,
+                    fleet_name NVARCHAR(MAX),
+                    parent_fleet_id INT
                 )
-                INSERT INTO @personTable
-                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
-                FROM @personTable P
-                LEFT JOIN DevelopERP..Customer_Person CP
-                ON P.person_id = CP.person_id
-                WHERE CP.customer_id = @customer_id
-                
+                INSERT INTO @fleetTable
+                EXEC DevelopERP..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
+                FROM @fleetTable F
+                LEFT JOIN DevelopERP..Fleet_Customer CF
+                ON F.fleet_id = CF.fleet_id
+                WHERE CF.customer_id = @customer_id
+
                 DECLARE @contactTable TABLE (
                     contact_id INT,
                     value NVARCHAR(MAX),
@@ -84,25 +81,45 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 ON A.address_id = AC.address_id
                 WHERE AC.customer_id = @customer_id
 
-                DECLARE @fleetTable TABLE (
-                    fleet_id INT,
-                    fleet_name NVARCHAR(MAX),
-                    parent_fleet_id INT
+                DECLARE @personTable TABLE (
+                    person_id INT,
+                    fullname NVARCHAR(MAX),
+                    mobile NVARCHAR(MAX),
+                    email NVARCHAR(MAX),
+                    description NVARCHAR(MAX),
+                    role NVARCHAR(MAX)
                 )
-                INSERT INTO @fleetTable
-                EXEC DevelopERP..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
-                FROM @fleetTable F
-                LEFT JOIN DevelopERP..Fleet_Customer CF
-                ON F.fleet_id = CF.fleet_id
-                WHERE CF.customer_id = @customer_id
+                INSERT INTO @personTable
+                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
+                FROM @personTable P
+                LEFT JOIN DevelopERP..Customer_Person CP
+                ON P.person_id = CP.person_id
+                WHERE CP.customer_id = @customer_id
+
+                DECLARE @vehicleTable TABLE (
+                    vehicle_id INT, 
+                    license_plate NVARCHAR(MAX), 
+                    frame_no NVARCHAR(MAX), 
+                    vehicle_type NVARCHAR(MAX), 
+                    model NVARCHAR(MAX), 
+                    customer_id INT, 
+                    person_id INT
+                )
+                INSERT INTO @vehicleTable
+                EXEC DevelopERP..getVehicleTable @license_plate = '%', @firstIndex= 0, @lastIndex = 0
+                SELECT vehicle_id, license_plate, frame_no, vehicle_type, model
+                FROM @vehicleTable
+                WHERE customer_id = @customer_id
+
             `)
         return {
             customer: result.recordsets[0][0],
-            person: result.recordsets[1],
+            fleet: result.recordsets[1],
             contact: result.recordsets[2],
             address: result.recordsets[3],
-            fleet: result.recordsets[4],
+            person: result.recordsets[4],
+            vehicle: result.recordsets[5]
         };
     } catch (err) {
         throw err;
@@ -326,7 +343,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('person_id', sql.INT, person)
                 .query(customerPersonQuery)
         }
-        
+
         for (const vehicle of body.vehicleNew) {
             let vehicleResult = await transaction.request()
                 .input('frame_no', sql.INT, vehicle.frame_no)
