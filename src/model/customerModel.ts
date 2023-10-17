@@ -41,77 +41,46 @@ async function getCustomerData(customerId: string) {
                 ON C.customer_type_code_id = MC2.code_id
                 WHERE customer_id = @customer_id AND is_archived = 0
 
-                DECLARE @fleetTable TABLE (
-                    fleet_id INT,
-                    fleet_name NVARCHAR(MAX),
-                    parent_fleet_id INT
-                )
+                DECLARE @fleetTable FleetType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP..getFleetTable @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id
-                FROM @fleetTable F
-                LEFT JOIN DevelopERP..Fleet_Customer CF
-                ON F.fleet_id = CF.fleet_id
-                WHERE CF.customer_id = @customer_id
+                SELECT F.fleet_id, F.fleet_name, F.parent_fleet_id, F.create_by, F.create_date, F.update_date, F.is_archived
+                FROM DevelopERP..Fleet_Customer FC
+                LEFT JOIN DevelopERP..Fleet F
+                ON FC.fleet_id = F.fleet_id
+                WHERE FC.customer_id = @customer_id 
+                EXEC DevelopERP..formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @contactTable TABLE (
-                    contact_id INT,
-                    value NVARCHAR(MAX),
-                    contact_type NVARCHAR(MAX),
-                    owner_name NVARCHAR(MAX),
-                    customer_id INT,
-                    person_id INT
-                )
+                DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT contact_id, value, contact_type
-                FROM @contactTable
+                SELECT *
+                FROM DevelopERP..Contact
                 WHERE customer_id = @customer_id
+                EXEC DevelopERP..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @addressTable TABLE (
-                    address_id INT,
-                    location NVARCHAR(MAX),
-                    address_type NVARCHAR(MAX)
-                )
+                DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
-                SELECT A.address_id, A.location, A.address_type
-                FROM @addressTable A
-                LEFT JOIN DevelopERP..Address_Customer AC
-                ON A.address_id = AC.address_id
+                SELECT A.address_id, A.name, A.house_no, A.village_no, A.alley, A.road, A.sub_district, A.district, A.province, A.postal_code, A.create_by, A.create_date, A.update_date, A.is_archived
+                FROM DevelopERP..Address_Customer AC
+                LEFT JOIN DevelopERP..Address A
+                ON AC.address_id = A.address_id
                 WHERE AC.customer_id = @customer_id
+                EXEC DevelopERP..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @personTable TABLE (
-                    person_id INT,
-                    fullname NVARCHAR(MAX),
-                    mobile NVARCHAR(MAX),
-                    email NVARCHAR(MAX),
-                    description NVARCHAR(MAX),
-                    role NVARCHAR(MAX)
-                )
+                DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
-                FROM @personTable P
-                LEFT JOIN DevelopERP..Customer_Person CP
-                ON P.person_id = CP.person_id
+                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, description, create_by, create_date, update_date, is_archived
+                FROM DevelopERP..Customer_Person CP
+                LEFT JOIN DevelopERP..Person P
+                ON CP.person_id = P.person_id
                 WHERE CP.customer_id = @customer_id
+                EXEC DevelopERP..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @vehicleTable TABLE (
-                    vehicle_id INT, 
-                    license_plate NVARCHAR(MAX), 
-                    frame_no NVARCHAR(MAX), 
-                    vehicle_type NVARCHAR(MAX), 
-                    model NVARCHAR(MAX), 
-                    customer_id INT, 
-                    person_id INT
-                )
+                DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
-                EXEC DevelopERP..getVehicleTable @license_plate = '%', @firstIndex= 0, @lastIndex = 0
-                SELECT vehicle_id, license_plate, frame_no, vehicle_type, model
-                FROM @vehicleTable
+                SELECT *
+                FROM DevelopERP..Vehicle
                 WHERE customer_id = @customer_id
-
+                EXEC DevelopERP..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
         return {
             customer: result.recordsets[0][0],
