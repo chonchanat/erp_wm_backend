@@ -57,46 +57,30 @@ async function getPersonData(personId: string) {
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
 
-                DECLARE @customerTable TABLE (
-                    customer_id INT,
-                    customer_name NVARCHAR(MAX),
-                    telephone NVARCHAR(MAX),
-                    email NVARCHAR(MAX)
-                )
+                DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
-                SELECT C.customer_id, C.customer_name, C.telephone, C.email
-                FROM @customerTable AS C
-                LEFT JOIN DevelopERP..Customer_Person CP
-                ON C.customer_id = CP.customer_id
+                SELECT C.customer_id, C.customer_name, C.sales_type_code_id, C.customer_type_code_id, C.create_by, C.create_date, C.update_date, C.is_archived
+                FROM DevelopERP..Customer_Person CP
+                LEFT JOIN DevelopERP..Customer C
+                ON CP.customer_id = C.customer_id
                 WHERE CP.person_id = @person_id
+                EXEC DevelopERP..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @contactTable TABLE (
-                    contact_id INT,
-                    value NVARCHAR(MAX),
-                    contact_type NVARCHAR(MAX),
-                    owner_name NVARCHAR(MAX),
-                    customer_id INT,
-                    person_id INT
-                )
+                DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP..getContactTable @value = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT contact_id, value, contact_type
-                FROM @contactTable
+                SELECT *
+                FROM DevelopERP..Contact
                 WHERE person_id = @person_id
+                EXEC DevelopERP..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @addressTable TABLE (
-                    address_id INT,
-                    location NVARCHAR(MAX),
-                    address_type NVARCHAR(MAX)
-                )
+                DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                EXEC DevelopERP..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
-                SELECT A.address_id, A.location, A.address_type
-                FROM @addressTable A
-                LEFT JOIN DevelopERP..Address_Person AP
-                ON A.address_id = AP.address_id
+                SELECT A.address_id, A.name, A.house_no, A.village_no, A.alley, A.road, A.sub_district, A.district, A.province, A.postal_code, A.create_by, A.create_date, A.update_date, A.is_archived
+                FROM DevelopERP..Address_Person AP
+                LEFT JOIN DevelopERP..Address A
+                ON AP.address_id = A.address_id
                 WHERE AP.person_id = @person_id
+                EXEC DevelopERP..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
                 
             `)
             
