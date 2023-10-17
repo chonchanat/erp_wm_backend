@@ -37,24 +37,39 @@ async function getFleetData(fleetId: string) {
                 ON F.parent_fleet_id = PF.fleet_id
                 WHERE F.fleet_id = @fleet_id
 
-                DECLARE @customerTable TABLE (
-                    customer_id INT,
-                    customer_name NVARCHAR(MAX),
-                    telephone NVARCHAR(MAX),
-                    email NVARCHAR(MAX)
-                )
+                DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT C.customer_id, C.customer_name, C.telephone, C.email
-                FROM @customerTable C
-                LEFT JOIN DevelopERP..Fleet_Customer FC
-                ON C.customer_id = FC.customer_id
+                SELECT C.customer_id, C.customer_name, C.sales_type_code_id, C.customer_type_code_id, C.create_by, C.create_date, C.update_date, C.is_archived
+                FROM DevelopERP..Fleet_Customer FC
+                LEFT JOIN DevelopERP..Customer C
+                ON FC.customer_id = C.customer_id
                 WHERE FC.fleet_id = @fleet_id
+                EXEC DevelopERP..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+
+                DECLARE @personTable PersonType
+                INSERT INTO @personTable
+                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, description, create_by, create_date, update_date, is_archived
+                FROM DevelopERP..Fleet_Person FP
+                LEFT JOIN DevelopERP..Person P
+                ON FP.person_id = P.person_id
+                WHERE FP.fleet_id = @fleet_id
+                EXEC DevelopERP..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
+
+                DECLARE @vehicleTable VehicleType
+                INSERT INTO @vehicleTable
+                SELECT V.vehicle_id, V.frame_no, V.license_plate, V.vehicle_model_id, V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id, V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id, V.customer_id, V.person_id, V.create_by, V.create_date, V.update_date, V.is_archived
+                FROM DevelopERP..Fleet_Vehicle FV
+                LEFT JOIN DevelopERP..Vehicle V
+                ON FV.vehicle_id = V.vehicle_id
+                WHERE FV.fleet_id = @fleet_id
+                EXEC DevelopERP..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
 
         return {
             fleet: result.recordsets[0][0],
             customer: result.recordsets[1],
+            person: result.recordsets[2],
+            vehicle: result.recordsets[3],
         }
     } catch (err) {
         throw err;
