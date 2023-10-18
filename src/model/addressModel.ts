@@ -11,7 +11,11 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('lastIndex', sql.INT, index + 9)
             // .query('EXEC DevelopERP..getAddressTable @index');
             .query(`
-                EXEC DevelopERP..getAddressTable @location = @location, @firstIndex= @firstIndex, @lastIndex= @lastIndex
+                DECLARE @addressTable AddressType
+                INSERT INTO @addressTable
+                SELECT *
+                FROM DevelopERP..Address
+                EXEC DevelopERP..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (

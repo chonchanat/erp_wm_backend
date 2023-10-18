@@ -10,7 +10,11 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                EXEC DevelopERP..getPersonTable @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                DECLARE @personTable PersonType
+                INSERT INTO @personTable
+                SELECT *
+                FROM DevelopERP..Person
+                EXEC DevelopERP..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (

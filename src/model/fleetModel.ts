@@ -10,7 +10,11 @@ async function getFleetTable(index: number, filterFleet: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fleet_name', sql.NVARCHAR, "%" + filterFleet + "%")
             .query(`
-                EXEC DevelopERP..getFleetTable @fleet_name = @fleet_name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                DECLARE @fleetTable FleetType
+                INSERT INTO @fleetTable
+                SELECT *
+                FROM DevelopERP..Fleet
+                EXEC DevelopERP..formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP..Fleet

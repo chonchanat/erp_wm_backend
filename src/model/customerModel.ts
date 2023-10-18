@@ -12,7 +12,11 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                EXEC DevelopERP..getCustomerTable @customer_name = @customer_name, @firstIndex= @firstIndex, @lastIndex = @lastIndex
+                DECLARE @customerTable CustomerType
+                INSERT INTO @customerTable
+                SELECT *
+                FROM DevelopERP..Customer
+                EXEC DevelopERP..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP..Customer
