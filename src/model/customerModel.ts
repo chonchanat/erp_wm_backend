@@ -68,7 +68,7 @@ async function getCustomerData(customerId: string) {
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, description, create_by, create_date, update_date, is_archived
+                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, P.description, P.create_by, P.create_date, P.update_date, P.is_archived
                 FROM DevelopERP..Customer_Person CP
                 LEFT JOIN DevelopERP..Person P
                 ON CP.person_id = P.person_id
@@ -77,9 +77,11 @@ async function getCustomerData(customerId: string) {
 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
-                SELECT *
-                FROM DevelopERP..Vehicle
-                WHERE customer_id = @customer_id
+                SELECT V.vehicle_id, V.frame_no, V.license_plate, V.vehicle_model_id, V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id , V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id, V.create_by, V.create_date,update_date, V.is_archived  
+                FROM DevelopERP..Vehicle_Customer VC
+                LEFT JOIN DevelopERP..Vehicle V
+                ON VC.vehicle_id = V.vehicle_id
+                WHERE VC.customer_id =  4
                 EXEC DevelopERP..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
         return {

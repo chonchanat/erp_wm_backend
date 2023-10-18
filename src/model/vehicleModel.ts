@@ -44,39 +44,27 @@ async function getVehicleData(vehicleId: string) {
         let result = await pool.request()
             .input('vehicle_id', sql.INT, vehicleId)
             .query(`
-                SELECT vehicle_id, frame_no, license_plate, model_code_id, registration_province_code_id, registration_type_code_id, driving_license_code_id, number_of_shaft, number_of_wheel, number_of_tire, vehicle_type_code_id
+                SELECT vehicle_id, frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id
                 FROM DevelopERP..Vehicle
                 WHERE vehicle_id = @vehicle_id AND is_archived = 0
 
-                DECLARE @customerTable TABLE (
-                    customer_id INT,
-                    customer_name NVARCHAR(MAX),
-                    telephone NVARCHAR(MAX),
-                    email NVARCHAR(MAX)
-                )
+                DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP..getCustomerTable @customer_name = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT C.customer_id, C.customer_name, C.telephone, C.email
-                FROM @customerTable AS C
-                LEFT JOIN DevelopERP..Vehicle V
-                ON C.customer_id = V.customer_id
-                WHERE V.customer_id = C.customer_id
+                SELECT C.customer_id, C.customer_name, C.sales_type_code_id, C.customer_type_code_id, C.create_by, C.create_date, C.update_date, C.is_archived
+                FROM DevelopERP..Vehicle V
+                LEFT JOIN DevelopERP..Customer C
+                ON V.customer_id = C.customer_id
+                WHERE V.vehicle_id = @vehicle_id
+                EXEC DevelopERP..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
-                DECLARE @personTable TABLE (
-                    person_id INT,
-                    fullname NVARCHAR(MAX),
-                    mobile NVARCHAR(MAX),
-                    email NVARCHAR(MAX),
-                    description NVARCHAR(MAX),
-                    role NVARCHAR(MAX)
-                )
+                DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                EXEC DevelopERP..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
-                SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
-                FROM @personTable P
-                LEFT JOIN DevelopERP..Vehicle V
-                ON P.person_id = V.person_id
-                WHERE V.person_id = P.person_id
+                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, P.description, P.create_by, P.create_date, P.update_date, P.is_archived
+                FROM DevelopERP..Vehicle V
+                LEFT JOIN DevelopERP..Person P
+                ON V.person_id = P.person_id
+                WHERE V.vehicle_id  = @vehicle_id
+                EXEC DevelopERP..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
             `)
 
         return {
@@ -85,6 +73,7 @@ async function getVehicleData(vehicleId: string) {
             person: result.recordsets[2],
         }
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }
