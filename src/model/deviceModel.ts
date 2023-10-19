@@ -30,4 +30,39 @@ async function getDeviceTable (index: number, filter: string) {
     }
 }
 
-export default { getDeviceTable }
+async function getDeviceData(device_id: string) {
+    try {
+        let pool = await sql.connect(devConfig)
+        let result = await pool.request()
+            .input('device_id', sql.INT, device_id)
+            .query(`
+                SELECT device_id, veh_id, create_date
+                FROM DevelopERP_ForTesting..Device
+                WHERE device_id = @device_id
+
+                DECLARE @deviceSerialTable DeviceSerialType
+                INSERT INTO @deviceSerialTable
+                SELECT DS.device_serial_id, DS.serial_id, DS.imei_serial, DS.dvr_id, DS.device_type_code_id, DS.create_by, DS.create_date, DS.update_date, DS.is_archived
+                FROM DevelopERP_ForTesting..DeviceSerial DS
+                LEFT JOIN DevelopERP_ForTesting..Device D
+                ON DS.device_serial_id = D.device_serial_id
+                WHERE D.device_id = @device_id
+                EXEC DevelopERP_ForTesting..formatDeviceSerialTable @deviceSerialTable =  @deviceSerialTable, @serial_id ='%', @firstIndex = 0, @lastIndex = 0
+            
+                SELECT DC.device_config_id, DC.device_id, DC.mobile_number, DC.sim_serial, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.ip_address, DC.software_version
+                FROM DevelopERP_ForTesting..DeviceConfig DC
+                LEFT JOIN DevelopERP_ForTesting..MasterCode M_simtype
+                ON DC.sim_type_code_id = M_simtype.code_id
+                WHERE device_id = @device_id
+            `)
+        return {
+            device: result.recordsets[0][0],
+            deviceSerial: result.recordsets[1],
+            deviceConfig: result.recordsets[2],
+        }
+    } catch (err) {
+        throw err;
+    }
+}
+
+export default { getDeviceTable, getDeviceData }
