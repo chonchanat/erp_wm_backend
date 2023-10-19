@@ -14,11 +14,11 @@ async function getContactTable(index: number, filterValue: string) {
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
                 SELECT *
-                FROM DevelopERP..Contact
-                EXEC DevelopERP..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                FROM DevelopERP_ForTesting..Contact
+                EXEC DevelopERP_ForTesting..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP..Contact
+                FROM DevelopERP_ForTesting..Contact
                 WHERE value LIKE @value AND is_archived = 0
             `)
         return {
@@ -53,12 +53,12 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM DevelopERP..Contact ct 
-                LEFT JOIN DevelopERP..Customer c
+                FROM DevelopERP_ForTesting..Contact ct 
+                LEFT JOIN DevelopERP_ForTesting..Customer c
                 ON ct.customer_id = c.customer_id
-                LEFT JOIN DevelopERP..Person p
+                LEFT JOIN DevelopERP_ForTesting..Person p
                 ON ct.person_id = p.person_id
-                LEFT JOIN DevelopERP..MasterCode m
+                LEFT JOIN DevelopERP_ForTesting..MasterCode m
                 ON ct.contact_code_id = m.code_id
                 WHERE ct.contact_id = @contact_id AND ct.is_archived = 0
             `)
@@ -76,7 +76,7 @@ async function deleteContact(contactId: string) {
             .input('contact_id', sql.INT, contactId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP..Contact
+                UPDATE DevelopERP_ForTesting..Contact
                 SET is_archived = 1, update_date = @update_date
                 WHERE contact_id = @contact_id
             `)

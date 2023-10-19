@@ -9,13 +9,13 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('location', sql.NVARCHAR, "%" + filterLocation + "%")
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
-            // .query('EXEC DevelopERP..getAddressTable @index');
+            // .query('EXEC DevelopERP_ForTesting..getAddressTable @index');
             .query(`
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
                 SELECT *
-                FROM DevelopERP..Address
-                EXEC DevelopERP..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                FROM DevelopERP_ForTesting..Address
+                EXEC DevelopERP_ForTesting..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -29,7 +29,7 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(district + ', ', '') +
                         COALESCE(province + ', ', '') +
                         COALESCE(postal_code , '') as location
-                        FROM DevelopERP..Address
+                        FROM DevelopERP_ForTesting..Address
                 ) t
                 WHERE location LIKE @location
             `)
@@ -58,20 +58,18 @@ async function getAddressData(addressId: string) {
                     COALESCE(A.district, '') AS district,
                     COALESCE(A.province, '') AS province,
                     COALESCE(A.postal_code, '') AS postal_code
-                FROM DevelopERP..Address A
+                FROM DevelopERP_ForTesting..Address A
                 WHERE A.address_id = @address_id
 
                 SELECT
                     am.address_type_code_id,
                     m.value as address_type
-                FROM DevelopERP..Address_MasterCode am
-                LEFT JOIN DevelopERP..MasterCode m
+                FROM DevelopERP_ForTesting..Address_MasterCode am
+                LEFT JOIN DevelopERP_ForTesting..MasterCode m
                 ON am.address_type_code_id = m.code_id
                 WHERE am.address_id = @address_id
             `)
         return {
-            // address: result.recordsets[0][0],
-            // address_type: result.recordsets[1],
             address: {
                 ...result.recordsets[0][0],
                 address_type: result.recordsets[1],
@@ -104,7 +102,7 @@ async function createAddressData(body: any) {
             .input('create_date', sql.DATETIME, datetime)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
+                INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
                 OUTPUT INSERTED.address_id
                 VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
             `)
@@ -115,7 +113,7 @@ async function createAddressData(body: any) {
                 .input('address_id', sql.INT, address_id)
                 .input('address_type_code_id', sql.INT, addressType)
                 .query(`
-                    INSERT INTO DevelopERP..Address_MasterCode (address_id, address_type_code_id)
+                    INSERT INTO DevelopERP_ForTesting..Address_MasterCode (address_id, address_type_code_id)
                     VALUES (@address_id, @address_type_code_id)
                 `)
         }
@@ -149,7 +147,7 @@ async function updateAddressData(body: any, addressId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .input('address_id', sql.INT, addressId)
             .query(`
-                UPDATE DevelopERP..Address
+                UPDATE DevelopERP_ForTesting..Address
                 SET name = @name, house_no = @house_no, village_no = @village_no, alley = @alley,  road = @road, sub_district = @sub_district, district = @district, province = @province, postal_code = @postal_code, update_date = @update_date
                 WHERE address_id = @address_id
             `)
@@ -159,7 +157,7 @@ async function updateAddressData(body: any, addressId: string) {
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)
                 .query(`
-                    DELETE FROM DevelopERP..Address_MasterCode
+                    DELETE FROM DevelopERP_ForTesting..Address_MasterCode
                     WHERE address_id = @address_id AND address_type_code_id = @address_type_code_id
                 `)
         }
@@ -169,7 +167,7 @@ async function updateAddressData(body: any, addressId: string) {
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)
                 .query(`
-                    INSERT INTO DevelopERP..Address_MasterCode (address_id, address_type_code_id)
+                    INSERT INTO DevelopERP_ForTesting..Address_MasterCode (address_id, address_type_code_id)
                     VALUES (@address_id, @address_type_code_id)
                 `)
         }
@@ -190,7 +188,7 @@ async function deleteAddress(addressId: string) {
             .input('address_id', sql.INT, addressId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP..Address
+                UPDATE DevelopERP_ForTesting..Address
                 SET is_archived = 1, update_date = @update_date
                 WHERE address_id = @address_id
             `)

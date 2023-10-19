@@ -10,6 +10,7 @@ import masterCodeRoutes from "./routes/masterCodeRoutes";
 import fleetRoutes from "./routes/fleetRoutes";
 import billingRoutes from "./routes/billingLocationRoutes";
 import vehicleRoutes from "./routes/vehicleRoutes";
+import deviceSerialRoutes from "./routes/deviceSerialRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -45,6 +46,7 @@ app.use('/', masterCodeRoutes);
 app.use('/', fleetRoutes);
 app.use('/', billingRoutes);
 app.use('/', vehicleRoutes);
+app.use('/', deviceSerialRoutes);
 
 app.use(handleError.duplicateError);
 
