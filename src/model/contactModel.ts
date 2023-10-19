@@ -15,7 +15,7 @@ async function getContactTable(index: number, filterValue: string) {
                 INSERT INTO @contactTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Contact
-                EXEC DevelopERP_ForTesting..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_ForTesting..Contact

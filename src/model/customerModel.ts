@@ -16,7 +16,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 INSERT INTO @customerTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Customer
-                EXEC DevelopERP_ForTesting..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_ForTesting..Customer
@@ -52,14 +52,14 @@ async function getCustomerData(customerId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Fleet F
                 ON FC.fleet_id = F.fleet_id
                 WHERE FC.customer_id = @customer_id 
-                EXEC DevelopERP_ForTesting..formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Contact
                 WHERE customer_id = @customer_id
-                EXEC DevelopERP_ForTesting..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
@@ -68,16 +68,12 @@ async function getCustomerData(customerId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Address A
                 ON AC.address_id = A.address_id
                 WHERE AC.customer_id = @customer_id
-                EXEC DevelopERP_ForTesting..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, P.description, P.create_by, P.create_date, P.update_date, P.is_archived
-                FROM DevelopERP_ForTesting..Customer_Person CP
-                LEFT JOIN DevelopERP_ForTesting..Person P
-                ON CP.person_id = P.person_id
-                WHERE CP.customer_id = @customer_id
-                EXEC DevelopERP_ForTesting..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_filterPerson @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL
+                EXEC DevelopERP_ForTesting..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
@@ -86,7 +82,7 @@ async function getCustomerData(customerId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Vehicle V
                 ON VC.vehicle_id = V.vehicle_id
                 WHERE VC.customer_id =  @customer_id
-                EXEC DevelopERP_ForTesting..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
         return {
             customer: result.recordsets[0][0],

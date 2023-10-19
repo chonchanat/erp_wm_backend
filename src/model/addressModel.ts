@@ -15,7 +15,7 @@ async function getAddressTable(index: number, filterLocation: string) {
                 INSERT INTO @addressTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Address
-                EXEC DevelopERP_ForTesting..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (

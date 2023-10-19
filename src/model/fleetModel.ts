@@ -14,7 +14,7 @@ async function getFleetTable(index: number, filterFleet: string) {
                 INSERT INTO @fleetTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Fleet
-                EXEC DevelopERP_ForTesting..formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_ForTesting..Fleet
@@ -48,16 +48,12 @@ async function getFleetData(fleetId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Customer C
                 ON FC.customer_id = C.customer_id
                 WHERE FC.fleet_id = @fleet_id
-                EXEC DevelopERP_ForTesting..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, description, create_by, create_date, update_date, is_archived
-                FROM DevelopERP_ForTesting..Fleet_Person FP
-                LEFT JOIN DevelopERP_ForTesting..Person P
-                ON FP.person_id = P.person_id
-                WHERE FP.fleet_id = @fleet_id
-                EXEC DevelopERP_ForTesting..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_filterPerson @customer_id = NULL, @fleet_id = @fleet_id, @vehicle_id = NULL
+                EXEC DevelopERP_ForTesting..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
@@ -66,7 +62,7 @@ async function getFleetData(fleetId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Vehicle V
                 ON FV.vehicle_id = V.vehicle_id
                 WHERE FV.fleet_id = @fleet_id
-                EXEC DevelopERP_ForTesting..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
 
         return {

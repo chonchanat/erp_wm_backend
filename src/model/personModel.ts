@@ -12,9 +12,8 @@ async function getPersonTable(index: number, filterPerson: string) {
             .query(`
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                SELECT *
-                FROM DevelopERP_ForTesting..Person
-                EXEC DevelopERP_ForTesting..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_filterPerson @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL
+                EXEC DevelopERP_ForTesting..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -68,14 +67,14 @@ async function getPersonData(personId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Customer C
                 ON CP.customer_id = C.customer_id
                 WHERE CP.person_id = @person_id
-                EXEC DevelopERP_ForTesting..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
                 SELECT *
                 FROM DevelopERP_ForTesting..Contact
                 WHERE person_id = @person_id
-                EXEC DevelopERP_ForTesting..formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
@@ -84,7 +83,7 @@ async function getPersonData(personId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Address A
                 ON AP.address_id = A.address_id
                 WHERE AP.person_id = @person_id
-                EXEC DevelopERP_ForTesting..formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
                 
             `)
             

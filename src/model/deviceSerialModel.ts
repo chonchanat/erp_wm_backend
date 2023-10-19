@@ -15,7 +15,7 @@ async function getDeviceSerialTable (index: number, filter: string) {
                 INSERT INTO @deviceSerialTable 
                 SELECT *
                 FROM DevelopERP_ForTesting..DeviceSerial
-                EXEC DevelopERP_ForTesting..formatDeviceSerialTable @deviceSerialTable =  @deviceSerialTable, @serial_id =@serial_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatDeviceSerialTable @deviceSerialTable =  @deviceSerialTable, @serial_id =@serial_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_ForTesting..DeviceSerial
@@ -49,7 +49,7 @@ async function getDeviceSerialData (device_serial_id: string) {
                 LEFT JOIN DevelopERP_ForTesting..DeviceSerial DS
                 ON D.device_serial_id = DS.device_serial_id
                 WHERE DS.device_serial_id = @device_serial_id
-                EXEC DevelopERP_ForTesting..formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 0, @lastIndex = 0
 
             `)
         return {

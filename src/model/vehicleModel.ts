@@ -15,7 +15,7 @@ async function getVehicleTable(index: number, filter: string) {
                 INSERT INTO @vehicleTable 
                 SELECT *
                 FROM DevelopERP_ForTesting..Vehicle
-                EXEC DevelopERP_ForTesting..formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex 
+                EXEC DevelopERP_ForTesting..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex 
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_ForTesting..Vehicle
@@ -54,16 +54,12 @@ async function getVehicleData(vehicleId: string) {
                 LEFT JOIN DevelopERP_ForTesting..Customer C
                 ON VC.customer_id = C.customer_id
                 WHERE VC.vehicle_id = @vehicle_id
-                EXEC DevelopERP_ForTesting..formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                SELECT P.person_id, P.firstname, P.lastname, P.nickname, P.title_code_id, P.description, P.create_by, P.create_date, P.update_date, P.is_archived
-                FROM DevelopERP_ForTesting..Vehicle_Person VP
-                LEFT JOIN DevelopERP_ForTesting..Person P
-                ON VP.person_id = P.person_id
-                WHERE VP.vehicle_id = @vehicle_id
-                EXEC DevelopERP_ForTesting..formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting..sp_filterPerson @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id
+                EXEC DevelopERP_ForTesting..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
             `)
 
         return {
