@@ -14,4 +14,16 @@ async function getDeviceSerialTable(req: Request, res: Response) {
     }
 }
 
-export default { getDeviceSerialTable }
+async function getDeviceSerialData(req: Request, res:Response) {
+    try {
+        const result = await deviceSerialModel.getDeviceSerialData(req.params.id);
+        if (result.deviceSerial === undefined) {
+            res.status(422).json({ status: 0, message: "Data not found in the database" })
+        } else {
+            res.status(200).json({ status: 1, message: "ok", response: result })
+        }
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+export default { getDeviceSerialTable, getDeviceSerialData }

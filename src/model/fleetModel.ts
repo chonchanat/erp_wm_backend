@@ -61,7 +61,7 @@ async function getFleetData(fleetId: string) {
 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
-                SELECT V.vehicle_id, V.frame_no, V.license_plate, V.vehicle_model_id, V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id, V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id, V.customer_id, V.person_id, V.create_by, V.create_date, V.update_date, V.is_archived
+                SELECT V.vehicle_id, V.frame_no, V.license_plate, V.vehicle_model_id, V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id , V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id, V.create_by, V.create_date,update_date, V.is_archived  
                 FROM DevelopERP_ForTesting..Fleet_Vehicle FV
                 LEFT JOIN DevelopERP_ForTesting..Vehicle V
                 ON FV.vehicle_id = V.vehicle_id
