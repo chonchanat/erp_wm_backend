@@ -51,9 +51,7 @@ async function getCustomerData(customerId: string) {
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                SELECT *
-                FROM DevelopERP_ForTesting..Contact
-                WHERE customer_id = @customer_id
+                EXEC DevelopERP_ForTesting..sp_filterContact @customer_id = @customer_id, @person_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @addressTable AddressType
