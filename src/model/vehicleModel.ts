@@ -13,8 +13,7 @@ async function getVehicleTable(index: number, filter: string) {
             .query(`
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable 
-                SELECT *
-                FROM DevelopERP_ForTesting..Vehicle
+                EXEC DevelopERP_ForTesting..sp_filterVehicle @customer_id = NULL, @fleet_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex 
 
                 SELECT COUNT(*) AS count_data
