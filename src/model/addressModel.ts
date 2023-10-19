@@ -13,8 +13,7 @@ async function getAddressTable(index: number, filterLocation: string) {
             .query(`
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                SELECT *
-                FROM DevelopERP_ForTesting..Address
+                EXEC DevelopERP_ForTesting..sp_filterAddress @customer_id = NULL, @person_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data

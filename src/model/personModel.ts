@@ -74,13 +74,8 @@ async function getPersonData(personId: string) {
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                SELECT A.address_id, A.name, A.house_no, A.village_no, A.alley, A.road, A.sub_district, A.district, A.province, A.postal_code, A.create_by, A.create_date, A.update_date, A.is_archived
-                FROM DevelopERP_ForTesting..Address_Person AP
-                LEFT JOIN DevelopERP_ForTesting..Address A
-                ON AP.address_id = A.address_id
-                WHERE AP.person_id = @person_id
+                EXEC DevelopERP_ForTesting..sp_filterAddress @customer_id = NULL, @person_id = @person_id
                 EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
-                
             `)
             
         return {
