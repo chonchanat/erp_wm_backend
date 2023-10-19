@@ -11,6 +11,7 @@ import fleetRoutes from "./routes/fleetRoutes";
 import billingRoutes from "./routes/billingLocationRoutes";
 import vehicleRoutes from "./routes/vehicleRoutes";
 import deviceSerialRoutes from "./routes/deviceSerialRoutes";
+import deviceRoutes from "./routes/deviceRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -47,6 +48,7 @@ app.use('/', fleetRoutes);
 app.use('/', billingRoutes);
 app.use('/', vehicleRoutes);
 app.use('/', deviceSerialRoutes);
+app.use('/', deviceRoutes);
 
 app.use(handleError.duplicateError);
 
