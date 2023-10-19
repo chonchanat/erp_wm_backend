@@ -13,8 +13,7 @@ async function getDeviceTable (index: number, filter: string) {
             .query(`
                 DECLARE @deviceTable DeviceType
                 INSERT INTO @deviceTable
-                SELECT *
-                FROM DevelopERP_ForTesting..Device
+                EXEC DevelopERP_ForTesting..sp_filterDevice @device_serial_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = @device_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
             
                 SELECT COUNT(*) AS count_data 

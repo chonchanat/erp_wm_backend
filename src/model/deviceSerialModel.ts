@@ -43,11 +43,7 @@ async function getDeviceSerialData (device_serial_id: string) {
 
                 DECLARE @deviceTable DeviceType
                 INSERT INTO @deviceTable
-                SELECT D.device_id, D.veh_id, D.device_serial_id, D.create_date, D.is_archived, D.create_by, D.update_date
-                FROM DevelopERP_ForTesting..Device D
-                LEFT JOIN DevelopERP_ForTesting..DeviceSerial DS
-                ON D.device_serial_id = DS.device_serial_id
-                WHERE DS.device_serial_id = @device_serial_id
+                EXEC DevelopERP_ForTesting..sp_filterDevice @device_serial_id = @device_serial_id
                 EXEC DevelopERP_ForTesting..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 0, @lastIndex = 0
 
             `)
