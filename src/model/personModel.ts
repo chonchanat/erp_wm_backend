@@ -62,11 +62,7 @@ async function getPersonData(personId: string) {
 
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                SELECT C.customer_id, C.customer_name, C.sales_type_code_id, C.customer_type_code_id, C.create_by, C.create_date, C.update_date, C.is_archived
-                FROM DevelopERP_ForTesting..Customer_Person CP
-                LEFT JOIN DevelopERP_ForTesting..Customer C
-                ON CP.customer_id = C.customer_id
-                WHERE CP.person_id = @person_id
+                EXEC DevelopERP_ForTesting..sp_filterCustomer @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @contactTable ContactType

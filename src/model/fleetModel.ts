@@ -43,11 +43,7 @@ async function getFleetData(fleetId: string) {
 
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                SELECT C.customer_id, C.customer_name, C.sales_type_code_id, C.customer_type_code_id, C.create_by, C.create_date, C.update_date, C.is_archived
-                FROM DevelopERP_ForTesting..Fleet_Customer FC
-                LEFT JOIN DevelopERP_ForTesting..Customer C
-                ON FC.customer_id = C.customer_id
-                WHERE FC.fleet_id = @fleet_id
+                EXEC DevelopERP_ForTesting..sp_filterCustomer @fleet_id = @fleet_id, @person_id = NULL, @vehicle_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @personTable PersonType
