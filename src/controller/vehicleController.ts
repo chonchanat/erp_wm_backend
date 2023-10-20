@@ -36,4 +36,13 @@ async function deleteVehicle(req: Request, res: Response) {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle }
+async function createVehicleData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await vehicleModel.createVehicleData(req.body)
+        res.status(201).json({ status: 1, message: "created seccessfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData }

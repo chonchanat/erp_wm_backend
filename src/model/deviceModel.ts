@@ -15,7 +15,10 @@ async function getDeviceTable (index: number, filter: string) {
                 INSERT INTO @deviceTable
                 EXEC DevelopERP_ForTesting..sp_filterDevice @device_serial_id = NULL
                 EXEC DevelopERP_ForTesting..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = @device_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            
+                
+                --EXEC DevelopERP_ForTesting..sp_filter_format_deviceTable 
+                --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
+
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_ForTesting..Device
                 WHERE device_id LIKE @device_id AND is_archived = 0    

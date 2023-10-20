@@ -43,11 +43,19 @@ interface Person {
 interface Vehicle {
     frame_no: number;
     license_plate: string;
-    number_of_shaft: number;
-    number_of_wheel: number;
-    number_of_tire: number;
-    person_id: number;
-    billing_location_id: number;
+    vehicle_model_id: number;
+    registration_province_code_id: number;
+    registration_type_code_id: number;
+    driving_license_type_code_id: number;
+    number_of_axles: number;
+    number_of_wheels: number;
+    number_of_tires: number;
+    vehicle_type_code_id: number;
+}
+
+interface Fleet {
+    fleet_name: string;
+    parent_fleet_id: number;
 }
 
 export interface CustomerType {
@@ -65,4 +73,7 @@ export interface CustomerType {
     vehicleNew: Vehicle[];
     vehicleExist: number[];
     vehicleDelete: number[];
+    fleetNew: Fleet[];
+    fleetExist: number[];
+    fleetDelete: number[];
 }

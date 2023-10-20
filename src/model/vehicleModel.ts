@@ -64,12 +64,11 @@ async function getVehicleData(vehicleId: string) {
             person: result.recordsets[3],
         }
     } catch (err) {
-        console.log(err)
         throw err;
     }
 }
 
-async function deleteVehicle (vehicleId: string) {
+async function deleteVehicle(vehicleId: string) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
@@ -86,4 +85,84 @@ async function deleteVehicle (vehicleId: string) {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle }
+async function createVehicleData(body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig)
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        let vehicleResult = await transaction.request()
+            .input('frame_no', sql.NVARCHAR, body.vehicle.frame_no)
+            .input('license_plate', sql.NVARCHAR, body.vehicle.license_plate)
+            .input('vehicle_model_id', sql.INT, body.vehicle.vehicle_model_id)
+            .input('registration_province_code_id', sql.INT, body.vehicle.registration_province_code_id)
+            .input('registration_type_code_id', sql.INT, body.vehicle.registration_type_code_id)
+            .input('driving_license_type_code_id', sql.INT, body.vehicle.driving_license_type_code_id)
+            .input('number_of_axles', sql.INT, body.vehicle.number_of_axles)
+            .input('number_of_wheels', sql.INT, body.vehicle.number_of_wheels)
+            .input('number_of_tires', sql.INT, body.vehicle.number_of_tires)
+            .input('vehicle_type_code_id', sql.INT, body.vehicle.vehicle_type_code_id)
+            .input('create_by', sql.INT, body.create_by)
+            .input('create_date', sql.DATETIME, datetime)
+            .input('is_archived', sql.INT, 0)
+            .query(`
+                INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, create_by, create_date, is_archived)
+                OUTPUT INSERTED.vehicle_id
+                VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @create_by, @create_date, @is_archived)
+            `)
+        let vehicle_id = await vehicleResult.recordset[0].vehicle_id
+
+        let vehicleConfigResult = await transaction.request()
+            .input('vehicle_id', sql.INT, vehicle_id)
+            .input('oil_lite', sql.DECIMAL(10,2), body.vehicleConfig.oil_lite)
+            .input('kilo_rate', sql.DECIMAL(10,2), body.vehicleConfig.kilo_rate)
+            .input('max_speed', sql.INT, body.vehicleConfig.max_speed)
+            .input('idle_time', sql.INT, body.vehicleConfig.idle_time)
+            .input('cc', sql.INT, body.vehicleConfig.cc)
+            .input('type', sql.INT, body.vehicleConfig.type)
+            .input('max_fuel_voltage', sql.INT, body.vehicleConfig.max_fuel_voltage)
+            .input('max_fuel_voltage_2', sql.INT, body.vehicleConfig.max_fuel_voltage_2)
+            .input('max_fuel_voltage_3', sql.INT, body.vehicleConfig.max_fuel_voltage_3)
+            .input('max_fuel', sql.INT, body.vehicleConfig.max_fuel)
+            .input('max_fuel_2', sql.INT, body.vehicleConfig.max_fuel_2)
+            .input('max_fuel_3', sql.INT, body.vehicleConfig.max_fuel_3)
+            .input('max_empty_voltage', sql.INT, body.vehicleConfig.max_empty_voltage)
+            .input('max_empty_voltage_2', sql.INT, body.vehicleConfig.max_empty_voltage_2)
+            .input('max_empty_voltage_3', sql.INT, body.vehicleConfig.max_empty_voltage_3)
+            .input('fuel_status', sql.INT, body.vehicleConfig.fuel_status)
+            .query(`
+                INSERT INTO DevelopERP_ForTesting..VehicleConfig (vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, max_fuel_voltage, max_fuel_voltage_2, max_fuel_voltage_3, max_fuel, max_fuel_2, max_fuel_3, max_empty_voltage, max_empty_voltage_2, max_empty_voltage_3, fuel_status)
+                VALUES (@vehicle_id, @oil_lite, @kilo_rate, @max_speed, @idle_time, @cc, @type, @max_fuel_voltage, @max_fuel_voltage_2, @max_fuel_voltage_3, @max_fuel, @max_fuel_2, @max_fuel_3, @max_empty_voltage, @max_empty_voltage_2, @max_empty_voltage_3, @fuel_status)    
+            `)
+
+        for (const customer of body.customerExist) {
+            let vehicleCustomerResult = await transaction.request()
+                .input('vehicle_id', sql.INT, vehicle_id)
+                .input('customer_id', sql.INT, customer)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting..Customer (vehicle_id, customer_id)
+                    VALUES (@vehicle_id, @customer_id)
+                `)
+        }
+
+        for (const person of body.personExist) {
+            let vehiclePersonResult = await transaction.request()
+                .input('vehicle_id', sql.INT, vehicle_id)
+                .input('person_id', sql.INT, person)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting (vehicle_id, person_id)
+                    VALUE (@vehicle_id, @person_id)
+                `)
+        }
+
+        await transaction.commit();
+
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData }

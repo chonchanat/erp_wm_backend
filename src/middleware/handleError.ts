@@ -10,6 +10,8 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         res.status(422).json({ status: 0, message: "Cannot insert duplicate fleet_name", response: err })
     } else if (message.includes('UC_BillingLocationName_TIN') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate name and tin", response: err })
+    } else if (message.includes('UC_FrameNo') && message.includes('duplicate key')) {
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate frame_no", response: err })
     } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
     } else if (message.includes('UC_Address_MasterCode') && message.includes('duplicate key')) {
@@ -23,7 +25,7 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
     } else if (message.includes('UC_Fleet_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and fleet", response: err })
     } else {
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
+        res.status(500).json({ status: 0, message: "failed from server (by handleError middleware)", response: err })
     }
 }
 
