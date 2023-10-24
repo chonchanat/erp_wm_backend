@@ -36,4 +36,13 @@ async function deleteDeviceSerial(req: Request, res: Response) {
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial }
+async function createDeviceSerialData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await deviceSerialModel.createDeviceSerialData(req.body);
+        res.status(201).json({ status: 1, message: "created successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData }

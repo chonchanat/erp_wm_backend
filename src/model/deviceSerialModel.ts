@@ -73,4 +73,32 @@ async function deleteDeviceSerial(device_serial_id: string) {
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial }
+async function createDeviceSerialData(body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        let deviceResult = await transaction.request()
+            .input('serial_id', sql.NVARCHAR, body.deviceSerial.serial_id)
+            .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
+            .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
+            .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
+            .input('create_by', sql.INT, body.create_by)
+            .input('create_date', sql.DATETIME, datetime)
+            .input('is_archived', sql.INT, 0)
+            .query(`
+                INSERT INTO DevelopERP_ForTesting..DeviceSerial (serial_id, imei_serial, dvr_id, device_type_code_id, create_by, create_date, is_archived)
+                VALUES (@serial_id, @imei_serial, @dvr_id, @device_type_code_id, @create_by, @create_date, @is_archived)    
+            `)
+
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData }
