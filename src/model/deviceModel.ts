@@ -63,4 +63,21 @@ async function getDeviceData(device_id: string) {
     }
 }
 
-export default { getDeviceTable, getDeviceData }
+async function deleteDevice(device_id: string) {
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('device_id', sql.INT, device_id)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE DevelopERP_ForTesting..Device
+                SET is_archived = 1, update_date = @update_date
+                WHERE device_id = @device_id
+            `)
+    } catch (err) {
+        throw err;
+    }
+}
+
+export default { getDeviceTable, getDeviceData, deleteDevice }

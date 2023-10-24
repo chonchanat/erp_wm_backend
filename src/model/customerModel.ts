@@ -598,7 +598,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
 
         for (const fleet of body.fleetNew) {
             let fleetResult = await transaction.request()
-                .input('fleet_id', sql.NVARCHAR, fleet.fleet_name)
+                .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
                 .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
                 .input('create_by', sql.INT, body.update_by)
                 .input('create_date', sql.DATETIME, datetime)
@@ -606,7 +606,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .query(`
                     INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, create_by, create_date, is_archived)
                     OUTPUT INSERTED.fleet_id
-                    VALUES (@fleet_id, @parent_fleet_id, @create_by, @create_date, @is_archived)
+                    VALUES (@fleet_name, @parent_fleet_id, @create_by, @create_date, @is_archived)
                 `)
             let fleet_id = fleetResult.recordset[0].fleet_id
 
