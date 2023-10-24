@@ -111,10 +111,15 @@ async function createDeviceData(body: any) {
             .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
             .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
             .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
-            .input('sim_type_code_id', sql.NVARCHAR, body.deviceConfig.sim_type_code_id)
+            .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
             .input('network', sql.NVARCHAR, body.deviceConfig.network)
             .input('username', sql.NVARCHAR, body.deviceConfig.username)
             .input('password', sql.NVARCHAR, body.deviceConfig.password)
+            .input('is_archived', sql.INT, 0)
+            .query(`
+                INSERT INTO DevelopERP_ForTesting (device_id, config_name, software_version, ip_address, gateway_port, sms_server_number, sms_message_center, sim_serial, mobile_number, sim_type_code_id, network, username, password, is_archived)
+                VALUES (@device_id, @config_name, @software_version, @ip_address, @gateway_port, @sms_server_number, @sms_message_center, @sim_serial, @mobile_number, @sim_type_code_id, @network, @username, @password, @is_archived)   
+            `)
 
         await transaction.commit();
     } catch (err) {
@@ -123,4 +128,50 @@ async function createDeviceData(body: any) {
     }
 }
 
-export default { getDeviceTable, getDeviceData, deleteDevice, createDeviceData }
+async function updateDeviceData (device_id: string, body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        let deviceResult = await transaction.request()
+            .input('device_id', sql.INT, device_id)
+            .input('veh_id', sql.INT, body.device.veh_id)
+            .input('device_serial_id', sql.INT, body.device.device_serial_id)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE DevelopERP_ForTesting..Device
+                SET veh_id = @veh_id, device_serial_id = @device_serial_id, update_date = @update_date
+                WHERE device_id = @device_id
+            `)
+
+        let deviceConfigResult = await transaction.request()
+            .input('device_id', sql.INT, device_id)
+            .input('config_name', sql.NVARCHAR, body.deviceConfig.config_name)
+            .input('software_version', sql.NVARCHAR, body.deviceConfig.software_version)
+            .input('ip_address', sql.NVARCHAR, body.deviceConfig.ip_address)
+            .input('gateway_port', sql.NVARCHAR, body.deviceConfig.gateway_port)
+            .input('sms_server_number', sql.NVARCHAR, body.deviceConfig.sms_server_number)
+            .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
+            .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
+            .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
+            .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
+            .input('network', sql.NVARCHAR, body.deviceConfig.network)
+            .input('username', sql.NVARCHAR, body.deviceConfig.username)
+            .input('password', sql.NVARCHAR, body.deviceConfig.password)
+            .query(`
+                UPDATE DevelopERP_ForTesting..DeviceConfig
+                SET config_name = @config_name, software_version = @software_version, ip_address = @ip_address, gateway_port = @gateway_port, sms_server_number = @sms_server_number, sms_message_center = @sms_message_center, sim_serial = @sim_serial, mobile_number = @mobile_number, sim_type_code_id = @sim_type_code_id, network = @network, username = @username, password = @password
+                WHERE device_id = @device_id
+            `)
+
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+export default { getDeviceTable, getDeviceData, deleteDevice, createDeviceData, updateDeviceData }

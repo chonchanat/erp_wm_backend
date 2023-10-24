@@ -45,4 +45,13 @@ async function createDeviceData(req: Request, res: Response, next: NextFunction)
     }
 }
 
-export default { getDeviceTable, getDeviceData, deleteDevice, createDeviceData }
+async function updateDeviceData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await deviceModel.updateDeviceData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getDeviceTable, getDeviceData, deleteDevice, createDeviceData, updateDeviceData }
