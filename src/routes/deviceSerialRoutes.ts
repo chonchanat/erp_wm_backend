@@ -7,5 +7,6 @@ router.get('/deviceserial', deviceSerialController.getDeviceSerialTable);
 router.get('/deviceserial/:id', deviceSerialController.getDeviceSerialData);
 router.delete('/deviceserial/:id', deviceSerialController.deleteDeviceSerial);
 router.post('/deviceserial', deviceSerialController.createDeviceSerialData);
+router.put('/deviceserial/:id', deviceSerialController.updateDeviceSerialData);
 
 export default router

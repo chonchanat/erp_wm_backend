@@ -12,6 +12,8 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         res.status(422).json({ status: 0, message: "Cannot insert duplicate name and tin", response: err })
     } else if (message.includes('UC_FrameNo') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate frame_no", response: err })
+    } else if (message.includes('UC_SerialId') && message.includes('duplicate key')) {
+        res.status(422).json({ status: 0, message: "Cannot insert duplicate serial_id", response: err })
     } else if (message.includes('UC_Address_Customer') && message.includes('duplicate key')) {
         res.status(422).json({ status: 0, message: "Cannot insert duplicate value for customer and address", response: err })
     } else if (message.includes('UC_Address_MasterCode') && message.includes('duplicate key')) {

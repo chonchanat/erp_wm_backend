@@ -81,7 +81,7 @@ async function createDeviceSerialData(body: any) {
         transaction = pool.transaction();
         await transaction.begin();
 
-        let deviceResult = await transaction.request()
+        let deviceSerialResult = await transaction.request()
             .input('serial_id', sql.NVARCHAR, body.deviceSerial.serial_id)
             .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
@@ -101,4 +101,32 @@ async function createDeviceSerialData(body: any) {
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData }
+async function updateDeviceSerialData(device_serial_id: string, body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        let deviceSerialResult = await transaction.request()
+            .input('device_serial_id', sql.INT, device_serial_id)
+            .input('serial_id', sql.NVARCHAR, body.deviceSerial.serial_id)
+            .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
+            .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
+            .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE DevelopERP_ForTesting..DeviceSerial
+                SET serial_id = @serial_id, imei_serial = @imei_serial, dvr_id = @dvr_id, device_type_code_id = @device_type_code_id, update_date = @update_date
+                WHERE device_serial_id = @device_serial_id
+            `)
+
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData, updateDeviceSerialData }
