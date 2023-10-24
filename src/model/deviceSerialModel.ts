@@ -3,10 +3,10 @@ import { getDateTime } from "../utils"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
-async function getDeviceSerialTable (index: number, filter: string) {
+async function getDeviceSerialTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig)
-        let result  = await pool.request()
+        let result = await pool.request()
             .input('serial_id', sql.NVARCHAR, "%" + filter + "%")
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
@@ -29,12 +29,12 @@ async function getDeviceSerialTable (index: number, filter: string) {
     }
 }
 
-async function getDeviceSerialData (device_serial_id: string) {
+async function getDeviceSerialData(device_serial_id: string) {
     try {
         let pool = await sql.connect(devConfig)
         let result = await pool.request()
             .input('device_serial_id', sql.NVARCHAR, device_serial_id)
-            .  query(`
+            .query(`
                 SELECT DS.device_serial_id, DS.serial_id, COALESCE(DS.imei_serial, '-') AS imei_serial, M.value AS box_type, DS.create_date
                 FROM DevelopERP_ForTesting..DeviceSerial DS
                 LEFT JOIN DevelopERP_ForTesting..MasterCode M
@@ -56,4 +56,21 @@ async function getDeviceSerialData (device_serial_id: string) {
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData }
+async function deleteDeviceSerial(device_serial_id: string) {
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('device_serial_id', sql.INT, device_serial_id)
+            .input('update_date', sql.DATETIME, datetime)
+            .query(`
+                UPDATE DevelopERP_ForTesting..DeviceSerial
+                SET is_archived = 1, update_date = @update_date
+                WHERE device_serial_id = @device_serial_id
+            `)
+    } catch (err) {
+        throw err;
+    }
+}
+
+export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial }
