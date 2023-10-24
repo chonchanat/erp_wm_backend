@@ -123,8 +123,28 @@ async function createFleetData(body: any) {
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleet_id)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (customer_id, fleet_id)
-                    VALUES (@customer_id, @fleet_id)
+                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (fleet_id, customer_id)
+                    VALUES (@fleet_id, @customer_id)
+                `)
+        }
+
+        for (const person of body.personExist) {
+            let personResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleet_id)
+                .input('person_id', sql.INT, person)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting..Fleet_Person (fleet_id, person_id)
+                    VALUES (@fleet_id, @person_id)
+                `)
+        }
+        
+        for (const vehicle of body.vehicleExist) {
+            let vehicleResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleet_id)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting..Fleet_Vehicle (fleet_id, vehicle_id)
+                    VALUES (@fleet_id, @vehicle_id)
                 `)
         }
 
@@ -171,6 +191,44 @@ async function updateFleetData(fleetId: string, body: any) {
                 .query(`
                     INSERT INTO DevelopERP_ForTesting..Fleet_Customer (customer_id, fleet_id)
                     VALUES (@customer_id, @fleet_id)
+                `)
+        }
+
+        for (const person of body.personDelete) {
+            let personDeleteResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleetId)
+                .input('person_id', sql.INT, person)
+                .query(`
+                    DELETE FROM DevelopERP_ForTesting..Fleet_Person
+                    WHERE fleet_id = @fleet_id AND person_id = @person_id
+                `)
+        }
+        for (const person of body.personExist) {
+            let personResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleetId)
+                .input('person_id', sql.INT, person)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting..Fleet_Person (fleet_id, person_id)
+                    VALUES (@fleet_id, @person_id)
+                `)
+        }
+        
+        for (const vehicle of body.vehicleDelete) {
+            let vehicleDeleteResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleetId)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    DELETE FROM DevelopERP_ForTesting..Fleet_Vehicle
+                    WHERE fleet_id = @fleet_id AND vehicle_id = @vehicle_id
+                `)
+        }
+        for (const vehicle of body.vehicleExist) {
+            let vehicleResult = await transaction.request()
+                .input('fleet_id', sql.INT, fleetId)
+                .input('vehicle_id', sql.INT, vehicle)
+                .query(`
+                    INSERT INTO DevelopERP_ForTesting..Fleet_Vehicle (fleet_id, vehicle_id)
+                    VALUES (@fleet_id, @vehicle_id)
                 `)
         }
 

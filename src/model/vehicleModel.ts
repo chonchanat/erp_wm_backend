@@ -172,7 +172,6 @@ async function updateVehicleData(vehicleId: string, body: any) {
         let pool = await sql.connect(devConfig)
         transaction = pool.transaction();
         await transaction.begin();
-        console.log(datetime, vehicleId)
 
         let vehicleResult = await transaction.request()
             .input('vehicle_id', sql.INT, vehicleId)
