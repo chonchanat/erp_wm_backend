@@ -30,10 +30,19 @@ async function getDeviceData(req: Request, res: Response) {
 async function deleteDevice(req: Request, res: Response) {
     try {
         await deviceModel.deleteDevice(req.params.id)
-        res.status(200).json({ status: 1, message: "deleted succesfully"})
+        res.status(200).json({ status: 1, message: "deleted succesfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
-export default { getDeviceTable, getDeviceData, deleteDevice }
+async function createDeviceData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await deviceModel.createDeviceData(req.body)
+        res.status(201).json({ status: 1, message: "created succesfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getDeviceTable, getDeviceData, deleteDevice, createDeviceData }

@@ -6,5 +6,6 @@ const router: Router = express.Router();
 router.get('/device', deviceController.getDeviceTable);
 router.get('/device/:id', deviceController.getDeviceData);
 router.delete('/device/:id', deviceController.deleteDevice);
+router.post('/device', deviceController.createDeviceData);
 
 export default router
