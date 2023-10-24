@@ -45,4 +45,13 @@ async function createVehicleData(req: Request, res: Response, next: NextFunction
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData }
+async function updateVehicleData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await vehicleModel.updateVehicleData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData }

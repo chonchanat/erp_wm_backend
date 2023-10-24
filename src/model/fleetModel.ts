@@ -118,7 +118,7 @@ async function createFleetData(body: any) {
             `)
         let fleet_id = fleetResult.recordset[0].fleet_id
 
-        for (const customer of body.customer) {
+        for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleet_id)
@@ -164,7 +164,7 @@ async function updateFleetData(fleetId: string, body: any) {
                     WHERE fleet_id = @fleet_id AND customer_id = @customer_id
                 `)
         }
-        for (const customer of body.customer) {
+        for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleetId)
