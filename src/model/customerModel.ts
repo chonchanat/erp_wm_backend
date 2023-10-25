@@ -15,7 +15,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
                 EXEC DevelopERP_ForTesting..sp_filterCustomer @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = @customer_name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_ForTesting..Customer
@@ -26,6 +26,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             count_data: result.recordsets[1][0].count_data
         };
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }
@@ -91,7 +92,7 @@ async function deleteCustomer(customerId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Customer
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE customer_id = @customer_id
             `)
     } catch (err) {
@@ -100,14 +101,18 @@ async function deleteCustomer(customerId: string) {
 }
 
 const customerQuery = `
-INSERT INTO DevelopERP_ForTesting..Customer (customer_name, sales_type_code_id, customer_type_code_id, create_date, create_by, is_archived)
-OUTPUT INSERTED.customer_id
-VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @create_date, @create_by, @is_archived)
+DECLARE @customerTable TABLE (customer_id INT)
+INSERT INTO DevelopERP_ForTesting..Customer (customer_name, sales_type_code_id, customer_type_code_id, action_by, is_archived)
+OUTPUT INSERTED.customer_id INTO @customerTable (customer_id)
+VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @action_by, @is_archived)
+SELECT customer_id FROM @customerTable
 `;
 const addressQuery = `
-INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
-OUTPUT INSERTED.address_id
-VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
+DECLARE @addressTable TABLE (address_id INT)
+INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
+OUTPUT INSERTED.address_id INTO @addressTable (address_id)
+VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @action_by, @is_archived)
+SELECT address_id FROM @addressTable
 `;
 const addressCustomerQuery = `
 INSERT INTO DevelopERP_ForTesting..Address_Customer (customer_id, address_id)
@@ -122,8 +127,8 @@ DELETE FROM DevelopERP_ForTesting..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO DevelopERP_ForTesting..Contact (customer_id, value, contact_code_id, create_by, create_date, is_archived)
-VALUES (@customer_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
+INSERT INTO DevelopERP_ForTesting..Contact (customer_id, value, contact_code_id, action_by, is_archived)
+VALUES (@customer_id, @value, @contact_code_id, @action_by, @is_archived)
 `;
 const contactDeleteQuery = `
 UPDATE DevelopERP_ForTesting..Contact
@@ -152,8 +157,8 @@ INSERT INTO DevelopERP_ForTesting..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO DevelopERP_ForTesting..Contact (person_id, value, contact_code_id, create_by, create_date, is_archived)
-VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
+INSERT INTO DevelopERP_ForTesting..Contact (person_id, value, contact_code_id, action_by, is_archived)
+VALUES (@person_id, @value, @contact_code_id, @action_by, @is_archived)
 `
 
 async function createCustomerData(body: CustomerType) {
@@ -163,14 +168,12 @@ async function createCustomerData(body: CustomerType) {
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin()
-        // const request = transaction.request();
 
         let customerResult = await transaction.request()
             .input('customer_name', sql.NVARCHAR, body.customer.customer_name === "" ? null : body.customer.customer_name)
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
-            .input('create_date', sql.DATETIME, datetime)
-            .input('create_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(customerQuery)
         let customer_id = customerResult.recordset[0].customer_id
@@ -395,10 +398,9 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             .input('customer_name', sql.NVARCHAR, body.customer.customer_name)
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Customer
-                SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, update_date = @update_date
+                SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id
                 WHERE customer_id = @customer_id
             `)
 

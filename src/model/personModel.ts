@@ -86,6 +86,7 @@ async function getPersonData(personId: string) {
             address: result.recordsets[4]
         }
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }
@@ -129,8 +130,8 @@ const customerPersonDeleteQuery = `
     WHERE person_id = @person_id AND customer_id = @customer_id
 `
 const contactQuery = `
-    INSERT INTO DevelopERP_ForTesting..Contact (person_id, value, contact_code_id, create_by, create_date, is_archived)
-    VALUES (@person_id, @value, @contact_code_id, @create_by, @create_date, @is_archived)
+    INSERT INTO DevelopERP_ForTesting..Contact (person_id, value, contact_code_id, action_by, is_archived)
+    VALUES (@person_id, @value, @contact_code_id, @action_by, @is_archived)
 `
 const contactDeleteQuery = `
     UPDATE DevelopERP_ForTesting..Contact
@@ -138,9 +139,11 @@ const contactDeleteQuery = `
     WHERE contact_id = @contact_id AND person_id = @person_id
 `
 const addressQuery = `
-    INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
-    OUTPUT INSERTED.address_id
-    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
+    DECLARE @addressTable TABLE (address_id INT)
+    INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
+    OUTPUT INSERTED.address_id INTO @addressTable (address_id)
+    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @action_by, @is_archived)
+    SELECT address_id FROM @addressTable
 `
 const addressPersonQuery = `
     INSERT INTO DevelopERP_ForTesting..Address_Person (person_id, address_id)
@@ -238,6 +241,7 @@ async function createPersonData(body: any) {
         await transaction.commit();
 
     } catch (err) {
+        console.log(err)
         await transaction.rollback();
         throw err;
     }

@@ -97,13 +97,14 @@ async function createAddressData(body: any) {
             .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
             .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('create_by', sql.INT, body.create_by)
-            .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, create_by, create_date, is_archived)
-                OUTPUT INSERTED.address_id
-                VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @create_by, @create_date, @is_archived)
+                DECLARE @addressTable TABLE (address_id INT)
+                INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
+                OUTPUT INSERTED.address_id INTO @addressTable (address_id)
+                VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @action_by, @is_archived)
+                SELECT address_id FROM @addressTable
             `)
         let address_id = addressResult.recordset[0].address_id
 
@@ -143,11 +144,10 @@ async function updateAddressData(body: any, addressId: string) {
             .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
             .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('update_date', sql.DATETIME, datetime)
             .input('address_id', sql.INT, addressId)
             .query(`
                 UPDATE DevelopERP_ForTesting..Address
-                SET name = @name, house_no = @house_no, village_no = @village_no, alley = @alley,  road = @road, sub_district = @sub_district, district = @district, province = @province, postal_code = @postal_code, update_date = @update_date
+                SET name = @name, house_no = @house_no, village_no = @village_no, alley = @alley,  road = @road, sub_district = @sub_district, district = @district, province = @province, postal_code = @postal_code
                 WHERE address_id = @address_id
             `)
 
@@ -174,6 +174,7 @@ async function updateAddressData(body: any, addressId: string) {
         transaction.commit();
 
     } catch (err) {
+        console.log(err)
         transaction.rollback();
         throw err;
     }
