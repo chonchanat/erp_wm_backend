@@ -136,9 +136,11 @@ SET is_archived = 1
 WHERE contact_id = @contact_id AND customer_id = @customer_id
 `
 const personQuery = `
-INSERT INTO DevelopERP_ForTesting..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, is_archived)
-OUTPUT INSERTED.person_id
-VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @is_archived)
+DECLARE @personTable TABLE (person_id INT)
+INSERT INTO DevelopERP_ForTesting..Person (firstname, lastname, nickname, title_code_id, description, action_by, is_archived)
+OUTPUT INSERTED.person_id INTO @personTable (person_id)
+VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @action_by, @is_archived)
+SELECT person_id FROM @personTable
 `;
 const roleQuery = `
 INSERT INTO DevelopERP_ForTesting..Person_Role (person_id, role_code_id)
@@ -189,8 +191,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
@@ -218,8 +219,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
@@ -232,8 +232,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('nickname', sql.NVARCHAR, person.person.nickname === "" ? null : person.person.nickname)
                 .input('title_code_id', sql.Int, person.person.title_code_id)
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(personQuery)
             let person_id = personResult.recordset[0].person_id
@@ -260,8 +259,7 @@ async function createCustomerData(body: CustomerType) {
                     .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                    .input('create_by', sql.INT, body.create_by)
-                    .input('create_date', sql.DATETIME, datetime)
+                    .input('action_by', sql.INT, body.create_by)
                     .input('is_archived', sql.INT, 0)
                     .query(addressQuery)
                 const address_id = addressResult.recordset[0].address_id
@@ -289,8 +287,7 @@ async function createCustomerData(body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
-                    .input('create_by', sql.INT, body.create_by)
-                    .input('create_date', sql.DATETIME, datetime)
+                    .input('action_by', sql.INT, body.create_by)
                     .input('is_archived', sql.INT, 0)
                     .query(contactPersonQuery)
             }
@@ -398,9 +395,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             .input('customer_name', sql.NVARCHAR, body.customer.customer_name)
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Customer
-                SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id
+                SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, action_by = @action_by
                 WHERE customer_id = @customer_id
             `)
 
@@ -415,8 +413,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
@@ -456,8 +453,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
@@ -470,8 +466,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('nickname', sql.NVARCHAR, person.person.nickname === "" ? null : person.person.nickname)
                 .input('title_code_id', sql.Int, person.person.title_code_id)
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(personQuery)
             let person_id = personResult.recordset[0].person_id
@@ -498,8 +493,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                    .input('create_by', sql.INT, body.update_by)
-                    .input('create_date', sql.DATETIME, datetime)
+                    .input('action_by', sql.INT, body.update_by)
                     .input('is_archived', sql.INT, 0)
                     .query(addressQuery)
                 const address_id = addressResult.recordset[0].address_id
@@ -527,8 +521,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
-                    .input('create_by', sql.INT, body.update_by)
-                    .input('create_date', sql.DATETIME, datetime)
+                    .input('action_by', sql.INT, body.update_by)
                     .input('is_archived', sql.INT, 0)
                     .query(contactPersonQuery)
             }

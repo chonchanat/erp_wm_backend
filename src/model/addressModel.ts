@@ -145,9 +145,10 @@ async function updateAddressData(body: any, addressId: string) {
             .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
             .input('address_id', sql.INT, addressId)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Address
-                SET name = @name, house_no = @house_no, village_no = @village_no, alley = @alley,  road = @road, sub_district = @sub_district, district = @district, province = @province, postal_code = @postal_code
+                SET name = @name, house_no = @house_no, village_no = @village_no, alley = @alley,  road = @road, sub_district = @sub_district, district = @district, province = @province, postal_code = @postal_code, action_by = @action_by
                 WHERE address_id = @address_id
             `)
 
@@ -186,10 +187,9 @@ async function deleteAddress(addressId: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('address_id', sql.INT, addressId)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Address
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE address_id = @address_id
             `)
 

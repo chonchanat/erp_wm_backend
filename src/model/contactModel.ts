@@ -73,10 +73,9 @@ async function deleteContact(contactId: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('contact_id', sql.INT, contactId)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Contact
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE contact_id = @contact_id
             `)
     } catch (err) {

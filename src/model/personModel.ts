@@ -93,14 +93,12 @@ async function getPersonData(personId: string) {
 
 async function deletePerson(personId: string) {
     try {
-        let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('person_id', sql.INT, personId)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Person
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE person_id = @person_id
             `)
     } catch (err) {
@@ -109,9 +107,11 @@ async function deletePerson(personId: string) {
 }
 
 const personQuery = `
-    INSERT INTO DevelopERP_ForTesting..Person (firstname, lastname, nickname, title_code_id, description, create_by, create_date, is_archived)
-    OUTPUT inserted.person_id
-    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @create_by, @create_date, @is_archived)
+    DECLARE @personTable TABLE (person_id INT)
+    INSERT INTO DevelopERP_ForTesting..Person (firstname, lastname, nickname, title_code_id, description, action_by, is_archived)
+    OUTPUT INSERTED.person_id INTO @personTable (person_id)
+    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @action_by, @is_archived)
+    SELECT person_id FROM @personTable
 `
 const roleQuery = `
     INSERT INTO DevelopERP_ForTesting..Person_Role (person_id, role_code_id)
@@ -172,8 +172,7 @@ async function createPersonData(body: any) {
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-            .input('create_by', sql.INT, body.create_by)
-            .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(personQuery)
         let person_id = personResult.recordset[0].person_id
@@ -197,8 +196,7 @@ async function createPersonData(body: any) {
                 .input('person_id', sql.INT, person_id)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
@@ -214,8 +212,7 @@ async function createPersonData(body: any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
@@ -261,10 +258,10 @@ async function updatePersonDate(personId: string, body: any) {
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.DATETIME, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Person
-                SET firstname = @firstname, lastname = @lastname, nickname = @nickname, title_code_id = @title_code_id, description = @description, update_date = @update_date
+                SET firstname = @firstname, lastname = @lastname, nickname = @nickname, title_code_id = @title_code_id, description = @description, action_by = @action_by
                 WHERE person_id = @person_id
             `)
 
@@ -305,8 +302,7 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('person_id', sql.INT, personId)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(contactQuery)
         }
@@ -322,8 +318,7 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(addressQuery)
             const address_id = addressResult.recordset[0].address_id
