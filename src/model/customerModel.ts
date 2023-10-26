@@ -312,13 +312,14 @@ async function createCustomerData(body: CustomerType) {
                 .input('number_of_wheels', sql.INT, vehicle.number_of_wheels)
                 .input('number_of_tires', sql.INT, vehicle.number_of_tires)
                 .input('vehicle_type_code_id', sql.INT, vehicle.vehicle_type_code_id)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATE, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, create_by, create_date, is_archived)
-                    OUTPUT INSERTED.vehicle_id
-                    VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @create_by, @create_date, @is_archived)
+                    DECLARE @vehicleTable TABLE (vehicle_id INT)
+                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
+                    OUTPUT INSERTED.vehicle_id INTO @vehicleTable (vehicle_id)
+                    VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @action_by, @is_archived)
+                    SELECT vehicle_id FROM @vehicleTable    
                 `)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
 
@@ -345,13 +346,14 @@ async function createCustomerData(body: CustomerType) {
             let fleetResult = await transaction.request()
                 .input('fleet_id', sql.NVARCHAR, fleet.fleet_name)
                 .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
-                .input('create_by', sql.INT, body.create_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
                 .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, create_by, create_date, is_archived)
-                    OUTPUT INSERTED.fleet_id
-                    VALUES (@fleet_id, @parent_fleet_id, @create_by, @create_date, @is_archived)
+                    DECLARE @fleetTable TABLE (fleet_id INT)
+                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
+                    OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
+                    VALUES (@fleet_id, @parent_fleet_id, @action_by, @is_archived)
+                    SELECT fleet_id FROM @fleetTable
                 `)
             let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -553,13 +555,14 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('number_of_wheels', sql.INT, vehicle.number_of_wheels)
                 .input('number_of_tires', sql.INT, vehicle.number_of_tires)
                 .input('vehicle_type_code_id', sql.INT, vehicle.vehicle_type_code_id)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATE, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, create_by, create_date, is_archived)
-                    OUTPUT INSERTED.vehicle_id
-                    VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @create_by, @create_date, @is_archived)
+                    DECLARE @vehicleTable TABLE (vehicle_id INT)
+                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
+                    OUTPUT INSERTED.vehicle_id INTO @vehicleTable (vehicle_id)
+                    VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @action_by, @is_archived)
+                    SELECT vehicle_id FROM @vehicleTable
                 `)
                 let vehicle_id = await vehicleResult.recordset[0].vehicle_id
                 
@@ -595,13 +598,14 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             let fleetResult = await transaction.request()
                 .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
                 .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
-                .input('create_by', sql.INT, body.update_by)
-                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
                 .input('is_archived', sql.INT, 0)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, create_by, create_date, is_archived)
-                    OUTPUT INSERTED.fleet_id
-                    VALUES (@fleet_name, @parent_fleet_id, @create_by, @create_date, @is_archived)
+                    DECLARE @fleetTable TABLE (fleet_id INT)
+                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
+                    OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
+                    VALUES (@fleet_id, @parent_fleet_id, @action_by, @is_archived)
+                    SELECT fleet_id FROM @fleetTable
                 `)
             let fleet_id = fleetResult.recordset[0].fleet_id
 

@@ -69,10 +69,9 @@ async function deleteDevice(device_id: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('device_id', sql.INT, device_id)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Device
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE device_id = @device_id
             `)
     } catch (err) {
@@ -91,13 +90,15 @@ async function createDeviceData(body: any) {
         let deviceResult = await transaction.request()
             .input('veh_id', sql.INT, body.device.veh_id)
             .input('device_serial_id', sql.INT, body.device.device_serial_id)
-            .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..Device (veh_id, device_serial_id, create_by, create_date, is_archived)
-                OUTPUT INSERTED.device_id
-                VALUES (@veh_id, @device_serial_id, @create_by, @create_date, @is_archived)
+                DECLARE @deviceTable TABLE (device_id INT)
+                INSERT INTO DevelopERP_ForTesting..Device (veh_id, device_serial_id, create_date, action_by, is_archived)
+                OUTPUT INSERTED.device_id INTO @deviceTable (device_id)
+                VALUES (@veh_id, @device_serial_id, @create_date, @action_by, @is_archived)
+                SELECT device_id FROM @deviceTable
             `)
         let device_id = await deviceResult.recordset[0].device_id
 
@@ -117,12 +118,13 @@ async function createDeviceData(body: any) {
             .input('password', sql.NVARCHAR, body.deviceConfig.password)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting (device_id, config_name, software_version, ip_address, gateway_port, sms_server_number, sms_message_center, sim_serial, mobile_number, sim_type_code_id, network, username, password, is_archived)
+                INSERT INTO DevelopERP_ForTesting..DeviceConfig (device_id, config_name, software_version, ip_address, gateway_port, sms_server_number, sms_message_center, sim_serial, mobile_number, sim_type_code_id, network, username, password, is_archived)
                 VALUES (@device_id, @config_name, @software_version, @ip_address, @gateway_port, @sms_server_number, @sms_message_center, @sim_serial, @mobile_number, @sim_type_code_id, @network, @username, @password, @is_archived)   
             `)
 
         await transaction.commit();
     } catch (err) {
+        console.log(err)
         await transaction.rollback();
         throw err;
     }
@@ -140,10 +142,10 @@ async function updateDeviceData (device_id: string, body: any) {
             .input('device_id', sql.INT, device_id)
             .input('veh_id', sql.INT, body.device.veh_id)
             .input('device_serial_id', sql.INT, body.device.device_serial_id)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Device
-                SET veh_id = @veh_id, device_serial_id = @device_serial_id, update_date = @update_date
+                SET veh_id = @veh_id, device_serial_id = @device_serial_id, action_by = @action_by
                 WHERE device_id = @device_id
             `)
 
@@ -169,6 +171,7 @@ async function updateDeviceData (device_id: string, body: any) {
 
         await transaction.commit();
     } catch (err) {
+        console.log(err)
         await transaction.rollback();
         throw err;
     }

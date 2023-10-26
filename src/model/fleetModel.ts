@@ -73,7 +73,6 @@ async function deleteFleet(fleetId: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('fleet_id', sql.INT, fleetId)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 WITH RecursiveCTE AS (
                     SELECT fleet_id, parent_fleet_id
@@ -108,13 +107,14 @@ async function createFleetData(body: any) {
         let fleetResult = await transaction.request()
             .input('fleet_name', sql.NVARCHAR, body.fleet.fleet_name)
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id ? body.fleet.parent_fleet_id : null) 
-            .input('create_by', sql.INT, body.create_by)
-            .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, create_by, create_date, is_archived)
-                OUTPUT INSERTED.fleet_id
-                VALUES (@fleet_name, @parent_fleet_id, @create_by, @create_date, @is_archived)
+                DECLARE @fleetTable TABLE (fleet_id INT)
+                INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
+                OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
+                VALUES (@fleet_name, @parent_fleet_id, @action_by, @is_archived)
+                SELECT fleet_id FROM @fleetTable
             `)
         let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -168,10 +168,10 @@ async function updateFleetData(fleetId: string, body: any) {
             .input('fleet_id', sql.INT, fleetId)
             .input('fleet_name', sql.NVARCHAR, body.fleet.fleet_name)
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Fleet
-                SET fleet_name = @fleet_name, parent_fleet_id = @parent_fleet_id, update_date = @update_date
+                SET fleet_name = @fleet_name, parent_fleet_id = @parent_fleet_id, action_by = @action_by
                 WHERE fleet_id = @fleet_id
             `)
 

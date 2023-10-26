@@ -62,10 +62,9 @@ async function deleteDeviceSerial(device_serial_id: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('device_serial_id', sql.INT, device_serial_id)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..DeviceSerial
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE device_serial_id = @device_serial_id
             `)
     } catch (err) {
@@ -86,12 +85,12 @@ async function createDeviceSerialData(body: any) {
             .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
-            .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..DeviceSerial (serial_id, imei_serial, dvr_id, device_type_code_id, create_by, create_date, is_archived)
-                VALUES (@serial_id, @imei_serial, @dvr_id, @device_type_code_id, @create_by, @create_date, @is_archived)    
+                INSERT INTO DevelopERP_ForTesting..DeviceSerial (serial_id, imei_serial, dvr_id, device_type_code_id, create_date, action_by, is_archived)
+                VALUES (@serial_id, @imei_serial, @dvr_id, @device_type_code_id, @create_date, @action_by, @is_archived)    
             `)
 
         await transaction.commit();
@@ -115,10 +114,10 @@ async function updateDeviceSerialData(device_serial_id: string, body: any) {
             .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..DeviceSerial
-                SET serial_id = @serial_id, imei_serial = @imei_serial, dvr_id = @dvr_id, device_type_code_id = @device_type_code_id, update_date = @update_date
+                SET serial_id = @serial_id, imei_serial = @imei_serial, dvr_id = @dvr_id, device_type_code_id = @device_type_code_id, action_by = @action_by
                 WHERE device_serial_id = @device_serial_id
             `)
 

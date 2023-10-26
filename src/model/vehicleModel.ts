@@ -74,10 +74,9 @@ async function deleteVehicle(vehicleId: string) {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('vehicle_id', sql.INT, vehicleId)
-            .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_ForTesting..Vehicle
-                SET is_archived = 1, update_date = @update_date
+                SET is_archived = 1
                 WHERE vehicle_id = @vehicle_id
             `)
     } catch (err) {
@@ -104,13 +103,14 @@ async function createVehicleData(body: any) {
             .input('number_of_wheels', sql.INT, body.vehicle.number_of_wheels)
             .input('number_of_tires', sql.INT, body.vehicle.number_of_tires)
             .input('vehicle_type_code_id', sql.INT, body.vehicle.vehicle_type_code_id)
-            .input('create_by', sql.INT, body.create_by)
-            .input('create_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.create_by)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, create_by, create_date, is_archived)
-                OUTPUT INSERTED.vehicle_id
-                VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @create_by, @create_date, @is_archived)
+            DECLARE @vehicleTable TABLE (vehicle_id INT)
+            INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
+            OUTPUT INSERTED.vehicle_id INTO @vehicleTable (vehicle_id)
+            VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @action_by, @is_archived)
+            SELECT vehicle_id FROM @vehicleTable
             `)
         let vehicle_id = await vehicleResult.recordset[0].vehicle_id
 
@@ -185,10 +185,10 @@ async function updateVehicleData(vehicleId: string, body: any) {
             .input('number_of_wheels', sql.INT, body.vehicle.number_of_wheels)
             .input('number_of_tires', sql.INT, body.vehicle.number_of_tires)
             .input('vehicle_type_code_id', sql.INT, body.vehicle.vehicle_type_code_id)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.update_by)
             .query(`
                 UPDATE DevelopERP_ForTesting..Vehicle
-                SET frame_no = @frame_no, license_plate = @license_plate, vehicle_model_id = @vehicle_model_id, registration_province_code_id = @registration_province_code_id, registration_type_code_id = @registration_type_code_id, driving_license_type_code_id = @driving_license_type_code_id, number_of_axles = @number_of_axles, number_of_wheels = @number_of_wheels, number_of_tires = @number_of_tires, vehicle_type_code_id = @vehicle_type_code_id, update_date = @update_date
+                SET frame_no = @frame_no, license_plate = @license_plate, vehicle_model_id = @vehicle_model_id, registration_province_code_id = @registration_province_code_id, registration_type_code_id = @registration_type_code_id, driving_license_type_code_id = @driving_license_type_code_id, number_of_axles = @number_of_axles, number_of_wheels = @number_of_wheels, number_of_tires = @number_of_tires, vehicle_type_code_id = @vehicle_type_code_id, action_by = @action_by
                 WHERE vehicle_id = @vehicle_id
             `)
 
