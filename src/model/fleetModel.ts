@@ -12,8 +12,8 @@ async function getFleetTable(index: number, filterFleet: string) {
             .query(`
                 DECLARE @fleetTable FleetType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = NULL
-                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = @fleet_name, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Fleet

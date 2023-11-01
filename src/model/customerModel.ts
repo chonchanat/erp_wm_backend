@@ -44,11 +44,11 @@ async function getCustomerData(customerId: string) {
                 INNER JOIN DevelopERP_Clear..MasterCode M_customertype
                 ON C.customer_type_code_id = M_customertype.code_id
                 WHERE customer_id = @customer_id AND is_archived = 0
-
+                
                 DECLARE @fleetTable FleetType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = @customer_id
-                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = @customer_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 1
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
