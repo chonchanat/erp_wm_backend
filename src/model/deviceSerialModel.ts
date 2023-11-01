@@ -43,9 +43,8 @@ async function getDeviceSerialData(device_serial_id: string) {
 
                 DECLARE @deviceTable DeviceType
                 INSERT INTO @deviceTable
-                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = @device_serial_id
-                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 0, @lastIndex = 0
-
+                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 1
             `)
         return {
             deviceSerial: result.recordsets[0][0],

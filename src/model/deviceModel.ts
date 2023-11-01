@@ -11,10 +11,11 @@ async function getDeviceTable (index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
+
                 DECLARE @deviceTable DeviceType
                 INSERT INTO @deviceTable
-                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = NULL
-                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = @device_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = @device_id, @firstIndex = @firstIndex
                 
                 --EXEC DevelopERP_Clear..sp_filter_format_deviceTable 
                 --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
