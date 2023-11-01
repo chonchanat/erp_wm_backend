@@ -13,8 +13,8 @@ async function getDeviceSerialTable(index: number, filter: string) {
             .query(`
                 DECLARE @deviceSerialTable DeviceSerialType
                 INSERT INTO @deviceSerialTable 
-                EXEC DevelopERP_Clear..sp_filterDeviceSerial @device_id = NULL
-                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable =  @deviceSerialTable, @serial_id =@serial_id, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterDeviceSerial @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @serial_id = @serial_id, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..DeviceSerial
