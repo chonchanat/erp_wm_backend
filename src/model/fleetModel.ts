@@ -42,8 +42,8 @@ async function getFleetData(fleetId: string) {
 
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = @fleet_id, @person_id = NULL, @vehicle_id = NULL
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = @fleet_id, @person_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 1
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable

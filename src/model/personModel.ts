@@ -59,11 +59,11 @@ async function getPersonData(personId: string) {
                 LEFT JOIN DevelopERP_Clear..MasterCode M
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
-
+                
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 1
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable

@@ -14,8 +14,8 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .query(`
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = @customer_name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = @customer_name, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..Customer
