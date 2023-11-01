@@ -13,8 +13,8 @@ async function getContactTable(index: number, filterValue: string) {
             .query(`
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_Clear..sp_filterContact @customer_id = NULL, @person_id = NULL
-                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterContact @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = @value, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Contact

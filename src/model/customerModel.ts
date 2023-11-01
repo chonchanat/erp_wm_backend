@@ -52,8 +52,8 @@ async function getCustomerData(customerId: string) {
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_Clear..sp_filterContact @customer_id = @customer_id, @person_id = NULL
-                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterContact @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 1
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
