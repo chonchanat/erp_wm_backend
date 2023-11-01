@@ -11,10 +11,10 @@ async function getBillingLocationTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                EXEC DevelopERP_ForTesting..getBillingLocationTable @name = @name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..getBillingLocationTable @name = @name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP_ForTesting..BillingLocation
+                FROM DevelopERP_Clear..BillingLocation
                 WHERE name LIKE @name
             `)
 
@@ -34,7 +34,7 @@ async function getBillingLocationData(billingLocationId: string) {
             .input('billing_location_id', sql.INT, billingLocationId)
             .query(`
                 SELECT billing_location_id, name, tin, COALESCE(branch, '-') AS branch
-                FROM DevelopERP_ForTesting..BillingLocation
+                FROM DevelopERP_Clear..BillingLocation
                 WHERE billing_location_id = @billing_location_id AND is_archived = 0
 
                 DECLARE @customerTable TABLE (
@@ -44,10 +44,10 @@ async function getBillingLocationData(billingLocationId: string) {
                     email NVARCHAR(MAX)
                 )
                 INSERT INTO @customerTable
-                EXEC DevelopERP_ForTesting..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..getCustomerTable @customer_name = '%%', @firstIndex = 0, @lastIndex = 0
                 SELECT C.customer_id, C.customer_name, C.telephone, C.email
                 FROM @customerTable C
-                LEFT JOIN DevelopERP_ForTesting..BillingLocation BL
+                LEFT JOIN DevelopERP_Clear..BillingLocation BL
                 ON C.customer_id = BL.customer_id
                 WHERE BL.billing_location_id = @billing_location_id
 
@@ -57,10 +57,10 @@ async function getBillingLocationData(billingLocationId: string) {
                     address_type NVARCHAR(MAX)
                 )
                 INSERT INTO @addressTable
-                EXEC DevelopERP_ForTesting..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
+                EXEC DevelopERP_Clear..getAddressTable @location = '%', @firstIndex= 0, @lastIndex= 0
                 SELECT A.address_id, A.location, A.address_type
                 FROM @addressTable A
-                LEFT JOIN DevelopERP_ForTesting..BillingLocation BL
+                LEFT JOIN DevelopERP_Clear..BillingLocation BL
                 ON A.address_id = BL.address_id
                 WHERE BL.billing_location_id = @billing_location_id
 
@@ -73,10 +73,10 @@ async function getBillingLocationData(billingLocationId: string) {
                     role NVARCHAR(MAX)
                 )
                 INSERT INTO @personTable
-                EXEC DevelopERP_ForTesting..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..getPersonTable @fullname = '%', @firstIndex = 0, @lastIndex = 0
                 SELECT P.person_id, P.fullname, P.mobile, P.email, P.description, P.role
                 FROM @personTable P
-                LEFT JOIN DevelopERP_ForTesting..BillingLocation BL
+                LEFT JOIN DevelopERP_Clear..BillingLocation BL
                 ON P.person_id = BL.person_id
                 WHERE BL.billing_location_id = @billing_location_id
             `)
@@ -99,7 +99,7 @@ async function deleteBillingLocation(billingLocationId: string) {
             .input('billing_location_id', sql.INT, billingLocationId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_ForTesting..BillingLocation
+                UPDATE DevelopERP_Clear..BillingLocation
                 SET is_archived = 1, update_date = @update_date
                 WHERE billing_location_id = @billing_location_id
             `)
@@ -127,7 +127,7 @@ async function createBillingLocationData(body: any) {
             .input('create_date', sql.DATETIME, datetime)
             .input('is_archived', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_ForTesting..BillingLocation (name, tin, branch, customer_id, address_id, person_id, create_by, create_date, is_archived)
+                INSERT INTO DevelopERP_Clear..BillingLocation (name, tin, branch, customer_id, address_id, person_id, create_by, create_date, is_archived)
                 OUTPUT INSERTED.billing_location_id
                 VALUES (@name, @tin, @branch, @customer_id, @address_id, @person_id, @create_by, @create_date, @is_archived)
             `)
@@ -159,7 +159,7 @@ async function updateBillingLocationData(billingLocationId: string, body: any) {
             .input('person_id', sql.INT, body.billingLocation.person_id)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_ForTesting..BillingLocation
+                UPDATE DevelopERP_Clear..BillingLocation
                 SET name = @name, tin = @tin, branch = @branch, customer_id = @customer_id, address_id = @address_id, person_id = @person_id, update_date = @update_date
                 WHERE billing_location_id = @billing_location_id
             `)

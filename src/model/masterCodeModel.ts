@@ -4,7 +4,7 @@ const sql = require('mssql')
 function masterCodeQuery(categoryQuery: string, classQuery: string) {
     return `
         SELECT *
-        FROM DevelopERP_ForTesting..MasterCode
+        FROM DevelopERP_Clear..MasterCode
         WHERE category ${categoryQuery != "null" ? "LIKE '" + categoryQuery + "'" : "IS NULL"} AND class ${classQuery != "null" ? "LIKE '" + classQuery + "'" : "IS NULL"}
     `
 }
@@ -18,7 +18,7 @@ async function getMasterCode(body: any) {
         if (body.category === undefined && body.class === undefined) {
             query += `
                 SELECT *
-                FROM DevelopERP_ForTesting..MasterCode
+                FROM DevelopERP_Clear..MasterCode
             `
             const result = await request.query(query)
             return result.recordsets[0]

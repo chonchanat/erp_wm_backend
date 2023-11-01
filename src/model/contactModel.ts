@@ -13,11 +13,11 @@ async function getContactTable(index: number, filterValue: string) {
             .query(`
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_ForTesting..sp_filterContact @customer_id = NULL, @person_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterContact @customer_id = NULL, @person_id = NULL
+                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP_ForTesting..Contact
+                FROM DevelopERP_Clear..Contact
                 WHERE value LIKE @value AND is_archived = 0
             `)
         return {
@@ -52,12 +52,12 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM DevelopERP_ForTesting..Contact ct 
-                LEFT JOIN DevelopERP_ForTesting..Customer c
+                FROM DevelopERP_Clear..Contact ct 
+                LEFT JOIN DevelopERP_Clear..Customer c
                 ON ct.customer_id = c.customer_id
-                LEFT JOIN DevelopERP_ForTesting..Person p
+                LEFT JOIN DevelopERP_Clear..Person p
                 ON ct.person_id = p.person_id
-                LEFT JOIN DevelopERP_ForTesting..MasterCode m
+                LEFT JOIN DevelopERP_Clear..MasterCode m
                 ON ct.contact_code_id = m.code_id
                 WHERE ct.contact_id = @contact_id AND ct.is_archived = 0
             `)
@@ -74,7 +74,7 @@ async function deleteContact(contactId: string) {
         let result = await pool.request()
             .input('contact_id', sql.INT, contactId)
             .query(`
-                UPDATE DevelopERP_ForTesting..Contact
+                UPDATE DevelopERP_Clear..Contact
                 SET is_archived = 1
                 WHERE contact_id = @contact_id
             `)

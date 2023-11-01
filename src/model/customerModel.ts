@@ -14,11 +14,11 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
             .query(`
                 DECLARE @customerTable CustomerType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_ForTesting..sp_filterCustomer @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = @customer_name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL
+                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = @customer_name, @firstIndex = @firstIndex, @lastIndex = @lastIndex
 
                 SELECT COUNT(*) AS count_data 
-                FROM DevelopERP_ForTesting..Customer
+                FROM DevelopERP_Clear..Customer
                 WHERE customer_name LIKE @customer_name AND is_archived = 0
             `)
         return {
@@ -38,37 +38,37 @@ async function getCustomerData(customerId: string) {
             .input('customer_id', sql.INT, customerId)
             .query(`
                 SELECT C.customer_id, C.customer_name, C.sales_type_code_id, M_salestype.value AS sales_type, C.customer_type_code_id, M_customertype.value as customer_type
-                FROM DevelopERP_ForTesting..Customer C
-                INNER JOIN DevelopERP_ForTesting..MasterCode M_salestype
+                FROM DevelopERP_Clear..Customer C
+                INNER JOIN DevelopERP_Clear..MasterCode M_salestype
                 ON C.sales_type_code_id = M_salestype.code_id
-                INNER JOIN DevelopERP_ForTesting..MasterCode M_customertype
+                INNER JOIN DevelopERP_Clear..MasterCode M_customertype
                 ON C.customer_type_code_id = M_customertype.code_id
                 WHERE customer_id = @customer_id AND is_archived = 0
 
                 DECLARE @fleetTable FleetType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP_ForTesting..sp_filterFleet @customer_id = @customer_id
-                EXEC DevelopERP_ForTesting..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = @customer_id
+                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @contactTable ContactType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_ForTesting..sp_filterContact @customer_id = @customer_id, @person_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterContact @customer_id = @customer_id, @person_id = NULL
+                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                EXEC DevelopERP_ForTesting..sp_filterAddress @customer_id = @customer_id, @person_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterAddress @customer_id = @customer_id, @person_id = NULL
+                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                EXEC DevelopERP_ForTesting..sp_filterPerson @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterPerson @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL
+                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 0, @lastIndex = 0
 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable
-                EXEC DevelopERP_ForTesting..sp_filterVehicle @customer_id = @customer_id, @fleet_id = NULL
-                EXEC DevelopERP_ForTesting..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterVehicle @customer_id = @customer_id, @fleet_id = NULL
+                EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = '%', @firstIndex = 0, @lastIndex = 0
             `)
         return {
             customer: result.recordsets[0][0],
@@ -91,7 +91,7 @@ async function deleteCustomer(customerId: string) {
             .input('customer_id', sql.INT, customerId)
             .input('update_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_ForTesting..Customer
+                UPDATE DevelopERP_Clear..Customer
                 SET is_archived = 1
                 WHERE customer_id = @customer_id
             `)
@@ -102,64 +102,64 @@ async function deleteCustomer(customerId: string) {
 
 const customerQuery = `
 DECLARE @customerTable TABLE (customer_id INT)
-INSERT INTO DevelopERP_ForTesting..Customer (customer_name, sales_type_code_id, customer_type_code_id, action_by, is_archived)
+INSERT INTO DevelopERP_Clear..Customer (customer_name, sales_type_code_id, customer_type_code_id, action_by, is_archived)
 OUTPUT INSERTED.customer_id INTO @customerTable (customer_id)
 VALUES (@customer_name, @sales_type_code_id, @customer_type_code_id, @action_by, @is_archived)
 SELECT customer_id FROM @customerTable
 `;
 const addressQuery = `
 DECLARE @addressTable TABLE (address_id INT)
-INSERT INTO DevelopERP_ForTesting..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
+INSERT INTO DevelopERP_Clear..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
 OUTPUT INSERTED.address_id INTO @addressTable (address_id)
 VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @action_by, @is_archived)
 SELECT address_id FROM @addressTable
 `;
 const addressCustomerQuery = `
-INSERT INTO DevelopERP_ForTesting..Address_Customer (customer_id, address_id)
+INSERT INTO DevelopERP_Clear..Address_Customer (customer_id, address_id)
 VALUES (@customer_id, @address_id)
 `;
 const addressMasterCodeQuery = `
-INSERT INTO DevelopERP_ForTesting..Address_MasterCode (address_id, address_type_code_id)
+INSERT INTO DevelopERP_Clear..Address_MasterCode (address_id, address_type_code_id)
 VALUES (@address_id, @address_type_code_id)
 `
 const addressCustomerDeleteQuery = `
-DELETE FROM DevelopERP_ForTesting..Address_Customer
+DELETE FROM DevelopERP_Clear..Address_Customer
 WHERE customer_id = @customer_id AND address_id = @address_id
 `
 const contactQuery = `
-INSERT INTO DevelopERP_ForTesting..Contact (customer_id, value, contact_code_id, action_by, is_archived)
+INSERT INTO DevelopERP_Clear..Contact (customer_id, value, contact_code_id, action_by, is_archived)
 VALUES (@customer_id, @value, @contact_code_id, @action_by, @is_archived)
 `;
 const contactDeleteQuery = `
-UPDATE DevelopERP_ForTesting..Contact
+UPDATE DevelopERP_Clear..Contact
 SET is_archived = 1
 WHERE contact_id = @contact_id AND customer_id = @customer_id
 `
 const personQuery = `
 DECLARE @personTable TABLE (person_id INT)
-INSERT INTO DevelopERP_ForTesting..Person (firstname, lastname, nickname, title_code_id, description, action_by, is_archived)
+INSERT INTO DevelopERP_Clear..Person (firstname, lastname, nickname, title_code_id, description, action_by, is_archived)
 OUTPUT INSERTED.person_id INTO @personTable (person_id)
 VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @action_by, @is_archived)
 SELECT person_id FROM @personTable
 `;
 const roleQuery = `
-INSERT INTO DevelopERP_ForTesting..Person_Role (person_id, role_code_id)
+INSERT INTO DevelopERP_Clear..Person_Role (person_id, role_code_id)
 VALUES (@person_id, @role_code_id)
 `
 const personDeleteQuery = `
-DELETE FROM DevelopERP_ForTesting..Customer_Person
+DELETE FROM DevelopERP_Clear..Customer_Person
 WHERE customer_id = @customer_id AND person_id = @person_id
 `
 const customerPersonQuery = `
-INSERT INTO DevelopERP_ForTesting..Customer_Person (customer_id, person_id)
+INSERT INTO DevelopERP_Clear..Customer_Person (customer_id, person_id)
 VALUES (@customer_id, @person_id)
 `
 const addressPersonQuery = `
-INSERT INTO DevelopERP_ForTesting..Address_Person (person_id, address_id)
+INSERT INTO DevelopERP_Clear..Address_Person (person_id, address_id)
 VALUES (@person_id, @address_id)
 `;
 const contactPersonQuery = `
-INSERT INTO DevelopERP_ForTesting..Contact (person_id, value, contact_code_id, action_by, is_archived)
+INSERT INTO DevelopERP_Clear..Contact (person_id, value, contact_code_id, action_by, is_archived)
 VALUES (@person_id, @value, @contact_code_id, @action_by, @is_archived)
 `
 
@@ -316,7 +316,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('is_archived', sql.INT, 0)
                 .query(`
                     DECLARE @vehicleTable TABLE (vehicle_id INT)
-                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
+                    INSERT INTO DevelopERP_Clear..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
                     OUTPUT INSERTED.vehicle_id INTO @vehicleTable (vehicle_id)
                     VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @action_by, @is_archived)
                     SELECT vehicle_id FROM @vehicleTable    
@@ -327,7 +327,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('vehicle_id', sql.INT, vehicle_id)
                 .input('customer_id', sql.INT, customer_id)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Vehicle_Customer (vehicle_id, customer_id)
+                    INSERT INTO DevelopERP_Clear..Vehicle_Customer (vehicle_id, customer_id)
                     VALUES (@vehicle_id, @customer_id)
                 `)
         }
@@ -337,7 +337,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Customer_Vehicle (customer_id, vehicle_id)
+                    INSERT INTO DevelopERP_Clear..Customer_Vehicle (customer_id, vehicle_id)
                     VALUES (@customer_id, @vehicle_id)
                 `)
         }
@@ -350,7 +350,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('is_archived', sql.INT, 0)
                 .query(`
                     DECLARE @fleetTable TABLE (fleet_id INT)
-                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
+                    INSERT INTO DevelopERP_Clear..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
                     OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
                     VALUES (@fleet_id, @parent_fleet_id, @action_by, @is_archived)
                     SELECT fleet_id FROM @fleetTable
@@ -361,7 +361,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('customer_id', sql.INT, customer_id)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (fleet_id, customer_id)
+                    INSERT INTO DevelopERP_Clear..Fleet_Customer (fleet_id, customer_id)
                     VALUES (@fleet_id, @customer_id)
                 `)
         }
@@ -371,7 +371,7 @@ async function createCustomerData(body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customer_id)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (fleet_id, customer_id)
+                    INSERT INTO DevelopERP_Clear..Fleet_Customer (fleet_id, customer_id)
                     VALUES (@fleet_id, @customer_id)
                 `)
         }
@@ -399,7 +399,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('action_by', sql.INT, body.update_by)
             .query(`
-                UPDATE DevelopERP_ForTesting..Customer
+                UPDATE DevelopERP_Clear..Customer
                 SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, action_by = @action_by
                 WHERE customer_id = @customer_id
             `)
@@ -559,7 +559,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('is_archived', sql.INT, 0)
                 .query(`
                     DECLARE @vehicleTable TABLE (vehicle_id INT)
-                    INSERT INTO DevelopERP_ForTesting..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
+                    INSERT INTO DevelopERP_Clear..Vehicle (frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id, action_by, is_archived)
                     OUTPUT INSERTED.vehicle_id INTO @vehicleTable (vehicle_id)
                     VALUES (@frame_no, @license_plate, @vehicle_model_id, @registration_province_code_id, @registration_type_code_id, @driving_license_type_code_id, @number_of_axles, @number_of_wheels, @number_of_tires, @vehicle_type_code_id, @action_by, @is_archived)
                     SELECT vehicle_id FROM @vehicleTable
@@ -570,7 +570,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('vehicle_id', sql.INT, vehicle_id)
                     .input('customer_id', sql.INT, customerId)
                     .query(`
-                        INSERT INTO DevelopERP_ForTesting..Vehicle_Customer (vehicle_id, customer_id)
+                        INSERT INTO DevelopERP_Clear..Vehicle_Customer (vehicle_id, customer_id)
                         VALUES (@vehicle_id, @customer_id)
                     `)
         }
@@ -580,7 +580,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    DELETE FROM DevelopERP_ForTesting..Customer_Vehicle
+                    DELETE FROM DevelopERP_Clear..Customer_Vehicle
                     WHERE customer_id = @customer_id AND vehicle_id = @vehicle_id
                 `)
         }
@@ -589,7 +589,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Customer_Vehicle (customer_id, vehicle_id)
+                    INSERT INTO DevelopERP_Clear..Customer_Vehicle (customer_id, vehicle_id)
                     VALUES (@customer_id, @vehicle_id)
                 `)
         }
@@ -602,7 +602,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('is_archived', sql.INT, 0)
                 .query(`
                     DECLARE @fleetTable TABLE (fleet_id INT)
-                    INSERT INTO DevelopERP_ForTesting..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
+                    INSERT INTO DevelopERP_Clear..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
                     OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
                     VALUES (@fleet_id, @parent_fleet_id, @action_by, @is_archived)
                     SELECT fleet_id FROM @fleetTable
@@ -613,7 +613,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('customer_id', sql.INT, customerId)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (fleet_id, customer_id)
+                    INSERT INTO DevelopERP_Clear..Fleet_Customer (fleet_id, customer_id)
                     VALUES (@fleet_id, @customer_id)
                 `)
         }
@@ -623,7 +623,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customerId)
                 .query(`
-                    DELETE FROM DevelopERP_ForTesting..Fleet_Customer
+                    DELETE FROM DevelopERP_Clear..Fleet_Customer
                     WHERE fleet_id = @fleet_id AND customer_id = @customer_id
                 `)
         }
@@ -633,7 +633,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customerId)
                 .query(`
-                    INSERT INTO DevelopERP_ForTesting..Fleet_Customer (fleet_id, customer_id)
+                    INSERT INTO DevelopERP_Clear..Fleet_Customer (fleet_id, customer_id)
                     VALUES (@fleet_id, @customer_id)
                 `)
         }

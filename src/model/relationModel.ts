@@ -8,7 +8,7 @@ async function deleteCustomerAddress(customerId: string, addressId: string) {
         //     .input('customer_id', sql.INT, customerId)
         //     .input('address_id', sql.INT, addressId)
         //     .query(`
-        //         DELETE FROM DevelopERP_ForTesting..Address_Customer
+        //         DELETE FROM DevelopERP_Clear..Address_Customer
         //         WHERE customer_id = @customerId AND address_id = @addressId
         //     `)
     } catch (err) {
@@ -22,7 +22,7 @@ async function deleteCustomerPerson(customerId: string, personId: string) {
         //     .input('customer_id', sql.INT, customerId)
         //     .input('person_id', sql.INT, personId)
         //     .query(`
-        //         DELETE FROM DevelopERP_ForTesting..Customer_Person
+        //         DELETE FROM DevelopERP_Clear..Customer_Person
         //         WHERE customer_id = @customer_id AND person_id = @person_id
         //     `)
     } catch (err) {
@@ -37,7 +37,7 @@ async function deleteCustomerContact(customerId: string, contactId: string) {
         //     .input('customer_id', sql.INT, customerId)
         //     .input('contact_id', sql.INT, contactId)
         //     .query(`
-        //         DELETE FROM DevelopERP_ForTesting..Contact
+        //         DELETE FROM DevelopERP_Clear..Contact
         //         WHERE customer_id = @customer_id AND contact_id = @contact_id
         //     `)
     } catch (err) {
