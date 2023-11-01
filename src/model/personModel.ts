@@ -12,8 +12,8 @@ async function getPersonTable(index: number, filterPerson: string) {
             .query(`
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = 1, @lastIndex = 10
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterPerson @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @fullname = @fullname, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
