@@ -57,8 +57,8 @@ async function getCustomerData(customerId: string) {
 
                 DECLARE @addressTable AddressType
                 INSERT INTO @addressTable
-                EXEC DevelopERP_Clear..sp_filterAddress @customer_id = @customer_id, @person_id = NULL
-                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterAddress @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 1
 
                 DECLARE @personTable PersonType
                 INSERT INTO @personTable
