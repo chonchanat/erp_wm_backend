@@ -18,7 +18,7 @@ async function getVehicleTable(index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Vehicle
-                WHERE license_plate LIKE '%' AND is_archived = 0
+                WHERE license_plate LIKE @license_plate AND is_archived = 0
             `)
         return {
             vehicle: result.recordsets[0],

@@ -30,7 +30,7 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(postal_code , '') as location
                         FROM DevelopERP_Clear..Address
                 ) t
-                WHERE location LIKE @location
+                WHERE location LIKE @location AND is_archived = 0
             `)
         return {
             address: result.recordsets[0],
