@@ -176,8 +176,11 @@ async function createCustomerData(body: CustomerType) {
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('action_by', sql.INT, body.create_by)
-            .input('is_archived', sql.INT, 0)
-            .query(customerQuery)
+            // .input('is_archived', sql.INT, 0)
+            // .query(customerQuery)
+            .query(`
+                EXEC DevelopERP_Clear..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, @customer_type_code_id = @customer_type_code_id, @action_by = @action_by
+            `)
         let customer_id = customerResult.recordset[0].customer_id
 
         for (const address of body.addressNew) {
@@ -192,18 +195,29 @@ async function createCustomerData(body: CustomerType) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.create_by)
-                .input('is_archived', sql.INT, 0)
-                .query(addressQuery)
+                // .input('is_archived', sql.INT, 0)
+                // .query(addressQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by
+                `)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer_id)
                 .input('address_id', sql.INT, address_id)
-                .query(addressCustomerQuery)
+                // .query(addressCustomerQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id
+                `)
             for (const addressMasterCode of address.address_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .query(addressMasterCodeQuery)
+                    // .query(addressMasterCodeQuery)
+                    .query(`
+                        EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id
+                    `)
             }
         }
 
@@ -211,7 +225,10 @@ async function createCustomerData(body: CustomerType) {
             let addressResult = await transaction.request()
                 .input('customer_id', sql.INT, customer_id)
                 .input('address_id', sql.INT, address)
-                .query(addressCustomerQuery)
+                // .query(addressCustomerQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id
+                `)
         }
 
         for (const contact of body.contact) {
@@ -260,8 +277,13 @@ async function createCustomerData(body: CustomerType) {
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('is_archived', sql.INT, 0)
-                    .query(addressQuery)
+                    // .input('is_archived', sql.INT, 0)
+                    // .query(addressQuery)
+                    .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by
+                    `)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
                     .input('person_id', sql.INT, person_id)
@@ -271,7 +293,10 @@ async function createCustomerData(body: CustomerType) {
                     let addressMasterCodeResult = await transaction.request()
                         .input('address_id', sql.INT, address_id)
                         .input('address_type_code_id', sql.INT, addressMasterCode)
-                        .query(addressMasterCodeQuery)
+                        // .query(addressMasterCodeQuery)
+                        .query(`
+                        EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id
+                        `)
                 }
             }
 
@@ -379,6 +404,7 @@ async function createCustomerData(body: CustomerType) {
         await transaction.commit();
 
     } catch (err) {
+        console.log(err)
         await transaction.rollback();
         throw err;
     }
@@ -416,18 +442,29 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.update_by)
-                .input('is_archived', sql.INT, 0)
-                .query(addressQuery)
+                // .input('is_archived', sql.INT, 0)
+                // .query(addressQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by
+                `)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
                 .input('address_id', sql.INT, address_id)
-                .query(addressCustomerQuery)
+                // .query(addressCustomerQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id
+                `)
             for (const addressMasterCode of address.address_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .query(addressMasterCodeQuery)
+                    // .query(addressMasterCodeQuery)
+                    .query(`
+                        EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id
+                    `)
             }
         }
 
@@ -441,7 +478,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             let addressResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
                 .input('address_id', sql.INT, address)
-                .query(addressCustomerQuery)
+                // .query(addressCustomerQuery)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id
+                `)
         }
 
         for (const contact of body.contactDelete) {
@@ -496,8 +536,13 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('is_archived', sql.INT, 0)
-                    .query(addressQuery)
+                    // .input('is_archived', sql.INT, 0)
+                    // .query(addressQuery)
+                    .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by
+                    `)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
                     .input('person_id', sql.INT, person_id)
@@ -507,7 +552,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     let addressMasterCodeResult = await transaction.request()
                         .input('address_id', sql.INT, address_id)
                         .input('address_type_code_id', sql.INT, addressMasterCode)
-                        .query(addressMasterCodeQuery)
+                        // .query(addressMasterCodeQuery)
+                        .query(`
+                        EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id
+                        `)
                 }
             }
 
