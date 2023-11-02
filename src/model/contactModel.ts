@@ -67,16 +67,16 @@ async function getContactData(contactId: string) {
     }
 }
 
-async function deleteContact(contactId: string) {
+async function deleteContact(contactId: string, body: any) {
     try { 
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('contact_id', sql.INT, contactId)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Contact
-                SET is_archived = 1
-                WHERE contact_id = @contact_id
+                EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         console.log(err)

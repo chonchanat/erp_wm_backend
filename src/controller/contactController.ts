@@ -29,7 +29,7 @@ async function getContactData(req: Request, res: Response) {
 
 async function deleteContact(req: Request, res: Response) {
     try {
-        await contactModel.deleteContact(req.params.id)
+        await contactModel.deleteContact(req.params.id, req.body)
         res.status(200).json({ status: 1, message: 'deleted successfully' })
     } catch (err) {
         res.status(500).json({ status: 0, message: 'failed from server', response: err })
