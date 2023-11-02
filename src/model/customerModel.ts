@@ -83,17 +83,16 @@ async function getCustomerData(customerId: string) {
     }
 }
 
-async function deleteCustomer(customerId: string) {
+async function deleteCustomer(customerId: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('customer_id', sql.INT, customerId)
-            .input('update_date', sql.DATETIME, datetime)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Customer
-                SET is_archived = 1
-                WHERE customer_id = @customer_id
+                EXEC DevelopERP_Clear..sp_delete_customer @customer_id = @customer_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
@@ -113,10 +112,10 @@ async function createCustomerData(body: CustomerType) {
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('action_by', sql.INT, body.create_by)
-            .input('datetime', sql.DATETIME, datetime)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
-                    @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @datetime = @datetime
+                    @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @action_date = @action_date
             `)
         let customer_id = customerResult.recordset[0].customer_id
 
@@ -132,31 +131,31 @@ async function createCustomerData(body: CustomerType) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                         @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @datetime = @datetime
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                 `)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer_id)
                 .input('address_id', sql.INT, address_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
             for (const addressMasterCode of address.address_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
         }
@@ -166,10 +165,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('address_id', sql.INT, address)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -179,10 +178,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = NULL, 
-                        @customer_id = @customer_id, @value = @value, @action_by = @action_by, @datetime = @datetime
+                        @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -195,20 +194,20 @@ async function createCustomerData(body: CustomerType) {
                 .input('title_code_id', sql.Int, person.person.title_code_id)
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
-                        @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @datetime = @datetime
+                        @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @action_date = @action_date
                 `)
             let person_id = personResult.recordset[0].person_id
             let personCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer_id)
                 .input('person_id', sql.INT, person_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
 
             for (const role of person.person.role) {
@@ -216,10 +215,10 @@ async function createCustomerData(body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('role_code_id', sql.INT, role)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
 
@@ -235,31 +234,31 @@ async function createCustomerData(body: CustomerType) {
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                     EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                         @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @datetime = @datetime
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                     `)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
                     .input('person_id', sql.INT, person_id)
                     .input('address_id', sql.INT, address_id)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
                 for (const addressMasterCode of address.address_type_code_id) {
                     let addressMasterCodeResult = await transaction.request()
                         .input('address_id', sql.INT, address_id)
                         .input('address_type_code_id', sql.INT, addressMasterCode)
                         .input('action_by', sql.INT, body.create_by)
-                        .input('datetime', sql.DATETIME, datetime)
+                        .input('action_date', sql.DATETIME, datetime)
                         .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                         `)
                 }
             }
@@ -269,10 +268,10 @@ async function createCustomerData(body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('address_id', sql.INT, address)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
 
@@ -282,10 +281,10 @@ async function createCustomerData(body: CustomerType) {
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
                     .input('action_by', sql.INT, body.create_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                     EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
-                        @customer_id = NULL, @value = @value, @action_by = @action_by, @datetime = @datetime
+                        @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
                     `)
             }
         }
@@ -295,10 +294,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('person_id', sql.INT, person)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -315,13 +314,13 @@ async function createCustomerData(body: CustomerType) {
                 .input('number_of_tires', sql.INT, vehicle.number_of_tires)
                 .input('vehicle_type_code_id', sql.INT, vehicle.vehicle_type_code_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
                         @registration_province_code_id = @registration_province_code_id, @registration_type_code_id = @registration_type_code_id, 
                         @driving_license_type_code_id = @driving_license_type_code_id, @number_of_axles = @number_of_axles, 
                         @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, @vehicle_type_code_id = @vehicle_type_code_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
 
@@ -329,10 +328,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('vehicle_id', sql.INT, vehicle_id)
                 .input('customer_id', sql.INT, customer_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -341,10 +340,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('customer_id', sql.INT, customer_id)
                 .input('vehicle_id', sql.INT, vehicle)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -353,10 +352,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
                 .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet @fleet_name = @fleet_name, @parent_fleet_id = @parent_fleet_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
             let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -364,10 +363,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('customer_id', sql.INT, customer_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -376,10 +375,10 @@ async function createCustomerData(body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customer_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -406,10 +405,11 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             .input('sales_type_code_id', sql.INT, body.customer.sales_type_code_id)
             .input('customer_type_code_id', sql.INT, body.customer.customer_type_code_id)
             .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Customer
-                SET customer_name = @customer_name, sales_type_code_id = @sales_type_code_id, customer_type_code_id = @customer_type_code_id, action_by = @action_by
-                WHERE customer_id = @customer_id
+                EXEC DevelopERP_Clear..sp_update_customer @customer_id = @customer_id, @customer_name = @customer_name,
+                    @sales_type_code_id = @sales_type_code_id, @customer_type_code_id = @customer_type_code_id,
+                    @action_by = @action_by, @action_date = @action_date
             `)
 
         for (const address of body.addressNew) {
@@ -424,31 +424,31 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                         @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @datetime = @datetime
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                 `)
             const address_id = addressResult.recordset[0].address_id
             let addressCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
                 .input('address_id', sql.INT, address_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
             for (const addressMasterCode of address.address_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
         }
@@ -458,10 +458,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('address_id', sql.INT, address)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_address_customer @address_id = @address_id, @customer_id = @customer_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const address of body.addressExist) {
@@ -469,10 +469,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('address_id', sql.INT, address)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -480,9 +480,9 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
             let contactDeleteResult = await transaction.request()
                 .input('contact_id', sql.INT, contact)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @datetime = @datetime
+                    EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const contact of body.contact) {
@@ -491,10 +491,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = NULL, 
-                        @customer_id = @customer_id, @value = @value, @action_by = @action_by, @datetime = @datetime
+                        @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -507,20 +507,20 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('title_code_id', sql.Int, person.person.title_code_id)
                 .input('description', sql.NVARCHAR, person.person.description === "" ? null : person.person.description)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
-                        @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @datetime = @datetime
+                        @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @action_date = @action_date
                 `)
             let person_id = personResult.recordset[0].person_id
             let personCustomerResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
                 .input('person_id', sql.INT, person_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
 
             for (const role of person.person.role) {
@@ -528,10 +528,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('person_id', sql.INT, person_id)
                     .input('role_code_id', sql.INT, role)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
 
@@ -547,11 +547,11 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                     .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                             @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                            @province = @province, @postal_code = @postal_code, @action_by = @action_by, @datetime = @datetime
+                            @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                     `)
                 const address_id = addressResult.recordset[0].address_id
                 let addressPersonResult = await transaction.request()
@@ -561,17 +561,17 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('action_by', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
                 for (const addressMasterCode of address.address_type_code_id) {
                     let addressMasterCodeResult = await transaction.request()
                         .input('address_id', sql.INT, address_id)
                         .input('address_type_code_id', sql.INT, addressMasterCode)
                         .input('action_by', sql.INT, body.update_by)
-                        .input('datetime', sql.DATETIME, datetime)
+                        .input('action_date', sql.DATETIME, datetime)
                         .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                         `)
                 }
             }
@@ -584,7 +584,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('action_by', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
             }
 
@@ -594,10 +594,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
                     .input('contact_code_id', sql.INT, contact.contact_code_id)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                     EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
-                        @customer_id = NULL, @value = @value, @action_by = @action_by, @datetime = @datetime
+                        @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
                     `)
             }
         }
@@ -607,10 +607,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('person_id', sql.INT, person)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const person of body.personExist) {
@@ -618,10 +618,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('person_id', sql.INT, person)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         //
@@ -639,13 +639,13 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('number_of_tires', sql.INT, vehicle.number_of_tires)
                 .input('vehicle_type_code_id', sql.INT, vehicle.vehicle_type_code_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
                         @registration_province_code_id = @registration_province_code_id, @registration_type_code_id = @registration_type_code_id, 
                         @driving_license_type_code_id = @driving_license_type_code_id, @number_of_axles = @number_of_axles, 
                         @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, @vehicle_type_code_id = @vehicle_type_code_id, 
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
                 let vehicle_id = await vehicleResult.recordset[0].vehicle_id
                 
@@ -653,10 +653,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                     .input('vehicle_id', sql.INT, vehicle_id)
                     .input('customer_id', sql.INT, customerId)
                     .input('action_by', sql.INT, body.update_by)
-                    .input('datetime', sql.DATETIME, datetime)
+                    .input('action_date', sql.DATETIME, datetime)
                     .query(`
                         EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
-                            @action_by = @action_by, @datetime = @datetime
+                            @action_by = @action_by, @action_date = @action_date
                     `)
         }
 
@@ -665,10 +665,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const vehicle of body.vehicleExist) {
@@ -676,10 +676,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('customer_id', sql.INT, customerId)
                 .input('vehicle_id', sql.INT, vehicle)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -688,10 +688,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
                 .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet @fleet_name = @fleet_name, @parent_fleet_id = @parent_fleet_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
             let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -699,10 +699,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('customer_id', sql.INT, customerId)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -711,10 +711,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customerId)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -723,10 +723,10 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('fleet_id', sql.INT, fleet)
                 .input('customer_id', sql.INT, customerId)
                 .input('action_by', sql.INT, body.update_by)
-                .input('datetime', sql.DATETIME, datetime)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
-                        @action_by = @action_by, @datetime = @datetime
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
