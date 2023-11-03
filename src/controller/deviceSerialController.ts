@@ -29,7 +29,7 @@ async function getDeviceSerialData(req: Request, res: Response) {
 
 async function deleteDeviceSerial(req: Request, res: Response) {
     try {
-        const result = await deviceSerialModel.deleteDeviceSerial(req.params.id);
+        const result = await deviceSerialModel.deleteDeviceSerial(req.params.id, req.body);
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })

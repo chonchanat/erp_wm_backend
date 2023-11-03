@@ -55,16 +55,17 @@ async function getDeviceSerialData(device_serial_id: string) {
     }
 }
 
-async function deleteDeviceSerial(device_serial_id: string) {
+async function deleteDeviceSerial(device_serial_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('device_serial_id', sql.INT, device_serial_id)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..DeviceSerial
-                SET is_archived = 1
-                WHERE device_serial_id = @device_serial_id
+                EXEC DevelopERP_Clear..sp_delete_deviceSerial @device_serial_id = @device_serial_id,
+                    @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
@@ -86,10 +87,11 @@ async function createDeviceSerialData(body: any) {
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
             .input('create_date', sql.DATETIME, datetime)
             .input('action_by', sql.INT, body.create_by)
-            .input('is_archived', sql.INT, 0)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                INSERT INTO DevelopERP_Clear..DeviceSerial (serial_id, imei_serial, dvr_id, device_type_code_id, create_date, action_by, is_archived)
-                VALUES (@serial_id, @imei_serial, @dvr_id, @device_type_code_id, @create_date, @action_by, @is_archived)    
+                EXEC DevelopERP_Clear..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
+                    @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
+                    @action_by = @action_by, @action_date = @action_date
             `)
 
         await transaction.commit();
@@ -113,11 +115,14 @@ async function updateDeviceSerialData(device_serial_id: string, body: any) {
             .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
+            .input('create_date', sql.DATETIME, body.deviceSerial.create_date)
             .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..DeviceSerial
-                SET serial_id = @serial_id, imei_serial = @imei_serial, dvr_id = @dvr_id, device_type_code_id = @device_type_code_id, action_by = @action_by
-                WHERE device_serial_id = @device_serial_id
+                EXEC DevelopERP_Clear..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
+                @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
+                @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
+                @action_by = @action_by, @action_date = @action_date
             `)
 
         await transaction.commit();
