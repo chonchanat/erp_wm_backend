@@ -100,33 +100,30 @@ async function createDeviceData(body: any) {
             `)
         let device_id = await deviceResult.recordset[0].device_id
 
-        // let deviceConfigResult = await transaction.request()
-        //     .input('device_id', sql.INT, device_id)
-        //     .input('config_name', sql.NVARCHAR, body.deviceConfig.config_name)
-        //     .input('software_version', sql.NVARCHAR, body.deviceConfig.software_version)
-        //     .input('ip_address', sql.NVARCHAR, body.deviceConfig.ip_address)
-        //     .input('gateway_port', sql.NVARCHAR, body.deviceConfig.gateway_port)
-        //     .input('sms_server_number', sql.NVARCHAR, body.deviceConfig.sms_server_number)
-        //     .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
-        //     .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
-        //     .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
-        //     .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
-        //     .input('network', sql.NVARCHAR, body.deviceConfig.network)
-        //     .input('username', sql.NVARCHAR, body.deviceConfig.username)
-        //     .input('password', sql.NVARCHAR, body.deviceConfig.password)
-        //     .input('action_by', sql.INT, body.create_by)
-        //     .input('action_date', sql.DATETIME, datetime)
-        //     .query(`
-        //         EXEC DevelopEPR_Clear..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
-        //         @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
-        //         @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
-        //         @sim_serial, @mobile_number, @sim_type_code_id, 
-        //         @network, @username, @password
-        //     `)
-        //     .query(`
-        //         INSERT INTO DevelopERP_Clear..DeviceConfig (device_id, config_name, software_version, ip_address, gateway_port, sms_server_number, sms_message_center, sim_serial, mobile_number, sim_type_code_id, network, username, password, is_archived)
-        //         VALUES (@device_id, @config_name, @software_version, @ip_address, @gateway_port, @sms_server_number, @sms_message_center, @sim_serial, @mobile_number, @sim_type_code_id, @network, @username, @password, @is_archived)   
-        //     `)
+        let deviceConfigResult = await transaction.request()
+            .input('device_id', sql.INT, device_id)
+            .input('config_name', sql.NVARCHAR, body.deviceConfig.config_name)
+            .input('software_version', sql.NVARCHAR, body.deviceConfig.software_version)
+            .input('ip_address', sql.NVARCHAR, body.deviceConfig.ip_address)
+            .input('gateway_port', sql.NVARCHAR, body.deviceConfig.gateway_port)
+            .input('sms_server_number', sql.NVARCHAR, body.deviceConfig.sms_server_number)
+            .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
+            .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
+            .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
+            .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
+            .input('network', sql.NVARCHAR, body.deviceConfig.network)
+            .input('username', sql.NVARCHAR, body.deviceConfig.username)
+            .input('password', sql.NVARCHAR, body.deviceConfig.password)
+            .input('action_by', sql.INT, body.create_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
+                @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
+                @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
+                @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
+                @network = @network, @username = @username, @password = @password,
+                @action_by = @action_by, @action_date = @action_date
+            `)
 
         await transaction.commit();
     } catch (err) {
@@ -157,25 +154,30 @@ async function updateDeviceData (device_id: string, body: any) {
                     @create_date = @create_date, @action_date = @action_date
             `)
 
-        // let deviceConfigResult = await transaction.request()
-        //     .input('device_id', sql.INT, device_id)
-        //     .input('config_name', sql.NVARCHAR, body.deviceConfig.config_name)
-        //     .input('software_version', sql.NVARCHAR, body.deviceConfig.software_version)
-        //     .input('ip_address', sql.NVARCHAR, body.deviceConfig.ip_address)
-        //     .input('gateway_port', sql.NVARCHAR, body.deviceConfig.gateway_port)
-        //     .input('sms_server_number', sql.NVARCHAR, body.deviceConfig.sms_server_number)
-        //     .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
-        //     .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
-        //     .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
-        //     .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
-        //     .input('network', sql.NVARCHAR, body.deviceConfig.network)
-        //     .input('username', sql.NVARCHAR, body.deviceConfig.username)
-        //     .input('password', sql.NVARCHAR, body.deviceConfig.password)
-        //     .query(`
-        //         UPDATE DevelopERP_Clear..DeviceConfig
-        //         SET config_name = @config_name, software_version = @software_version, ip_address = @ip_address, gateway_port = @gateway_port, sms_server_number = @sms_server_number, sms_message_center = @sms_message_center, sim_serial = @sim_serial, mobile_number = @mobile_number, sim_type_code_id = @sim_type_code_id, network = @network, username = @username, password = @password
-        //         WHERE device_id = @device_id
-        //     `)
+        let deviceConfigResult = await transaction.request()
+            .input('device_id', sql.INT, device_id)
+            .input('config_name', sql.NVARCHAR, body.deviceConfig.config_name)
+            .input('software_version', sql.NVARCHAR, body.deviceConfig.software_version)
+            .input('ip_address', sql.NVARCHAR, body.deviceConfig.ip_address)
+            .input('gateway_port', sql.NVARCHAR, body.deviceConfig.gateway_port)
+            .input('sms_server_number', sql.NVARCHAR, body.deviceConfig.sms_server_number)
+            .input('sms_message_center', sql.NVARCHAR, body.deviceConfig.sms_message_center)
+            .input('sim_serial', sql.NVARCHAR, body.deviceConfig.sim_serial)
+            .input('mobile_number', sql.NVARCHAR, body.deviceConfig.mobile_number)
+            .input('sim_type_code_id', sql.INT, body.deviceConfig.sim_type_code_id)
+            .input('network', sql.NVARCHAR, body.deviceConfig.network)
+            .input('username', sql.NVARCHAR, body.deviceConfig.username)
+            .input('password', sql.NVARCHAR, body.deviceConfig.password)
+            .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 
+                @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
+                @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
+                @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
+                @network = @network, @username = @username, @password = @password,
+                @action_by = @action_by, @action_date = @action_date
+            `)
 
         await transaction.commit();
     } catch (err) {
