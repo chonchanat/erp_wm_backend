@@ -91,72 +91,21 @@ async function getPersonData(personId: string) {
     }
 }
 
-async function deletePerson(personId: string) {
+async function deletePerson(personId: string, body: any) {
     try {
+        let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('person_id', sql.INT, personId)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Person
-                SET is_archived = 1
-                WHERE person_id = @person_id
+                EXEC DevelopERP_Clear..sp_delete_person @person_id = @person_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
     }
 }
-
-const personQuery = `
-    DECLARE @personTable TABLE (person_id INT)
-    INSERT INTO DevelopERP_Clear..Person (firstname, lastname, nickname, title_code_id, description, action_by, is_archived)
-    OUTPUT INSERTED.person_id INTO @personTable (person_id)
-    VALUES (@firstname, @lastname, @nickname, @title_code_id, @description, @action_by, @is_archived)
-    SELECT person_id FROM @personTable
-`
-const roleQuery = `
-    INSERT INTO DevelopERP_Clear..Person_Role (person_id, role_code_id)
-    VALUES (@person_id, @role_code_id)
-`
-const roleDeleteQuery = `
-    DELETE FROM DevelopERP_Clear..Person_Role
-    WHERE person_id = @person_id AND role_code_id = @role_code_id
-`
-const customerPersonQuery = `
-    INSERT INTO DevelopERP_Clear..Customer_Person (person_id, customer_id)
-    VALUES (@person_id, @customer_id)
-`
-const customerPersonDeleteQuery = `
-    DELETE FROM DevelopERP_Clear..Customer_Person
-    WHERE person_id = @person_id AND customer_id = @customer_id
-`
-const contactQuery = `
-    INSERT INTO DevelopERP_Clear..Contact (person_id, value, contact_code_id, action_by, is_archived)
-    VALUES (@person_id, @value, @contact_code_id, @action_by, @is_archived)
-`
-const contactDeleteQuery = `
-    UPDATE DevelopERP_Clear..Contact
-    SET is_archived = 1
-    WHERE contact_id = @contact_id AND person_id = @person_id
-`
-const addressQuery = `
-    DECLARE @addressTable TABLE (address_id INT)
-    INSERT INTO DevelopERP_Clear..Address (name, house_no, village_no, alley, road, sub_district, district, province, postal_code, action_by, is_archived)
-    OUTPUT INSERTED.address_id INTO @addressTable (address_id)
-    VALUES (@name, @house_no, @village_no, @alley, @road, @sub_district, @district, @province, @postal_code, @action_by, @is_archived)
-    SELECT address_id FROM @addressTable
-`
-const addressPersonQuery = `
-    INSERT INTO DevelopERP_Clear..Address_Person (person_id, address_id)
-    VALUES (@person_id, @address_id)
-`
-const addressPersonDeleteQuery = `
-    DELETE FROM DevelopERP_Clear..Address_Person
-    WHERE person_id = @person_id AND address_id = @address_id
-`
-const addressMasterCodeQuery = `
-    INSERT INTO DevelopERP_Clear..Address_MasterCode (address_id, address_type_code_id)
-    VALUES (@address_id, @address_type_code_id)
-`
 
 async function createPersonData(body: any) {
     let transaction;
@@ -173,22 +122,35 @@ async function createPersonData(body: any) {
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
             .input('action_by', sql.INT, body.create_by)
-            .input('is_archived', sql.INT, 0)
-            .query(personQuery)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
+                    @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @action_date = @action_date
+            `)
         let person_id = personResult.recordset[0].person_id
 
         for (const role of body.person.role) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('role_code_id', sql.INT, role)
-                .query(roleQuery)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('customer_id', sql.INT, customer)
-                .query(customerPersonQuery)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const contact of body.contact) {
@@ -197,8 +159,11 @@ async function createPersonData(body: any) {
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('action_by', sql.INT, body.create_by)
-                .input('is_archived', sql.INT, 0)
-                .query(contactQuery)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
+                        @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const address of body.addressNew) {
@@ -213,18 +178,32 @@ async function createPersonData(body: any) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.create_by)
-                .input('is_archived', sql.INT, 0)
-                .query(addressQuery)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
+                `)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address_id)
-                .query(addressPersonQuery)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
             for (const addressMasterCode of address.address_type_code_id) {
                 let addressMaterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .query(addressMasterCodeQuery)
+                    .input('action_by', sql.INT, body.create_by)
+                    .input('action_date', sql.DATETIME, datetime)
+                    .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                        @action_by = @action_by, @action_date = @action_date
+                    `)
             }
         }
 
@@ -232,7 +211,12 @@ async function createPersonData(body: any) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address)
-                .query(addressPersonQuery)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         await transaction.commit();
@@ -258,44 +242,68 @@ async function updatePersonDate(personId: string, body: any) {
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-            .input('action_by', sql.DATETIME, body.update_by)
+            .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Person
-                SET firstname = @firstname, lastname = @lastname, nickname = @nickname, title_code_id = @title_code_id, description = @description, action_by = @action_by
-                WHERE person_id = @person_id
+                EXEC DevelopERP_Clear..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
+                    @nickname = @nickname, @title_code_id = @title_code_id, @description = @description, 
+                    @action_by = @action_by, @action_date = @action_date
             `)
 
         for (const role of body.person.roleDelete) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('role_code_id', sql.INT, role)
-                .query(roleDeleteQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
         for (const role of body.person.role) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('role_code_id', sql.INT, role)
-                .query(roleQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const customer of body.customerDelete) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('customer_id', sql.INT, customer)
-                .query(customerPersonDeleteQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('customer_id', sql.INT, customer)
-                .query(customerPersonQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const contact of body.contactDelete) {
             let contactResult = await transaction.request()
-                .input('person_id',sql.INT, personId)
                 .input('contact_id', sql.INT, contact)
-                .query(contactDeleteQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
+                `)
         }
         for (const contact of body.contact) {
             let contactResult = await transaction.request()
@@ -303,8 +311,11 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('action_by', sql.INT, body.update_by)
-                .input('is_archived', sql.INT, 0)
-                .query(contactQuery)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
+                        @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         for (const address of body.addressNew) {
@@ -319,18 +330,32 @@ async function updatePersonDate(personId: string, body: any) {
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
                 .input('action_by', sql.INT, body.update_by)
-                .input('is_archived', sql.INT, 0)
-                .query(addressQuery)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
+                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
+                `)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address_id)
-                .query(addressPersonQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
             for (const addressMasterCode of address.addres_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('addrsss_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .query(addressMasterCodeQuery)
+                    .input('action_by', sql.INT, body.update_by)
+                    .input('action_date', sql.DATETIME, datetime)
+                    .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                        @action_by = @action_by, @action_date = @action_date
+                    `)
             }
         }
 
@@ -338,18 +363,29 @@ async function updatePersonDate(personId: string, body: any) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address)
-                .query(addressPersonDeleteQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
         for (const address of body.addressExist) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address)
-                .query(addressPersonQuery)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
         }
 
         await transaction.commit();
 
     } catch (err) {
+        console.log(err)
         await transaction.rollback();
         throw err;
     }
