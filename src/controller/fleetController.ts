@@ -29,7 +29,7 @@ async function getFleetData(req: Request, res: Response) {
 
 async function deleteFleet(req: Request, res: Response) {
     try {
-        await fleetModel.deleteFleet(req.params.id);
+        await fleetModel.deleteFleet(req.params.id, req.body);
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, meesage: "failed from serverss", response: err })

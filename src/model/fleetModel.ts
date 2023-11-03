@@ -67,29 +67,17 @@ async function getFleetData(fleetId: string) {
     }
 }
 
-async function deleteFleet(fleetId: string) {
+async function deleteFleet(fleetId: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .input('fleet_id', sql.INT, fleetId)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                WITH RecursiveCTE AS (
-                    SELECT fleet_id, parent_fleet_id
-                    FROM DevelopERP_Clear..Fleet
-                    WHERE fleet_id = @fleet_id
-                    UNION ALL
-                    SELECT F.fleet_id, F.parent_fleet_id
-                    FROM DevelopERP_Clear..Fleet AS F
-                    INNER JOIN RecursiveCTE AS RC ON F.parent_fleet_id = RC.fleet_id
-                )
-                
-                UPDATE DevelopERP_Clear..Fleet
-                SET is_archived = 1
-                WHERE fleet_id IN ( 
-                    SELECT fleet_id
-                    FROM RecursiveCTE
-                )
+                EXEC DevelopERP_Clear..sp_delete_fleet @fleet_id = @fleet_id, 
+                    @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
@@ -108,13 +96,10 @@ async function createFleetData(body: any) {
             .input('fleet_name', sql.NVARCHAR, body.fleet.fleet_name)
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id ? body.fleet.parent_fleet_id : null) 
             .input('action_by', sql.INT, body.create_by)
-            .input('is_archived', sql.INT, 0)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                DECLARE @fleetTable TABLE (fleet_id INT)
-                INSERT INTO DevelopERP_Clear..Fleet (fleet_name, parent_fleet_id, action_by, is_archived)
-                OUTPUT INSERTED.fleet_id INTO @fleetTable (fleet_id)
-                VALUES (@fleet_name, @parent_fleet_id, @action_by, @is_archived)
-                SELECT fleet_id FROM @fleetTable
+                EXEC DevelopERP_Clear..sp_insert_fleet @fleet_name = @fleet_name, @parent_fleet_id = @parent_fleet_id,
+                    @action_by = @action_by, @action_date = @action_date
             `)
         let fleet_id = fleetResult.recordset[0].fleet_id
 
@@ -122,9 +107,11 @@ async function createFleetData(body: any) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleet_id)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Customer (fleet_id, customer_id)
-                    VALUES (@fleet_id, @customer_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -132,9 +119,11 @@ async function createFleetData(body: any) {
             let personResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('person_id', sql.INT, person)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Person (fleet_id, person_id)
-                    VALUES (@fleet_id, @person_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         
@@ -142,9 +131,11 @@ async function createFleetData(body: any) {
             let vehicleResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Vehicle (fleet_id, vehicle_id)
-                    VALUES (@fleet_id, @vehicle_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -169,28 +160,32 @@ async function updateFleetData(fleetId: string, body: any) {
             .input('fleet_name', sql.NVARCHAR, body.fleet.fleet_name)
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id)
             .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
             .query(`
-                UPDATE DevelopERP_Clear..Fleet
-                SET fleet_name = @fleet_name, parent_fleet_id = @parent_fleet_id, action_by = @action_by
-                WHERE fleet_id = @fleet_id
+                EXEC DevelopERP_Clear..sp_update_fleet @fleet_id = @fleet_id, @fleet_name = @fleet_name,
+                    @parent_fleet_id = @parent_fleet_id, @action_by = @action_by, @action_date = @action_date
             `)
 
         for (const customer of body.customerDelete) {
             let customerDeleteResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleetId)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    DELETE FROM DevelopERP_Clear..Fleet_Customer
-                    WHERE fleet_id = @fleet_id AND customer_id = @customer_id
+                    EXEC DevelopERP_Clear..sp_delete_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
                 .input('fleet_id', sql.INT, fleetId)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Customer (customer_id, fleet_id)
-                    VALUES (@customer_id, @fleet_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -198,18 +193,22 @@ async function updateFleetData(fleetId: string, body: any) {
             let personDeleteResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleetId)
                 .input('person_id', sql.INT, person)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    DELETE FROM DevelopERP_Clear..Fleet_Person
-                    WHERE fleet_id = @fleet_id AND person_id = @person_id
+                    EXEC DevelopERP_Clear..sp_delete_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const person of body.personExist) {
             let personResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleetId)
                 .input('person_id', sql.INT, person)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Person (fleet_id, person_id)
-                    VALUES (@fleet_id, @person_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         
@@ -217,18 +216,22 @@ async function updateFleetData(fleetId: string, body: any) {
             let vehicleDeleteResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleetId)
                 .input('vehicle_id', sql.INT, vehicle)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    DELETE FROM DevelopERP_Clear..Fleet_Vehicle
-                    WHERE fleet_id = @fleet_id AND vehicle_id = @vehicle_id
+                    EXEC DevelopERP_Clear..sp_delete_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const vehicle of body.vehicleExist) {
             let vehicleResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleetId)
                 .input('vehicle_id', sql.INT, vehicle)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Fleet_Vehicle (fleet_id, vehicle_id)
-                    VALUES (@fleet_id, @vehicle_id)
+                    EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
