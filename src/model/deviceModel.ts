@@ -172,11 +172,11 @@ async function updateDeviceData (device_id: string, body: any) {
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 
-                @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
-                @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
-                @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
-                @network = @network, @username = @username, @password = @password,
-                @action_by = @action_by, @action_date = @action_date
+                    @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
+                    @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
+                    @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
+                    @network = @network, @username = @username, @password = @password,
+                    @action_by = @action_by, @action_date = @action_date
             `)
 
         await transaction.commit();
