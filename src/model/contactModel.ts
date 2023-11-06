@@ -11,10 +11,10 @@ async function getContactTable(index: number, filterValue: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('value', sql.NVARCHAR, "%" + filterValue + "%")
             .query(`
-                DECLARE @contactTable ContactType
+                DECLARE @contactTable IdType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_Clear..sp_filterContact @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = @value, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_filterContact @value = @value, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Contact
