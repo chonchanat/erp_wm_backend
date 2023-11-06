@@ -7,5 +7,6 @@ router.get('/contact', contactController.getContactTable)
 router.get('/contact/:id', contactController.getContactData)
 router.delete('/contact/:id', contactController.deleteContact)
 router.post('/contact', contactController.createContactData)
+router.put('/contact/:id', contactController.updateContactData)
 
 export default router

@@ -112,22 +112,34 @@ async function createContactData(body: any) {
     }
 }
 
-// async function updateContactData(body: any) {
-//     let transaction;
-//     try {
-//         let datetime = getDateTime();
-//         let pool = await sql.connect(devConfig);
-//         transaction = pool.transaction();
-//         await transaction.begin();
+async function updateContactData(contact_id: string, body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
 
-//         let contactResult = await transaction.request()
+        let contactResult = await transaction.request()
+            .input('contact_id', sql.INT, contact_id)
+            .input('contact_code_id', sql.INT, body.contact.contact_code_id)
+            .input('person_id', sql.INT, body.contact.person_id)
+            .input('customer_id', sql.INT, body.contact.customer_id)
+            .input('value', sql.NVARCHAR, body.contact.value)
+            .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_update_contact @contact_id = @contact_id, @contact_code_id = @contact_code_id, 
+                @person_id = @person_id, @customer_id = @customer_id, @value = @value, 
+                @action_by = @action_by, @action_date = @action_date
+            `)
 
-//         await transaction.commit();
+        await transaction.commit();
 
-//     } catch (err) {
-//         await transaction.rollback();
-//         throw err;
-//     }
-// }
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+}
 
-export default { getContactTable, getContactData, deleteContact, createContactData }
+export default { getContactTable, getContactData, deleteContact, createContactData, updateContactData }

@@ -45,4 +45,13 @@ async function createContactData (req: Request, res: Response) {
     }
 }
 
-export default { getContactTable, getContactData, deleteContact, createContactData }
+async function updateContactData (req: Request, res: Response) {
+    try {
+        await contactModel.updateContactData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: 'updated succesfully'})
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'failed from server', response: err })
+    }
+}
+
+export default { getContactTable, getContactData, deleteContact, createContactData, updateContactData }
