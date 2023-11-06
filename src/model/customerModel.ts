@@ -60,10 +60,10 @@ async function getCustomerData(customerId: string) {
                 EXEC DevelopERP_Clear..sp_filterAddress @location = '%', @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
 
-                DECLARE @personTable PersonType
+                DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @fullname = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
                 
                 DECLARE @vehicleTable VehicleType
                 INSERT INTO @vehicleTable 

@@ -10,10 +10,10 @@ async function getPersonTable(index: number, filterPerson: string) {
             .input('lastIndex', sql.INT, index + 9)
             .input('fullname', sql.NVARCHAR, "%" + filterPerson + "%")
             .query(`
-                DECLARE @personTable PersonType
+                DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @fullname = @fullname, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
