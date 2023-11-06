@@ -12,10 +12,10 @@ async function getDeviceTable (index: number, filter: string) {
             .input('lastIndex', sql.INT, index + 9)
             .query(`
 
-                DECLARE @deviceTable DeviceType
+                DECLARE @deviceTable IdType
                 INSERT INTO @deviceTable
-                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = @device_id, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
                 
                 --EXEC DevelopERP_Clear..sp_filter_format_deviceTable 
                 --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
@@ -43,10 +43,10 @@ async function getDeviceData(device_id: string) {
                 FROM DevelopERP_Clear..Device
                 WHERE device_id = @device_id
 
-                DECLARE @deviceSerialTable DeviceSerialType
+                DECLARE @deviceSerialTable IdType
                 INSERT INTO @deviceSerialTable 
-                EXEC DevelopERP_Clear..sp_filterDeviceSerial @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @serial_id = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterDeviceSerial @serial_id = '%', @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = 1
 
                 SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
                 FROM DevelopERP_Clear..DeviceConfig DC

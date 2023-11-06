@@ -11,10 +11,10 @@ async function getDeviceSerialTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                DECLARE @deviceSerialTable DeviceSerialType
+                DECLARE @deviceSerialTable IdType
                 INSERT INTO @deviceSerialTable 
-                EXEC DevelopERP_Clear..sp_filterDeviceSerial @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @serial_id = @serial_id, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_filterDeviceSerial @serial_id = @serial_id, @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..DeviceSerial
@@ -41,10 +41,10 @@ async function getDeviceSerialData(device_serial_id: string) {
                 ON DS.device_type_code_id = M.code_id
                 WHERE DS.device_serial_id = @device_serial_id
 
-                DECLARE @deviceTable DeviceType
+                DECLARE @deviceTable IdType
                 INSERT INTO @deviceTable
-                EXEC DevelopERP_Clear..sp_filterDevice @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @device_id = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
             `)
         return {
             deviceSerial: result.recordsets[0][0],
