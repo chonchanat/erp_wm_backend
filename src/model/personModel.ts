@@ -60,10 +60,10 @@ async function getPersonData(personId: string) {
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
                 
-                DECLARE @customerTable CustomerType
+                DECLARE @customerTable IdType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @customer_name = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
 
                 DECLARE @contactTable IdType
                 INSERT INTO @contactTable
