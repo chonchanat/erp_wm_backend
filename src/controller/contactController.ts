@@ -36,4 +36,13 @@ async function deleteContact(req: Request, res: Response) {
     }
 }
 
-export default { getContactTable, getContactData, deleteContact }
+async function createContactData (req: Request, res: Response) {
+    try {
+        await contactModel.createContactData(req.body)
+        res.status(200).json({ status: 1, message: 'created succesfully'})
+    } catch (err) {
+        res.status(500).json({ status: 0, message: 'failed from server', response: err })
+    }
+}
+
+export default { getContactTable, getContactData, deleteContact, createContactData }
