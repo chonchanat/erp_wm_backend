@@ -12,6 +12,7 @@ import billingRoutes from "./routes/billingLocationRoutes";
 import vehicleRoutes from "./routes/vehicleRoutes";
 import deviceSerialRoutes from "./routes/deviceSerialRoutes";
 import deviceRoutes from "./routes/deviceRoutes";
+import userAccountRoutes from "./routes/userAccountRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -49,6 +50,7 @@ app.use('/', billingRoutes);
 app.use('/', vehicleRoutes);
 app.use('/', deviceSerialRoutes);
 app.use('/', deviceRoutes);
+app.use('/', userAccountRoutes);
 
 app.use(handleError.duplicateError);
 
