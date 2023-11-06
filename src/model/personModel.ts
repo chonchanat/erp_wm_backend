@@ -70,10 +70,10 @@ async function getPersonData(personId: string) {
                 EXEC DevelopERP_Clear..sp_filterContact @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @value = '%', @firstIndex = 1
                 
-                DECLARE @addressTable AddressType
+                DECLARE @addressTable IdType
                 INSERT INTO @addressTable
-                EXEC DevelopERP_Clear..sp_filterAddress @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @location = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
             `)
             
         return {

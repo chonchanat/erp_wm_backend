@@ -11,14 +11,14 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('lastIndex', sql.INT, index + 9)
             // .query('EXEC DevelopERP_Clear..getAddressTable @index');
             .query(`
-                DECLARE @addressTable AddressType
-                INSERT INTO @addressTable
-                EXEC DevelopERP_Clear..sp_filterAddress @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @location = @location, @firstIndex = @firstIndex
+            DECLARE @addressTable IdType
+            INSERT INTO @addressTable
+            EXEC DevelopERP_Clear..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
 
-                SELECT COUNT(*) AS count_data
-                FROM (
-                        SELECT 
+            SELECT COUNT(*) AS count_data
+            FROM (
+                    SELECT 
                         COALESCE(name + ', ', '') +
                         COALESCE(house_no + ', ', '') +
                         COALESCE('หมู่ที่ ' + village_no + ', ', '') + 
@@ -27,16 +27,18 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(sub_district + ', ', '') +
                         COALESCE(district + ', ', '') +
                         COALESCE(province + ', ', '') +
-                        COALESCE(postal_code , '') as location
-                        FROM DevelopERP_Clear..Address
-                ) t
-                WHERE location LIKE @location AND is_archived = 0
+                        COALESCE(postal_code , '') as location,
+                        is_archived
+                    FROM DevelopERP_Clear..Address
+            ) t
+            WHERE location LIKE @location AND is_archived = 0
             `)
         return {
             address: result.recordsets[0],
             count_data: result.recordsets[1][0].count_data
         };
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }
