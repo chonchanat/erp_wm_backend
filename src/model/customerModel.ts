@@ -45,10 +45,10 @@ async function getCustomerData(customerId: string) {
                 ON C.customer_type_code_id = M_customertype.code_id
                 WHERE customer_id = @customer_id AND is_archived = 0
                 
-                DECLARE @fleetTable FleetType
+                DECLARE @fleetTable IdType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP_Clear..sp_filterFleet @customer_id = @customer_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @fleet_name = '%', @firstIndex = 1
+                EXEC DevelopERP_Clear..sp_filterFleet @fleet_name = '%', @customer_id = @customer_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
 
                 DECLARE @contactTable IdType
                 INSERT INTO @contactTable
