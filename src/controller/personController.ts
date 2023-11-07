@@ -36,20 +36,18 @@ async function daletePerson(req: Request, res: Response) {
     }
 }
 
-async function createPersonData(req: Request, res: Response) {
+async function createPersonData(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = req.body;
-        const result = await personModel.createPersonData(body)
+        const result = await personModel.createPersonData(req.body)
         res.status(201).json({ status: 1, message: "created successfully"})
     } catch (err) {
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
+        next(err);
     }
 }
 
 async function updatePersonDate(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = req.body;
-        const result = await personModel.updatePersonDate(req.params.id, body);
+        const result = await personModel.updatePersonDate(req.params.id, req.body);
         res.status(200).json({ status: 1, message: "updated successfully"})
     } catch (err) {
         next(err);
