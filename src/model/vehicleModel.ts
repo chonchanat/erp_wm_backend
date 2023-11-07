@@ -148,6 +148,19 @@ async function createVehicleData(body: any) {
                     @action_by = @action_by, @action_date = @action_date   
             `)
 
+        let vehiclePermitReuslt = await transaction.request()
+            .input('vehicle_id', sql.INT, vehicle_id)
+            .input('dlt', sql.BIT, body.vehiclePermit.dlt)
+            .input('tls', sql.BIT, body.vehiclePermit.tls)
+            .input('scgl', sql.BIT, body.vehiclePermit.scgl)
+            .input('diw', sql.BIT, body.vehiclePermit.diw)
+            .input('action_by', sql.INT, body.create_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
+                    @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
+            `)
+
         for (const customer of body.customerExist) {
             let vehicleCustomerResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicle_id)
@@ -240,6 +253,19 @@ async function updateVehicleData(vehicleId: string, body: any) {
                     @max_fuel_3 = @max_fuel_3, @max_empty_voltage = @max_empty_voltage, @max_empty_voltage_2 = @max_empty_voltage_2, 
                     @max_empty_voltage_3 = @max_empty_voltage_3, @fuel_status = @fuel_status,
                     @action_by = @action_by, @action_date = @action_date
+            `)
+
+        let vehiclePermitReuslt = await transaction.request()
+            .input('vehicle_id', sql.INT, vehicleId)
+            .input('dlt', sql.BIT, body.vehiclePermit.dlt)
+            .input('tls', sql.BIT, body.vehiclePermit.tls)
+            .input('scgl', sql.BIT, body.vehiclePermit.scgl)
+            .input('diw', sql.BIT, body.vehiclePermit.diw)
+            .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_CLear..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
+                    @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
             `)
         
         for (const customer of body.customerDelete) {
