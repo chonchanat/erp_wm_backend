@@ -11,10 +11,10 @@ async function getVehicleTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                DECLARE @vehicleTable VehicleType
+                DECLARE @vehicleTable IdType
                 INSERT INTO @vehicleTable 
-                EXEC DevelopERP_Clear..sp_filterVehicle @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @license_plate = @license_plate, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Vehicle
