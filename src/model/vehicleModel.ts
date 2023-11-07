@@ -46,6 +46,11 @@ async function getVehicleData(vehicleId: string) {
                 FROM DevelopERP_Clear..VehicleConfig
                 WHERE vehicle_id = @vehicle_id
 
+                SELECT
+                    dlt, tls, scgl, diw
+                FROM DevelopERP_Clear..VehiclePermit
+                WHERE vehicle_id = @vehicle_id
+
                 DECLARE @customerTable IdType
                 INSERT INTO @customerTable
                 EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
@@ -53,7 +58,7 @@ async function getVehicleData(vehicleId: string) {
 
                 DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
 
                 `)
@@ -61,10 +66,12 @@ async function getVehicleData(vehicleId: string) {
         return {
             vehicle: result.recordsets[0][0],
             vehicleConfig: result.recordsets[1][0],
-            customer: result.recordsets[2],
-            person: result.recordsets[3],
+            vehiclePermit: result.recordsets[2][0],
+            customer: result.recordsets[3],
+            person: result.recordsets[4],
         }
     } catch (err) {
+        console.log(err)
         throw err;
     }
 }

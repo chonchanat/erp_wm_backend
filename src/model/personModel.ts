@@ -12,7 +12,7 @@ async function getPersonTable(index: number, filterPerson: string) {
             .query(`
                 DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_Clear..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
                 EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data

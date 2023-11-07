@@ -35,8 +35,37 @@ async function getUserAccountTable(index: number, filter: string) {
         }
     } catch (err) {
         console.log(err)
-        return err;
+        throw err;
     }
 }
 
-export default { getUserAccountTable }
+async function getUserAccountData(user_id: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('user_id', sql.INT, user_id)
+            .query(`
+                SELECT
+                    UA.username,
+                    UA.profile_id,
+                    COALESCE(UA.uid, '') AS uid
+                FROM DevelopERP_Clear..UserAccount UA
+                WHERE UA.user_id = @user_id 
+
+                DECLARE @personTable IdType
+                INSERT INTO @personTable
+                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+            `)
+        
+        return {
+            userAccount: result.recordsets[0][0],
+            person: result.recordsets[1],
+        }
+    } catch (err) {
+        console.log(err)
+        throw err;
+    }
+}
+
+export default { getUserAccountTable, getUserAccountData }
