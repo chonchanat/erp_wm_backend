@@ -44,7 +44,7 @@ async function getContactData(contactId: string) {
                         WHEN ct.person_id IS NULL
                         THEN c.customer_name
                         WHEN ct.customer_id IS NULL
-                        THEN COALESCE(p.firstname + ' ', '') + COALESCE(p.lastname + ' ', '') + COALESCE('(' + p.nickname + ')', '')
+                        THEN RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '-'))
                     END AS owner_name,
                     CASE
                         WHEN ct.person_id IS NULL

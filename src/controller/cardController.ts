@@ -14,4 +14,40 @@ async function getCardTable(req: Request, res: Response) {
     }
 }
 
-export default { getCardTable }
+async function getCardData(req: Request, res: Response) {
+    try {
+        const result = await cardModel.getCardData(req.params.id);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function deleteCardData(req: Request, res: Response) {
+    try {
+        await cardModel.deleteCardData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: "deleted successfully" })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function createCardData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await cardModel.createCardData(req.body);
+        res.status(201).json({ status: 1, message: "created successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function updateCardData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await cardModel.updateCardData(req.params.id, req.body);
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getCardTable, getCardData, deleteCardData, createCardData, updateCardData }
