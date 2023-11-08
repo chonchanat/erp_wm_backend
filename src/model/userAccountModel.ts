@@ -11,7 +11,7 @@ async function getUserAccountTable(index: number, filter: string) {
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
             .query(`
-                DECLARE @userAccountTable UserAccountType
+                DECLARE @userAccountTable IdType
                 INSERT @userAccountTable
                 EXEC DevelopERP_Clear..sp_filterUserAccount @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
                 EXEC DevelopERP_Clear..sp_formatUserAccountTable @userAccountTable = @userAccountTable, @firstIndex = @firstIndex
