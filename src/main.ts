@@ -14,6 +14,7 @@ import deviceSerialRoutes from "./routes/deviceSerialRoutes";
 import deviceRoutes from "./routes/deviceRoutes";
 import userAccountRoutes from "./routes/userAccountRoutes";
 import cardRoutes from "./routes/cardRoutes";
+import documentRoutes from "./routes/documentRoutes";
 
 import handleError from "./middleware/handleError";
 
@@ -52,7 +53,8 @@ app.use('/', vehicleRoutes);
 app.use('/', deviceSerialRoutes);
 app.use('/', deviceRoutes);
 app.use('/', userAccountRoutes);
-app.use('/', cardRoutes)
+app.use('/', cardRoutes);
+app.use('/', documentRoutes);
 
 app.use(handleError.duplicateError);
 
