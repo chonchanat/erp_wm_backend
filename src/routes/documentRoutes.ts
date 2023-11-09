@@ -8,12 +8,7 @@ const upload = multer({ storage: storage });
 
 const router: Router = express.Router();
 
-// router.post('/document', upload.array('files'), (req: any, res) => {
-//     const result = req.files
-//     console.log(result)
-//     res.json({files: result})
-// });
-// router.post('/document', upload.none(), documentController.createDocumentData);
+router.get('/document/:id', documentController.getDocumentData);
 router.post('/document', upload.array('files'), documentController.createDocumentData);
 
 export default router
