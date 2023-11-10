@@ -3,6 +3,27 @@ import { getDateTime } from "../utils"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
+async function getDocumentTable(index: number, filter: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('document_name', sql.NVARCHAR, "%" + filter + "%")
+            .input('firstIndex', sql.INT, index)
+            .input('lastIndex', sql.INT, index + 9)
+            .query(`
+                
+            `)
+        
+        return {
+            document: result.recordsets[0],
+        }
+
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 async function getDocumentData(document_id: string) {
     try {
         let pool = await sql.connect(devConfig);

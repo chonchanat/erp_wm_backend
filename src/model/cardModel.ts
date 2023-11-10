@@ -14,7 +14,7 @@ async function getCardTable(index: number, filter: string) {
                 DECLARE @cardTable IdType
                 INSERT @cardTable
                 EXEC DevelopERP_Clear..sp_filterCard @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatCard @cardTable = @cardTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_Clear..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_date
                 FROM Card
