@@ -31,8 +31,26 @@ async function createDocumentData(req: any, res: Response, next: NextFunction) {
 
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
+        next(err);
+    }
+}
+
+async function updateDocumentData(req: Request, res: Response, next: NextFunction) {
+    try {
+        await documentModel.updateDocumentData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: "updated successfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function deleteDocumentData(req: Request, res: Response) {
+    try {
+        await documentModel.deleteDocumentData(req.params.id, req.body)
+        res.status(200).json({ status: 1, message: "deleted successfully" })
+    } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
-export default { getDocumentTable, getDocumentData, createDocumentData }
+export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData }

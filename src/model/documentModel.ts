@@ -17,7 +17,7 @@ async function getDocumentTable(index: number, filter: string) {
                     @address_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
                 EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = @firstIndex
             `)
-        
+
         return {
             document: result.recordsets[0],
         }
@@ -86,7 +86,7 @@ async function getDocumentData(document_id: string) {
                 ON V.registration_province_code_id = M.code_id
                 WHERE D.document_id = @document_id
             `)
-        
+
         return {
             document: result.recordsets[0][0],
         }
@@ -98,31 +98,86 @@ async function getDocumentData(document_id: string) {
 }
 
 async function createDocumentData(body: any, files: any) {
+    let transaction;
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
 
         for (let file of files) {
+            let fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
             let documentResult = await pool.request()
                 .input('document_code_id', sql.INT, body.document.document_code_id)
                 .input('customer_id', sql.INT, body.document.customer_id)
                 .input('person_id', sql.INT, body.document.person_id)
                 .input('address_id', sql.INT, body.document.address_id)
                 .input('vehicle_id', sql.INT, body.document.vehicle_id)
-                .input('document_name', sql.NVARCHAR, file.originalname)
+                .input('document_name', sql.NVARCHAR, fileNameUTF8)
                 .input('value', sql.VARBINARY, file.buffer)
-                .input('create_by', sql.DATETIME, datetime)
-                .input('is_archived', sql.INT, 0)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    INSERT INTO DevelopERP_Clear..Document (document_code_id, customer_id, person_id, address_id, vehicle_id, document_name, value, create_by, is_archived)
-                    VALUES (@document_code_id, @customer_id, @person_id, @address_id, @vehicle_id, @document_name, @value, @create_by, @is_archived)
+                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
+                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
+                        @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
+        await transaction.commit();
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function updateDocumentData(document_id: string, body: any) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        let documentResult = await transaction.request()
+            .input('document_id', sql.INT, document_id)
+            .input('document_code_id', sql.INT, body.document.document_code_id)
+            .input('document_name', sql.NVARCHAR, body.document.document_name)
+            .input('action_by', sql.INT, body.update_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,
+                    @document_name = @document_name, @action_by = @action_by, @action_date = @action_date
+            `)
+
+        await transaction.commit();
+
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function deleteDocumentData(document_id: string, body: any) {
+    try {
+        let datetime = getDateTime();
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('document_id', sql.INT, document_id)
+            .input('action_by', sql.INT, body.action_by)
+            .input('action_date', sql.DATETIME, datetime)
+            .query(`
+                EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+            `)
     } catch (err) {
         console.log(err);
         throw err;
     }
 }
 
-export default { getDocumentTable, getDocumentData, createDocumentData }
+export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData }
