@@ -84,6 +84,6 @@ export interface CustomerType {
     fleetNew: Fleet[];
     fleetExist: number[];
     fleetDelete: number[];
-    // documentNew: Document[];
     documentCodeNew: number[];
+    documentDelete: number[];
 }

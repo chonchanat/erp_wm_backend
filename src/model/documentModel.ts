@@ -38,7 +38,6 @@ async function getDocumentData(document_id: string) {
                     D.document_id,
                     D.document_code_id,
                     D.document_name,
-                    D.value,
                     D.create_date,
                     CASE
                         WHEN D.customer_id IS NOT NULL
@@ -105,17 +104,17 @@ async function createDocumentData(body: any, files: any) {
         transaction = pool.transaction();
         await transaction.begin();
 
-        for (let file of files) {
-            let fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString('utf8');
-
+        for (let i = 0; i < files.length; i++) {
+            // let fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString('utf8');
+            
             let documentResult = await pool.request()
                 .input('document_code_id', sql.INT, body.document.document_code_id)
                 .input('customer_id', sql.INT, body.document.customer_id)
                 .input('person_id', sql.INT, body.document.person_id)
                 .input('address_id', sql.INT, body.document.address_id)
                 .input('vehicle_id', sql.INT, body.document.vehicle_id)
-                .input('document_name', sql.NVARCHAR, fileNameUTF8)
-                .input('value', sql.VARBINARY, file.buffer)
+                .input('document_name', sql.NVARCHAR, files[i].originalname)
+                .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)

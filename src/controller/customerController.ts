@@ -49,7 +49,10 @@ async function createCustomerData(req: Request, res: Response, next: NextFunctio
 
 async function updateCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
-        await customerModel.updateCustomerData(req.params.id, req.body);
+        const id = req.params.id;
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+        await customerModel.updateCustomerData(id, body, files);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);

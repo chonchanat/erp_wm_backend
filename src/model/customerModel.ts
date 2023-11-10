@@ -69,6 +69,12 @@ async function getCustomerData(customerId: string) {
                 INSERT INTO @vehicleTable 
                 EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = '%', @customer_id = @customer_id, @fleet_id = NULL, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
+
+                DECLARE @documentTable IdType
+                INSERT INTO @documentTable
+                EXEC DevelopERP_Clear..sp_filterDocument @document_name = '%', @customer_id = @customer_id, @person_id = NULL, 
+                    @address_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
             `)
         return {
             customer: result.recordsets[0][0],
@@ -76,7 +82,8 @@ async function getCustomerData(customerId: string) {
             contact: result.recordsets[2],
             address: result.recordsets[3],
             person: result.recordsets[4],
-            vehicle: result.recordsets[5]
+            vehicle: result.recordsets[5],
+            files: result.recordsets[6],
         };
     } catch (err) {
         throw err;
@@ -384,7 +391,8 @@ async function createCustomerData(body: CustomerType, files: any) {
 
         for (let i = 0; i < files.length; i++) {
             // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
-            let documentResult = await pool.request()
+
+            let documentResult = await transaction.request()
                 .input('document_code_id', sql.INT, body.documentCodeNew[i])
                 .input('customer_id', sql.INT, customer_id)
                 .input('person_id', sql.INT, null)
@@ -412,7 +420,7 @@ async function createCustomerData(body: CustomerType, files: any) {
     }
 }
 
-async function updateCustomerData(customerId: string, body: CustomerType) {
+async function updateCustomerData(customerId: string, body: CustomerType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -748,6 +756,38 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
                         @action_by = @action_by, @action_date = @action_date
+                `)
+        }
+
+        for (let i = 0; i < files.length; i++) {
+            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+
+            let documentResult = await transaction.request()
+                .input('document_code_id', sql.INT, body.documentCodeNew[i])
+                .input('customer_id', sql.INT, customerId)
+                .input('person_id', sql.INT, null)
+                .input('address_id', sql.INT, null)
+                .input('vehicle_id', sql.INT, null)
+                .input('document_name', sql.NVARCHAR, files[i].originalname)
+                .input('value', sql.VARBINARY, files[i].buffer)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
+                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
+                        @action_by = @action_by, @action_date = @action_date
+                `)
+        }
+
+        for (const document of body.documentDelete) {
+            let documentResult = await transaction.request()
+                .input('document_id', sql.INT, document)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
