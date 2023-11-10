@@ -58,6 +58,14 @@ interface Fleet {
     parent_fleet_id: number;
 }
 
+interface Document {
+    document_code_id: number;
+    customer_id: number;
+    person_id: number;
+    address_id: number;
+    vehicle_id: number;
+}
+
 export interface CustomerType {
     create_by?: number;
     update_by?: number;
@@ -76,4 +84,6 @@ export interface CustomerType {
     fleetNew: Fleet[];
     fleetExist: number[];
     fleetDelete: number[];
+    // documentNew: Document[];
+    documentCodeNew: number[];
 }

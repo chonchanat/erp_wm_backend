@@ -25,9 +25,10 @@ async function getDocumentData(req: Request, res: Response) {
 
 async function createDocumentData(req: any, res: Response, next: NextFunction) {
     try {
-        const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
-        await documentModel.createDocumentData(body, files);
+        // const body = JSON.parse(req.body.jsonData);
+        // const files = req.files;
+        console.log(req.files)
+        // await documentModel.createDocumentData(body, files);
 
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {

@@ -38,8 +38,9 @@ async function deleteCustomer(req: Request, res: Response) {
 
 async function createCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = req.body;
-        const result = await customerModel.createCustomerData(body)
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+        await customerModel.createCustomerData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
         next(err);
@@ -48,47 +49,7 @@ async function createCustomerData(req: Request, res: Response, next: NextFunctio
 
 async function updateCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
-        const customerId = req.params.id;
-        const body = req.body;
-        // const result = await customerModel.updateCustomerDataSecure(
-        //     {
-        //         customer: {
-        //             customer_id: 2,
-        //             customer_name: "บริษัท สมหวัง จำกัด",
-        //             sales_type_code_id: 29,
-        //             customer_type_code_id: 32,
-        //         },
-        //         contact: [
-        //             {
-        //                 contact_code_id: 1,
-        //                 value: "30320502"
-        //             }
-        //         ],
-        //         addressNew: [],
-        //         addressExist: [],
-        //         personNew: [
-        //             {
-        //                 person: {
-        //                     nickname: "เฮียตี๋",
-        //                     title_code_id: 1,
-        //                     firstname: "จักรพันธ์",
-        //                     lastname: "",
-        //                     description: "เจ้าของธุรกิจ"
-        //                 },
-        //                 contact: [
-        //                     {
-        //                         contact_code_id: 1,
-        //                         value: "034241221"
-        //                     }
-        //                 ],
-        //                 addressNew: [],
-        //                 addressExist: []
-        //             },
-        //         ],
-        //         personExist: [5],
-        //     }
-        // )
-        const result = await customerModel.updateCustomerData(customerId, body);
+        await customerModel.updateCustomerData(req.params.id, req.body);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);
