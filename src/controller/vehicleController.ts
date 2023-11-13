@@ -38,7 +38,10 @@ async function deleteVehicle(req: Request, res: Response) {
 
 async function createVehicleData(req: Request, res: Response, next: NextFunction) {
     try {
-        await vehicleModel.createVehicleData(req.body)
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+        // console.log(body, files)
+        await vehicleModel.createVehicleData(body,files)
         res.status(201).json({ status: 1, message: "created seccessfully" })
     } catch (err) {
         next(err);
@@ -47,7 +50,11 @@ async function createVehicleData(req: Request, res: Response, next: NextFunction
 
 async function updateVehicleData(req: Request, res: Response, next: NextFunction) {
     try {
-        await vehicleModel.updateVehicleData(req.params.id, req.body)
+        const id = req.params.id;
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+        
+        await vehicleModel.updateVehicleData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);
