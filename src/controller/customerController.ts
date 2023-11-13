@@ -40,6 +40,7 @@ async function createCustomerData(req: Request, res: Response, next: NextFunctio
     try {
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
+
         await customerModel.createCustomerData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
@@ -52,6 +53,7 @@ async function updateCustomerData(req: Request, res: Response, next: NextFunctio
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
+        
         await customerModel.updateCustomerData(id, body, files);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {

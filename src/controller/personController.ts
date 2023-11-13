@@ -38,7 +38,10 @@ async function daletePerson(req: Request, res: Response) {
 
 async function createPersonData(req: Request, res: Response, next: NextFunction) {
     try {
-        const result = await personModel.createPersonData(req.body)
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+
+        const result = await personModel.createPersonData(body, files)
         res.status(201).json({ status: 1, message: "created successfully"})
     } catch (err) {
         next(err);
@@ -47,7 +50,11 @@ async function createPersonData(req: Request, res: Response, next: NextFunction)
 
 async function updatePersonDate(req: Request, res: Response, next: NextFunction) {
     try {
-        const result = await personModel.updatePersonDate(req.params.id, req.body);
+        const id = req.params.id;
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+
+        const result = await personModel.updatePersonDate(id, body, files);
         res.status(200).json({ status: 1, message: "updated successfully"})
     } catch (err) {
         next(err);
