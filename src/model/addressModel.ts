@@ -28,10 +28,10 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(district + ', ', '') +
                         COALESCE(province + ', ', '') +
                         COALESCE(postal_code , '') as location,
-                        is_archived
+                        active
                     FROM DevelopERP_Clear..Address
             ) t
-            WHERE location LIKE @location AND is_archived = 0
+            WHERE location LIKE @location AND active = 1
             `)
         return {
             address: result.recordsets[0],

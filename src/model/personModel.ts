@@ -20,10 +20,10 @@ async function getPersonTable(index: number, filterPerson: string) {
                     SELECT 
                     person_id,
                     COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
-                    is_archived
+                    active
                     FROM DevelopERP_Clear..Person
                 ) t
-                WHERE fullname LIKE @fullname AND is_archived = 0
+                WHERE fullname LIKE @fullname AND active = 1
             `)
         return {
             person: result.recordsets[0],
@@ -51,7 +51,7 @@ async function getPersonData(personId: string) {
                 FROM DevelopERP_Clear..Person p
                 LEFT JOIN DevelopERP_Clear..MasterCode m
                 on p.title_code_id = m.code_id
-                WHERE person_id = @person_id AND is_archived = 0
+                WHERE person_id = @person_id AND active = 1
 
                 SELECT 
                     role_code_id, value AS role_type

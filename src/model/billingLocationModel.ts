@@ -35,7 +35,7 @@ async function getBillingLocationData(billingLocationId: string) {
             .query(`
                 SELECT billing_location_id, name, tin, COALESCE(branch, '-') AS branch
                 FROM DevelopERP_Clear..BillingLocation
-                WHERE billing_location_id = @billing_location_id AND is_archived = 0
+                WHERE billing_location_id = @billing_location_id AND active = 1
 
                 DECLARE @customerTable TABLE (
                     customer_id INT,
@@ -100,7 +100,7 @@ async function deleteBillingLocation(billingLocationId: string) {
             .input('update_date', sql.DATETIME, datetime)
             .query(`
                 UPDATE DevelopERP_Clear..BillingLocation
-                SET is_archived = 1, update_date = @update_date
+                SET active = 1, update_date = @update_date
                 WHERE billing_location_id = @billing_location_id
             `)
     } catch (err) {
@@ -125,11 +125,11 @@ async function createBillingLocationData(body: any) {
             .input('person_id', sql.INT, body.billingLocation.person_id)
             .input('create_by', sql.INT, body.create_by)
             .input('create_date', sql.DATETIME, datetime)
-            .input('is_archived', sql.INT, 0)
+            .input('active', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_Clear..BillingLocation (name, tin, branch, customer_id, address_id, person_id, create_by, create_date, is_archived)
+                INSERT INTO DevelopERP_Clear..BillingLocation (name, tin, branch, customer_id, address_id, person_id, create_by, create_date, active)
                 OUTPUT INSERTED.billing_location_id
-                VALUES (@name, @tin, @branch, @customer_id, @address_id, @person_id, @create_by, @create_date, @is_archived)
+                VALUES (@name, @tin, @branch, @customer_id, @address_id, @person_id, @create_by, @create_date, @active)
             `)
         const billing_location_id = billingLocationResult.recordset[0].billing_location_id
 

@@ -18,7 +18,7 @@ async function getCardTable(index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_date
                 FROM Card
-                WHERE value LIKE @value AND is_archived = 0
+                WHERE value LIKE @value AND active = 1
             `)
 
         return {
@@ -49,7 +49,7 @@ async function getCardData(card_id: string) {
                 ON C.person_id = p.person_id
                 LEFT JOIN MasterCode M
                 ON C.card_code_id = M.code_id
-                WHERE C.card_id = @card_id AND C.is_archived = 0
+                WHERE C.card_id = @card_id AND C.active = 1
             `)
         
         return {

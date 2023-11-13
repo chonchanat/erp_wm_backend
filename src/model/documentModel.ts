@@ -16,10 +16,15 @@ async function getDocumentTable(index: number, filter: string) {
                 EXEC DevelopERP_Clear..sp_filterDocument @document_name = @document_name, @customer_id = NULL, @person_id = NULL, 
                     @address_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
                 EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = @firstIndex
+
+                SELECT COUNT(*) AS count_data
+                FROM DevelopERP_Clear..Document
+                WHERE document_name LIKE @document_name AND active = 1
             `)
 
         return {
             document: result.recordsets[0],
+            count_data: result.recordsets[1][0].count_data
         }
 
     } catch (err) {
@@ -83,7 +88,7 @@ async function getDocumentData(document_id: string) {
                 ON D.document_code_id = M.code_id
                 LEFT JOIN MasterCode M_province
                 ON V.registration_province_code_id = M.code_id
-                WHERE D.document_id = @document_id
+                WHERE D.document_id = @document_id AND D.active = 1
             `)
 
         return {

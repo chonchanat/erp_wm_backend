@@ -19,7 +19,7 @@ async function getCustomerTable(index: number, filterCustomerName: string) {
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..Customer
-                WHERE customer_name LIKE @customer_name AND is_archived = 0
+                WHERE customer_name LIKE @customer_name AND active = 1
             `)
         return {
             customer: result.recordsets[0],
@@ -43,7 +43,7 @@ async function getCustomerData(customerId: string) {
                 ON C.sales_type_code_id = M_salestype.code_id
                 INNER JOIN DevelopERP_Clear..MasterCode M_customertype
                 ON C.customer_type_code_id = M_customertype.code_id
-                WHERE customer_id = @customer_id AND is_archived = 0
+                WHERE customer_id = @customer_id AND active = 1
                 
                 DECLARE @fleetTable IdType
                 INSERT INTO @fleetTable

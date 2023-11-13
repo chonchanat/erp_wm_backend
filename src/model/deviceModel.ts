@@ -22,7 +22,7 @@ async function getDeviceTable (index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..Device
-                WHERE device_id LIKE @device_id AND is_archived = 0    
+                WHERE device_id LIKE @device_id AND active = 1    
             `)
         return {
             device: result.recordsets[0],

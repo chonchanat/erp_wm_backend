@@ -18,7 +18,7 @@ async function getVehicleTable(index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Vehicle
-                WHERE license_plate LIKE @license_plate AND is_archived = 0
+                WHERE license_plate LIKE @license_plate AND active = 1
             `)
         return {
             vehicle: result.recordsets[0],
@@ -37,7 +37,7 @@ async function getVehicleData(vehicleId: string) {
             .query(`
                 SELECT vehicle_id, frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id
                 FROM DevelopERP_Clear..Vehicle
-                WHERE vehicle_id = @vehicle_id AND is_archived = 0
+                WHERE vehicle_id = @vehicle_id AND active = 1
 
                 SELECT 
                     vehicle_config_id, vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, 

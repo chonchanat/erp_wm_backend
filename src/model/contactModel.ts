@@ -18,7 +18,7 @@ async function getContactTable(index: number, filterValue: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Contact
-                WHERE value LIKE @value AND is_archived = 0
+                WHERE value LIKE @value AND active = 1
             `)
         return {
             contact: result.recordsets[0],
@@ -59,7 +59,7 @@ async function getContactData(contactId: string) {
                 ON ct.person_id = p.person_id
                 LEFT JOIN DevelopERP_Clear..MasterCode m
                 ON ct.contact_code_id = m.code_id
-                WHERE ct.contact_id = @contact_id AND ct.is_archived = 0
+                WHERE ct.contact_id = @contact_id AND ct.active = 1
             `)
         return result.recordsets[0][0]
     } catch (err) {

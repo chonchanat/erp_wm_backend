@@ -18,7 +18,7 @@ async function getDeviceSerialTable(index: number, filter: string) {
 
                 SELECT COUNT(*) AS count_data 
                 FROM DevelopERP_Clear..DeviceSerial
-                WHERE serial_id LIKE @serial_id AND is_archived = 0
+                WHERE serial_id LIKE @serial_id AND active = 1
             `)
         return {
             deviceSerial: result.recordsets[0],

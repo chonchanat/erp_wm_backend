@@ -25,7 +25,7 @@ async function getUserAccountTable(index: number, filter: string) {
                     FROM Person
                 ) P
                 ON UA.person_id = P.person_id
-                WHERE fullname LIKE @fullname AND UA.is_archived = 0
+                WHERE fullname LIKE @fullname AND UA.active = 1
                 
             `)
 

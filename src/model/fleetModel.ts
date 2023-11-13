@@ -17,7 +17,7 @@ async function getFleetTable(index: number, filterFleet: string) {
 
                 SELECT COUNT(*) AS count_data
                 FROM DevelopERP_Clear..Fleet
-                WHERE fleet_name LIKE @fleet_name AND is_archived = 0
+                WHERE fleet_name LIKE @fleet_name AND active = 1
             `)
         return {
             fleet: result.recordsets[0],
