@@ -81,7 +81,7 @@ async function getAddressData(addressId: string) {
     }
 }
 
-async function createAddressData(body: any) {
+async function createAddressData(body: any, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -120,6 +120,28 @@ async function createAddressData(body: any) {
                 `)
         }
 
+        for (let i = 0; i < files.length; i++) {
+            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+
+            let documentResult = await transaction.request()
+                .input('document_code_id', sql.INT, body.documentCodeNew[i])
+                .input('customer_id', sql.INT, null)
+                .input('person_id', sql.INT, null)
+                .input('address_id', sql.INT, address_id)
+                .input('vehicle_id', sql.INT, null)
+                .input('document_name', sql.NVARCHAR, files[i].originalname)
+                .input('value', sql.VARBINARY, files[i].buffer)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
+                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
+                        @action_by = @action_by, @action_date = @action_date
+                `)
+        }
+
         transaction.commit();
 
     } catch (err) {
@@ -128,7 +150,7 @@ async function createAddressData(body: any) {
     }
 }
 
-async function updateAddressData(body: any, addressId: string) {
+async function updateAddressData( addressId: string, body: any, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -176,6 +198,38 @@ async function updateAddressData(body: any, addressId: string) {
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
+                `)
+        }
+
+        for (let i = 0; i < files.length; i++) {
+            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+
+            let documentResult = await transaction.request()
+                .input('document_code_id', sql.INT, body.documentCodeNew[i])
+                .input('customer_id', sql.INT, null)
+                .input('person_id', sql.INT, null)
+                .input('address_id', sql.INT, addressId)
+                .input('vehicle_id', sql.INT, null)
+                .input('document_name', sql.NVARCHAR, files[i].originalname)
+                .input('value', sql.VARBINARY, files[i].buffer)
+                .input('create_date', sql.DATETIME, datetime)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
+                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
+                        @action_by = @action_by, @action_date = @action_date
+                `)
+        }
+
+        for (const document of body.documentDelete) {
+            let documentResult = await transaction.request()
+                .input('document_id', sql.INT, document)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 

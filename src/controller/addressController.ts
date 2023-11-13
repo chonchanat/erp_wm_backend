@@ -29,8 +29,10 @@ async function getAddressData(req: Request, res: Response) {
 
 async function createAddressData(req: Request, res: Response) {
     try {
-        let body = req.body;
-        await addressModel.createAddressData(body)
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+        // console.log(body, files)
+        await addressModel.createAddressData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -39,8 +41,11 @@ async function createAddressData(req: Request, res: Response) {
 
 async function updateAddressData(req: Request, res: Response, next: NextFunction) { 
     try {
-        let body = req.body;
-        await addressModel.updateAddressData(body, req.params.id)
+        const id = req.params.id;
+        const body = JSON.parse(req.body.jsonData);
+        const files = req.files;
+
+        await addressModel.updateAddressData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully"})
     } catch (err) {
         next(err);
