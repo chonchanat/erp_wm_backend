@@ -386,4 +386,22 @@ async function updateVehicleData(vehicleId: string, body: any, files: any) {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData }
+async function getVehicleModel() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .query(`
+                SELECT vehicle_model_id, brand, model
+                FROM DevelopERP_Clear..VehicleModel
+            `)
+
+        return {
+            vehicleModel: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleModel }

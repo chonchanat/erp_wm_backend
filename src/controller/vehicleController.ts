@@ -41,7 +41,7 @@ async function createVehicleData(req: Request, res: Response, next: NextFunction
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
         // console.log(body, files)
-        await vehicleModel.createVehicleData(body,files)
+        await vehicleModel.createVehicleData(body, files)
         res.status(201).json({ status: 1, message: "created seccessfully" })
     } catch (err) {
         next(err);
@@ -53,7 +53,7 @@ async function updateVehicleData(req: Request, res: Response, next: NextFunction
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
-        
+
         await vehicleModel.updateVehicleData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
@@ -61,4 +61,13 @@ async function updateVehicleData(req: Request, res: Response, next: NextFunction
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData }
+async function getVehicleModel(req: Request, res: Response) {
+    try {
+        const result = await vehicleModel.getVehicleModel();
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleModel }
