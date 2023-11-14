@@ -386,17 +386,17 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
     }
 }
 
-async function getVehicleModel() {
+async function getVehicleBrand() {
     try {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
             .query(`
-                SELECT vehicle_model_id, brand, model
-                FROM DevelopERP_Clear..VehicleModel
+                SELECT distinct brand
+                FROM DevelopERP_ForTesting..VehicleModel
             `)
 
         return {
-            vehicleModel: result.recordsets[0]
+            brands: result.recordsets[0]
         }
     } catch (err) {
         console.log(err);
@@ -404,4 +404,24 @@ async function getVehicleModel() {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleModel }
+async function getVehicleModel(brand: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('brand', sql.NVARCHAR, brand)
+            .query(`
+                SELECT vehicle_model_id, model
+                FROM DevelopERP_ForTesting..VehicleModel
+                WHERE brand LIKE @brand
+            `)
+
+        return {
+            models: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleBrand, getVehicleModel }
