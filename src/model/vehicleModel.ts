@@ -116,8 +116,8 @@ async function createVehicleData(body: any) {
 
         let vehicleConfigResult = await transaction.request()
             .input('vehicle_id', sql.INT, vehicle_id)
-            .input('oil_lite', sql.DECIMAL(10,2), body.vehicleConfig.oil_lite)
-            .input('kilo_rate', sql.DECIMAL(10,2), body.vehicleConfig.kilo_rate)
+            .input('oil_lite', sql.DECIMAL(10, 2), body.vehicleConfig.oil_lite)
+            .input('kilo_rate', sql.DECIMAL(10, 2), body.vehicleConfig.kilo_rate)
             .input('max_speed', sql.INT, body.vehicleConfig.max_speed)
             .input('idle_time', sql.INT, body.vehicleConfig.idle_time)
             .input('cc', sql.INT, body.vehicleConfig.cc)
@@ -194,8 +194,8 @@ async function updateVehicleData(vehicleId: string, body: any) {
 
         let vehicleConfigResult = await transaction.request()
             .input('vehicle_id', sql.INT, vehicleId)
-            .input('oil_lite', sql.DECIMAL(10,2), body.vehicleConfig.oil_lite)
-            .input('kilo_rate', sql.DECIMAL(10,2), body.vehicleConfig.kilo_rate)
+            .input('oil_lite', sql.DECIMAL(10, 2), body.vehicleConfig.oil_lite)
+            .input('kilo_rate', sql.DECIMAL(10, 2), body.vehicleConfig.kilo_rate)
             .input('max_speed', sql.INT, body.vehicleConfig.max_speed)
             .input('idle_time', sql.INT, body.vehicleConfig.idle_time)
             .input('cc', sql.INT, body.vehicleConfig.cc)
@@ -215,7 +215,7 @@ async function updateVehicleData(vehicleId: string, body: any) {
                 SET oil_lite = @oil_lite, kilo_rate = @kilo_rate, max_speed = @max_speed, idle_time = @idle_time, cc = @cc, type = @type, max_fuel_voltage = @max_fuel_voltage, max_fuel_voltage_2 = @max_fuel_voltage_2, max_fuel_voltage_3 = @max_fuel_voltage_3, max_fuel = @max_fuel, max_fuel_2 = @max_fuel_2, max_fuel_3 = @max_fuel_3, max_empty_voltage = @max_empty_voltage, max_empty_voltage_2 = @max_empty_voltage_2, max_empty_voltage_3 = @max_empty_voltage_3, fuel_status = @fuel_status
                 WHERE vehicle_id = @vehicle_id
             `)
-        
+
         for (const customer of body.customerDelete) {
             let vehicleCustomerDeleteResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicleId)
@@ -264,4 +264,22 @@ async function updateVehicleData(vehicleId: string, body: any) {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData }
+async function getVehicleModel() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .query(`
+                SELECT vehicle_model_id, brand, model
+                FROM DevelopERP_ForTesting..VehicleModel
+            `)
+
+        return {
+            vehicleModel: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleModel }
