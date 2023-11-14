@@ -19,7 +19,7 @@ export interface PersonType {
     customerDelete: number[];
     customerExist: number[];
     contactDelete: number[];
-    contact: Contact[];
+    contactNew: Contact[];
     addressNew: Address[];
     addressDelete: number[];
     addressExist: number[];
