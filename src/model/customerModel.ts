@@ -214,7 +214,7 @@ async function createCustomerData(body: CustomerType) {
                 .query(addressCustomerQuery)
         }
 
-        for (const contact of body.contact) {
+        for (const contact of body.contactNew) {
             let contactResult = await transaction.request()
                 .input('customer_id', sql.INT, customer_id)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
@@ -450,7 +450,7 @@ async function updateCustomerData(customerId: string, body: CustomerType) {
                 .input('contact_id', sql.INT, contact)
                 .query(contactDeleteQuery)
         }
-        for (const contact of body.contact) {
+        for (const contact of body.contactNew) {
             let contactResult = await transaction.request()
                 .input('customer_id', sql.INT, customerId)
                 .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
