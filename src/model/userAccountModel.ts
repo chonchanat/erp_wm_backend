@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils";
-
+import { UserAccountType } from "../interfaces/userAccount";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
@@ -85,7 +85,7 @@ async function deleteUserAccountData (user_id: string, body: any) {
     }
 }
 
-async function createUserAccountData (body: any) {
+async function createUserAccountData (body: UserAccountType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -116,7 +116,7 @@ async function createUserAccountData (body: any) {
     }
 }
 
-async function updateUserAccount(user_id: string, body: any) {
+async function updateUserAccount(user_id: string, body: UserAccountType) {
     let transaction;
     try {
         let datetime = getDateTime();

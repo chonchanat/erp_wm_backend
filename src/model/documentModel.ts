@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils"
-
+import { DocumentType } from "../interfaces/document";
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
@@ -101,7 +101,7 @@ async function getDocumentData(document_id: string) {
     }
 }
 
-async function createDocumentData(body: any, files: any) {
+async function createDocumentData(body: DocumentType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -139,7 +139,7 @@ async function createDocumentData(body: any, files: any) {
     }
 }
 
-async function updateDocumentData(document_id: string, body: any) {
+async function updateDocumentData(document_id: string, body: DocumentType) {
     let transaction;
     try {
         let datetime = getDateTime();

@@ -1,6 +1,7 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 import { getDateTime } from "../utils"
+import { PersonType } from "../interfaces/person"
 
 async function getPersonTable(index: number, filterPerson: string) {
     try {
@@ -107,7 +108,7 @@ async function deletePerson(personId: string, body: any) {
     }
 }
 
-async function createPersonData(body: any, files: any) {
+async function createPersonData(body: PersonType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -263,7 +264,7 @@ async function createPersonData(body: any, files: any) {
     }
 }
 
-async function updatePersonDate(personId: string, body: any, files:any) {
+async function updatePersonDate(personId: string, body: PersonType, files:any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -381,7 +382,7 @@ async function updatePersonDate(personId: string, body: any, files:any) {
                     EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
-            for (const addressMasterCode of address.addres_type_code_id) {
+            for (const addressMasterCode of address.address_type_code_id) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('addrsss_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)

@@ -1,6 +1,7 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 import { getDateTime } from "../utils"
+import { FleetType } from "../interfaces/fleet";
 
 async function getFleetTable(index: number, filterFleet: string) {
     try {
@@ -84,7 +85,7 @@ async function deleteFleet(fleetId: string, body: any) {
     }
 }
 
-async function createFleetData(body: any) {
+async function createFleetData(body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -147,7 +148,7 @@ async function createFleetData(body: any) {
     }
 }
 
-async function updateFleetData(fleetId: string, body: any) {
+async function updateFleetData(fleetId: string, body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();

@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils";
-
+import { VehicleType } from "../interfaces/vehicle";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
@@ -94,7 +94,7 @@ async function deleteVehicle(vehicleId: string, body: any) {
     }
 }
 
-async function createVehicleData(body: any, files: any) {
+async function createVehicleData(body: VehicleType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -223,7 +223,7 @@ async function createVehicleData(body: any, files: any) {
     }
 }
 
-async function updateVehicleData(vehicleId: string, body: any, files: any) {
+async function updateVehicleData(vehicleId: string, body: VehicleType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();

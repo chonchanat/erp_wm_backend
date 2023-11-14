@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils";
-
+import { CardType } from "../interfaces/card";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
@@ -51,7 +51,7 @@ async function getCardData(card_id: string) {
                 ON C.card_code_id = M.code_id
                 WHERE C.card_id = @card_id AND C.active = 1
             `)
-        
+
         return {
             card: result.recordsets[0][0]
         }
@@ -61,7 +61,7 @@ async function getCardData(card_id: string) {
     }
 }
 
-async function deleteCardData (card_id: string, body: any) {
+async function deleteCardData(card_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
@@ -78,7 +78,7 @@ async function deleteCardData (card_id: string, body: any) {
     }
 }
 
-async function createCardData (body: any) {
+async function createCardData(body: CardType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -106,7 +106,7 @@ async function createCardData (body: any) {
     }
 }
 
-async function updateCardData (card_id: string, body:any) {
+async function updateCardData(card_id: string, body: CardType) {
     let transaction;
     try {
         let datetime = getDateTime();

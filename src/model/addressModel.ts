@@ -1,6 +1,7 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 import { getDateTime } from "../utils";
+import { AddressType } from "../interfaces/address"
 
 async function getAddressTable(index: number, filterLocation: string) {
     try {
@@ -81,7 +82,7 @@ async function getAddressData(addressId: string) {
     }
 }
 
-async function createAddressData(body: any, files: any) {
+async function createAddressData(body: AddressType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -108,7 +109,7 @@ async function createAddressData(body: any, files: any) {
             `)
         let address_id = addressResult.recordset[0].address_id
 
-        for (const addressType of body.address.address_type) {
+        for (const addressType of body.address.address_type_code_id) {
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, address_id)
                 .input('address_type_code_id', sql.INT, addressType)
@@ -150,7 +151,7 @@ async function createAddressData(body: any, files: any) {
     }
 }
 
-async function updateAddressData( addressId: string, body: any, files: any) {
+async function updateAddressData(addressId: string, body: AddressType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -177,7 +178,7 @@ async function updateAddressData( addressId: string, body: any, files: any) {
                     @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
             `)
 
-        for (const addressType of body.address.address_typeDelete) {
+        for (const addressType of body.address.address_type_code_idDelete) {
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)
@@ -189,7 +190,7 @@ async function updateAddressData( addressId: string, body: any, files: any) {
                 `)
         }
 
-        for (const addressType of body.address.address_type) {
+        for (const addressType of body.address.address_type_code_id) {
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)

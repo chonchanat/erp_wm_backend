@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils"
-
+import { ContactType } from "../interfaces/contact"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
@@ -84,7 +84,7 @@ async function deleteContact(contactId: string, body: any) {
     }
 }
 
-async function createContactData(body: any) {
+async function createContactData(body: ContactType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -112,7 +112,7 @@ async function createContactData(body: any) {
     }
 }
 
-async function updateContactData(contact_id: string, body: any) {
+async function updateContactData(contact_id: string, body: ContactType) {
     let transaction;
     try {
         let datetime = getDateTime();

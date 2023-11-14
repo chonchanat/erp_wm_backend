@@ -1,5 +1,5 @@
 import { getDateTime } from "../utils"
-
+import { DeviceType } from "../interfaces/device";
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
@@ -80,7 +80,7 @@ async function deleteDevice(device_id: string, body: any) {
     }
 }
 
-async function createDeviceData(body: any) {
+async function createDeviceData(body: DeviceType) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -133,7 +133,7 @@ async function createDeviceData(body: any) {
     }
 }
 
-async function updateDeviceData (device_id: string, body: any) {
+async function updateDeviceData (device_id: string, body: DeviceType) {
     let transaction;
     try {
         let datetime = getDateTime();

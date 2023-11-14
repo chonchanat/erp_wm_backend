@@ -1,5 +1,6 @@
 import { getDateTime } from "../utils"
-import { CustomerType } from "../interfaces/type";
+// import { CustomerType } from "../interfaces/type";
+import { CustomerType } from "../interfaces/customer"
 
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
