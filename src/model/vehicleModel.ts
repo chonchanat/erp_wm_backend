@@ -393,6 +393,7 @@ async function getVehicleBrand() {
             .query(`
                 SELECT distinct brand
                 FROM DevelopERP_ForTesting..VehicleModel
+                ORDER BY brand
             `)
 
         return {
@@ -413,6 +414,7 @@ async function getVehicleModel(brand: string) {
                 SELECT vehicle_model_id, model
                 FROM DevelopERP_ForTesting..VehicleModel
                 WHERE brand LIKE @brand
+                ORDER BY model
             `)
 
         return {

@@ -18,7 +18,7 @@ async function getAddressData(req: Request, res: Response) {
     try {
         const result = await addressModel.getAddressData(req.params.id)
         if (result.address.name === undefined) {
-            res.status(422).json({ status: 0, message: "Data not found in the Database"})
+            res.status(422).json({ status: 0, message: "Data not found in the Database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })
         }
@@ -39,14 +39,14 @@ async function createAddressData(req: Request, res: Response) {
     }
 }
 
-async function updateAddressData(req: Request, res: Response, next: NextFunction) { 
+async function updateAddressData(req: Request, res: Response, next: NextFunction) {
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
 
         await addressModel.updateAddressData(id, body, files)
-        res.status(200).json({ status: 1, message: "updated successfully"})
+        res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);
     }
@@ -55,10 +55,49 @@ async function updateAddressData(req: Request, res: Response, next: NextFunction
 async function deleteAddress(req: Request, res: Response) {
     try {
         await addressModel.deleteAddress(req.params.id, req.body)
-        res.status(200).json({ status: 1, message: "deleted successfully"})
+        res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
-export default { getAddressTable, getAddressData, createAddressData, updateAddressData, deleteAddress }
+async function getAddressProvince(req: Request, res: Response) {
+    try {
+        const result = await addressModel.getAddressProvince();
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function getAddressDistrict(req: Request, res: Response) {
+    try {
+        const province = req.query.province !== undefined ? req.query.province as string : "%";
+        const result = await addressModel.getAddressDistrict(province);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function getAddressSubDistrict(req: Request, res: Response) {
+    try {
+        const province = req.query.province !== undefined ? req.query.province as string : "%";
+        const district = req.query.district !== undefined ? req.query.district as string : "%";
+        const result = await addressModel.getAddressSubDistrict(province, district);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+export default {
+    getAddressTable,
+    getAddressData,
+    createAddressData,
+    updateAddressData,
+    deleteAddress,
+    getAddressProvince,
+    getAddressDistrict,
+    getAddressSubDistrict,
+}

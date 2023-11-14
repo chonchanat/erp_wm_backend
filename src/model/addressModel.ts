@@ -261,4 +261,72 @@ async function deleteAddress(addressId: string, body: any) {
     }
 }
 
-export default { getAddressTable, getAddressData, createAddressData, updateAddressData, deleteAddress }
+async function getAddressProvince() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .query(`
+                SELECT DISTINCT province_th
+                FROM DevelopERP_Clear..AddressModel
+                ORDER BY province_th
+            `)
+        return {
+            provinces: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getAddressDistrict(province: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('province_th', sql.NVARCHAR, province)
+            .query(`
+                SELECT DISTINCT district_th
+                FROM DevelopERP_Clear..AddressModel
+                WHERE province_th LIKE @province_th
+                ORDER BY district_th
+            `)
+        return {
+            districts: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getAddressSubDistrict(province: string, district: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('province_th', sql.NVARCHAR, province)
+            .input('district_th', sql.NVARCHAR, district)
+            .query(`
+                SELECT DISTINCT address_model_id, sub_district_th, postal_code
+                FROM DevelopERP_Clear..AddressModel
+                WHERE province_th LIKE @province_th AND district_th LIKE @district_th
+                ORDER BY sub_district_th
+            `)
+            return {
+                sub_districts: result.recordsets[0],
+            }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default {
+    getAddressTable,
+    getAddressData,
+    createAddressData,
+    updateAddressData,
+    deleteAddress,
+    getAddressProvince,
+    getAddressDistrict,
+    getAddressSubDistrict,
+}
