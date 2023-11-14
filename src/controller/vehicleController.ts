@@ -54,13 +54,31 @@ async function updateVehicleData(req: Request, res: Response, next: NextFunction
     }
 }
 
-async function getVehicleModel(req: Request, res: Response) {
+async function getVehicleBrand(req: Request, res: Response) {
     try {
-        const result = await vehicleModel.getVehicleModel();
+        const result = await vehicleModel.getVehicleBrand();
         res.status(200).json({ status: 1, message: "ok", response: result })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleModel }
+async function getVehicleModel(req: Request, res: Response) {
+    try {
+        let brand = req.query.brand !== undefined ? req.query.brand as string : "%";
+        const result = await vehicleModel.getVehicleModel(brand);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+export default {
+    getVehicleTable,
+    getVehicleData,
+    deleteVehicle,
+    createVehicleData,
+    updateVehicleData,
+    getVehicleBrand,
+    getVehicleModel
+}
