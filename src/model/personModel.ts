@@ -154,7 +154,7 @@ async function createPersonData(body: PersonType, files: any) {
                 `)
         }
 
-        for (const contact of body.contact) {
+        for (const contact of body.contactNew) {
             let contactResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('value', sql.NVARCHAR, contact.value)
@@ -341,7 +341,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                     EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
-        for (const contact of body.contact) {
+        for (const contact of body.contactNew) {
             let contactResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('value', sql.NVARCHAR, contact.value)

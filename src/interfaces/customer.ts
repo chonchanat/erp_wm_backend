@@ -24,7 +24,7 @@ export interface CustomerType {
     addressNew: Address[];
     addressExist: number[];
     addressDelete: number[];
-    contact: Contact[];
+    contactNew: Contact[];
     contactDelete: number[];
     personNew: Persons[];
     personExist: number[];
