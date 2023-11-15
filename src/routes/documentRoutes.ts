@@ -13,5 +13,6 @@ router.get('/document/:id', documentController.getDocumentData);
 router.post('/document', upload.array('files'), documentController.createDocumentData);
 router.put('/document/:id', documentController.updateDocumentData);
 router.delete('/document/:id', documentController.deleteDocumentData);
+router.get('/document/download/:id', documentController.downloadDocument);
 
 export default router

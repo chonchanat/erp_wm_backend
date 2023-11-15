@@ -54,4 +54,13 @@ async function deleteDocumentData(req: Request, res: Response) {
     }
 }
 
-export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData }
+async function downloadDocument(req: Request, res: Response) {
+    try {
+        const result = await documentModel.downloadDocument(req.params.id)
+        res.status(200).json({ status: 1, message: "ok", response: result})
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData, downloadDocument }

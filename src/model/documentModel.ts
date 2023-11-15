@@ -184,4 +184,26 @@ async function deleteDocumentData(document_id: string, body: any) {
     }
 }
 
-export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData }
+async function downloadDocument(document_id: string) {
+    console.log(document_id)
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await pool.request()
+            .input('document_id', sql.INT, document_id)
+            .query(`
+                SELECT 
+                    document_name, value
+                FROM DevelopERP_Clear..Document
+                WHERE document_id = @document_id
+            `)
+
+        return {
+            document: result.recordsets[0][0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getDocumentTable, getDocumentData, createDocumentData, updateDocumentData, deleteDocumentData, downloadDocument }
