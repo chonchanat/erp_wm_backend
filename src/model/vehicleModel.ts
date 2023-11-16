@@ -13,11 +13,11 @@ async function getVehicleTable(index: number, filter: string) {
             .query(`
                 DECLARE @vehicleTable IdType
                 INSERT INTO @vehicleTable 
-                EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP_Clear..Vehicle
+                FROM DevelopERP_ForTesting2..Vehicle
                 WHERE license_plate LIKE @license_plate AND active = 1
             `)
         return {
@@ -36,30 +36,30 @@ async function getVehicleData(vehicleId: string) {
             .input('vehicle_id', sql.INT, vehicleId)
             .query(`
                 SELECT vehicle_id, frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id
-                FROM DevelopERP_Clear..Vehicle
+                FROM DevelopERP_ForTesting2..Vehicle
                 WHERE vehicle_id = @vehicle_id AND active = 1
 
                 SELECT 
                     vehicle_config_id, vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, 
                     max_fuel_voltage, max_fuel_voltage_2, max_fuel_voltage_3, max_fuel, max_fuel_2, max_fuel_3, 
                     max_empty_voltage, max_empty_voltage_2, max_empty_voltage_3, fuel_status
-                FROM DevelopERP_Clear..VehicleConfig
+                FROM DevelopERP_ForTesting2..VehicleConfig
                 WHERE vehicle_id = @vehicle_id
 
                 SELECT
                     dlt, tls, scgl, diw
-                FROM DevelopERP_Clear..VehiclePermit
+                FROM DevelopERP_ForTesting2..VehiclePermit
                 WHERE vehicle_id = @vehicle_id
 
                 DECLARE @customerTable IdType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
 
                 DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
 
                 `)
 
@@ -85,7 +85,7 @@ async function deleteVehicle(vehicleId: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_vehicle @vehicle_id = @vehicle_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_vehicle @vehicle_id = @vehicle_id, @action_by = @action_by, @action_date = @action_date
             `)
 
     } catch (err) {
@@ -116,7 +116,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
+                EXEC DevelopERP_ForTesting2..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
                     @registration_province_code_id = @registration_province_code_id, @registration_type_code_id = @registration_type_code_id, 
                     @driving_license_type_code_id = @driving_license_type_code_id, @number_of_axles = @number_of_axles, 
                     @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, @vehicle_type_code_id = @vehicle_type_code_id, 
@@ -145,7 +145,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
+                EXEC DevelopERP_ForTesting2..sp_insert_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
                     @kilo_rate = @kilo_rate, @max_speed = @max_speed, @idle_time = @idle_time, @cc = @cc, @type = @type, 
                     @max_fuel_voltage = @max_fuel_voltage, @max_fuel_voltage_2 = @max_fuel_voltage_2, 
                     @max_fuel_voltage_3 = @max_fuel_voltage_3, 
@@ -164,7 +164,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
+                EXEC DevelopERP_ForTesting2..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
                     @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
             `)
 
@@ -175,7 +175,7 @@ async function createVehicleData(body: VehicleType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -187,7 +187,7 @@ async function createVehicleData(body: VehicleType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -207,7 +207,7 @@ async function createVehicleData(body: VehicleType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -246,7 +246,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_vehicle @vehicle_id = @vehicle_id, @frame_no = @frame_no, @license_plate = @license_plate, 
+                EXEC DevelopERP_ForTesting2..sp_update_vehicle @vehicle_id = @vehicle_id, @frame_no = @frame_no, @license_plate = @license_plate, 
                 @vehicle_model_id = @vehicle_model_id, @registration_province_code_id = @registration_province_code_id, 
                 @registration_type_code_id = @registration_type_code_id, @driving_license_type_code_id = @driving_license_type_code_id, 
                 @number_of_axles = @number_of_axles, @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, 
@@ -275,7 +275,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
+                EXEC DevelopERP_ForTesting2..sp_update_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
                     @kilo_rate = @kilo_rate, @max_speed = @max_speed, @idle_time = @idle_time, @cc = @cc, @type = @type, 
                     @max_fuel_voltage = @max_fuel_voltage, @max_fuel_voltage_2 = @max_fuel_voltage_2, 
                     @max_fuel_voltage_3 = @max_fuel_voltage_3, @max_fuel = @max_fuel, @max_fuel_2 = @max_fuel_2, 
@@ -293,7 +293,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_CLear..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
+                EXEC DevelopERP_ForTesting2..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
                     @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
             `)
         
@@ -304,7 +304,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id, 
+                    EXEC DevelopERP_ForTesting2..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -316,7 +316,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -328,7 +328,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id, 
+                    EXEC DevelopERP_ForTesting2..sp_delete_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -340,7 +340,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -360,7 +360,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -373,7 +373,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+                    EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 

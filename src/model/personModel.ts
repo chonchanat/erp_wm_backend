@@ -13,8 +13,8 @@ async function getPersonTable(index: number, filterPerson: string) {
             .query(`
                 DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
                 FROM (
@@ -22,7 +22,7 @@ async function getPersonTable(index: number, filterPerson: string) {
                     person_id,
                     COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
                     active
-                    FROM DevelopERP_Clear..Person
+                    FROM DevelopERP_ForTesting2..Person
                 ) t
                 WHERE fullname LIKE @fullname AND active = 1
             `)
@@ -49,32 +49,32 @@ async function getPersonData(personId: string) {
                     m.code_id as title_code_id,
                     m.value as title_type,
                     COALESCE(p.description, '') as description
-                FROM DevelopERP_Clear..Person p
-                LEFT JOIN DevelopERP_Clear..MasterCode m
+                FROM DevelopERP_ForTesting2..Person p
+                LEFT JOIN DevelopERP_ForTesting2..MasterCode m
                 on p.title_code_id = m.code_id
                 WHERE person_id = @person_id AND active = 1
 
                 SELECT 
                     role_code_id, value AS role_type
-                FROM DevelopERP_Clear..Person_Role PR
-                LEFT JOIN DevelopERP_Clear..MasterCode M
+                FROM DevelopERP_ForTesting2..Person_Role PR
+                LEFT JOIN DevelopERP_ForTesting2..MasterCode M
                 ON PR.role_code_id = M.code_id
                 WHERE person_id = @person_id
                 
                 DECLARE @customerTable IdType
                 INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
 
                 DECLARE @contactTable IdType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_Clear..sp_filterContact @value = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterContact @value = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
                 
                 DECLARE @addressTable IdType
                 INSERT INTO @addressTable
-                EXEC DevelopERP_Clear..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
             `)
             
         return {
@@ -101,7 +101,7 @@ async function deletePerson(personId: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_person @person_id = @person_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_person @person_id = @person_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
@@ -125,7 +125,7 @@ async function createPersonData(body: PersonType, files: any) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
+                EXEC DevelopERP_ForTesting2..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
                     @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @action_date = @action_date
             `)
         let person_id = personResult.recordset[0].person_id
@@ -137,7 +137,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -149,7 +149,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -162,7 +162,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
                         @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -181,7 +181,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                         @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                         @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                 `)
@@ -192,7 +192,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
             for (const addressMasterCode of address.address_type_code_id) {
@@ -202,7 +202,7 @@ async function createPersonData(body: PersonType, files: any) {
                     .input('action_by', sql.INT, body.create_by)
                     .input('action_date', sql.DATETIME, datetime)
                     .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
                     `)
             }
@@ -215,7 +215,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -228,7 +228,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -248,7 +248,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -281,7 +281,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
+                EXEC DevelopERP_ForTesting2..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
                     @nickname = @nickname, @title_code_id = @title_code_id, @description = @description, 
                     @action_by = @action_by, @action_date = @action_date
             `)
@@ -293,7 +293,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
+                    EXEC DevelopERP_ForTesting2..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -304,7 +304,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -316,7 +316,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -327,7 +327,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -338,7 +338,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
+                    EXEC DevelopERP_ForTesting2..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
         for (const contact of body.contactNew) {
@@ -349,7 +349,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
                         @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -368,7 +368,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                         @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                         @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
                 `)
@@ -379,7 +379,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
             for (const addressMasterCode of address.address_type_code_id) {
@@ -389,7 +389,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                     .input('action_by', sql.INT, body.update_by)
                     .input('action_date', sql.DATETIME, datetime)
                     .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
                     `)
             }
@@ -402,7 +402,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
+                    EXEC DevelopERP_ForTesting2..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -413,7 +413,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -426,7 +426,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -437,7 +437,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
+                    EXEC DevelopERP_ForTesting2..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
                 `)
         }
 
@@ -456,7 +456,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -469,7 +469,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+                    EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 

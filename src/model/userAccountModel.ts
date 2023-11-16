@@ -13,11 +13,11 @@ async function getUserAccountTable(index: number, filter: string) {
             .query(`
                 DECLARE @userAccountTable IdType
                 INSERT @userAccountTable
-                EXEC DevelopERP_Clear..sp_filterUserAccount @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatUserAccountTable @userAccountTable = @userAccountTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterUserAccount @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatUserAccountTable @userAccountTable = @userAccountTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP_Clear..UserAccount UA
+                FROM DevelopERP_ForTesting2..UserAccount UA
                 LEFT JOIN (
                     SELECT 
                         person_id,
@@ -49,13 +49,13 @@ async function getUserAccountData(user_id: string) {
                     UA.username,
                     UA.profile_id,
                     COALESCE(UA.uid, '') AS uid
-                FROM DevelopERP_Clear..UserAccount UA
+                FROM DevelopERP_ForTesting2..UserAccount UA
                 WHERE UA.user_id = @user_id 
 
                 DECLARE @personTable IdType
                 INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
             `)
         
         return {
@@ -77,7 +77,7 @@ async function deleteUserAccountData (user_id: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_userAccount @user_id = @user_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_userAccount @user_id = @user_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         console.log(err)
@@ -102,7 +102,7 @@ async function createUserAccountData (body: UserAccountType) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_userAccount @username = @username, @password = @password,
+                EXEC DevelopERP_ForTesting2..sp_insert_userAccount @username = @username, @password = @password,
                     @uid = @uid, @person_id = @person_id, @profile_id = @profile_id,
                     @action_by = @action_by, @action_date = @action_date
             `)
@@ -131,7 +131,7 @@ async function updateUserAccount(user_id: string, body: UserAccountType) {
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,
+                EXEC DevelopERP_ForTesting2..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,
                     @action_by = @action_by, @action_date = @action_date
             `)
 

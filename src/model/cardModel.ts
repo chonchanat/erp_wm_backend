@@ -13,8 +13,8 @@ async function getCardTable(index: number, filter: string) {
             .query(`
                 DECLARE @cardTable IdType
                 INSERT @cardTable
-                EXEC DevelopERP_Clear..sp_filterCard @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterCard @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_date
                 FROM Card
@@ -70,7 +70,7 @@ async function deleteCardData(card_id: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         console.log(err);
@@ -93,7 +93,7 @@ async function createCardData(body: CardType) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
+                EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
                     @action_by = @action_by, @action_date = @action_date
             `)
 
@@ -123,7 +123,7 @@ async function updateCardData(card_id: string, body: CardType) {
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 
+                EXEC DevelopERP_ForTesting2..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 
                     @value = @value, @person_id = @person_id,
                     @action_by = @action_by, @action_date = @action_date
             `)

@@ -14,14 +14,14 @@ async function getDeviceTable (index: number, filter: string) {
 
                 DECLARE @deviceTable IdType
                 INSERT INTO @deviceTable
-                EXEC DevelopERP_Clear..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
                 
-                --EXEC DevelopERP_Clear..sp_filter_format_deviceTable 
+                --EXEC DevelopERP_ForTesting2..sp_filter_format_deviceTable 
                 --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
 
                 SELECT COUNT(*) AS count_data 
-                FROM DevelopERP_Clear..Device
+                FROM DevelopERP_ForTesting2..Device
                 WHERE device_id LIKE @device_id AND active = 1    
             `)
         return {
@@ -40,17 +40,17 @@ async function getDeviceData(device_id: string) {
             .input('device_id', sql.INT, device_id)
             .query(`
                 SELECT device_id, veh_id, create_date
-                FROM DevelopERP_Clear..Device
+                FROM DevelopERP_ForTesting2..Device
                 WHERE device_id = @device_id
 
                 DECLARE @deviceSerialTable IdType
                 INSERT INTO @deviceSerialTable 
-                EXEC DevelopERP_Clear..sp_filterDeviceSerial @serial_id = '%', @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = 1
+                EXEC DevelopERP_ForTesting2..sp_filterDeviceSerial @serial_id = '%', @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = 1
 
                 SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
-                FROM DevelopERP_Clear..DeviceConfig DC
-                LEFT JOIN DevelopERP_Clear..MasterCode M_simtype
+                FROM DevelopERP_ForTesting2..DeviceConfig DC
+                LEFT JOIN DevelopERP_ForTesting2..MasterCode M_simtype
                 ON DC.sim_type_code_id = M_simtype.code_id
                 WHERE device_id = @device_id
             `)
@@ -73,7 +73,7 @@ async function deleteDevice(device_id: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_device @device_id = @device_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_device @device_id = @device_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         throw err;
@@ -95,7 +95,7 @@ async function createDeviceData(body: DeviceType) {
             .input('create_date', sql.DATETIME, datetime)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_device @veh_id = @veh_id, @device_serial_id = @device_serial_id,
+                EXEC DevelopERP_ForTesting2..sp_insert_device @veh_id = @veh_id, @device_serial_id = @device_serial_id,
                     @action_by = @action_by, @create_date = @create_date, @action_date = @action_date
             `)
         let device_id = await deviceResult.recordset[0].device_id
@@ -117,7 +117,7 @@ async function createDeviceData(body: DeviceType) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
+                EXEC DevelopERP_ForTesting2..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
                 @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
                 @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
                 @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
@@ -149,7 +149,7 @@ async function updateDeviceData (device_id: string, body: DeviceType) {
             .input('create_date', sql.DATETIME, body.device.create_date)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_device @device_id = @device_id, @veh_id = @veh_id, 
+                EXEC DevelopERP_ForTesting2..sp_update_device @device_id = @device_id, @veh_id = @veh_id, 
                     @device_serial_id = @device_serial_id, @action_by = @action_by, 
                     @create_date = @create_date, @action_date = @action_date
             `)
@@ -171,7 +171,7 @@ async function updateDeviceData (device_id: string, body: DeviceType) {
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 
+                EXEC DevelopERP_ForTesting2..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 
                     @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
                     @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
                     @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 

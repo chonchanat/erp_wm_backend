@@ -13,11 +13,11 @@ async function getContactTable(index: number, filterValue: string) {
             .query(`
                 DECLARE @contactTable IdType
                 INSERT INTO @contactTable
-                EXEC DevelopERP_Clear..sp_filterContact @value = @value, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @firstIndex = @firstIndex
+                EXEC DevelopERP_ForTesting2..sp_filterContact @value = @value, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+                EXEC DevelopERP_ForTesting2..sp_formatContactTable @contactTable = @contactTable, @firstIndex = @firstIndex
 
                 SELECT COUNT(*) AS count_data
-                FROM DevelopERP_Clear..Contact
+                FROM DevelopERP_ForTesting2..Contact
                 WHERE value LIKE @value AND active = 1
             `)
         return {
@@ -52,12 +52,12 @@ async function getContactData(contactId: string) {
                         WHEN ct.customer_id IS NULL
                         THEN 'บุคคล'
                     END AS owner_type
-                FROM DevelopERP_Clear..Contact ct 
-                LEFT JOIN DevelopERP_Clear..Customer c
+                FROM DevelopERP_ForTesting2..Contact ct 
+                LEFT JOIN DevelopERP_ForTesting2..Customer c
                 ON ct.customer_id = c.customer_id
-                LEFT JOIN DevelopERP_Clear..Person p
+                LEFT JOIN DevelopERP_ForTesting2..Person p
                 ON ct.person_id = p.person_id
-                LEFT JOIN DevelopERP_Clear..MasterCode m
+                LEFT JOIN DevelopERP_ForTesting2..MasterCode m
                 ON ct.contact_code_id = m.code_id
                 WHERE ct.contact_id = @contact_id AND ct.active = 1
             `)
@@ -76,7 +76,7 @@ async function deleteContact(contactId: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
             `)
     } catch (err) {
         console.log(err)
@@ -100,7 +100,7 @@ async function createContactData(body: ContactType) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
+                EXEC DevelopERP_ForTesting2..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
                     @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
             `)
 
@@ -129,7 +129,7 @@ async function updateContactData(contact_id: string, body: ContactType) {
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_contact @contact_id = @contact_id, @contact_code_id = @contact_code_id, 
+                EXEC DevelopERP_ForTesting2..sp_update_contact @contact_id = @contact_id, @contact_code_id = @contact_code_id, 
                 @person_id = @person_id, @customer_id = @customer_id, @value = @value, 
                 @action_by = @action_by, @action_date = @action_date
             `)

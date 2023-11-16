@@ -10,12 +10,12 @@ async function getAddressTable(index: number, filterLocation: string) {
             .input('location', sql.NVARCHAR, "%" + filterLocation + "%")
             .input('firstIndex', sql.INT, index)
             .input('lastIndex', sql.INT, index + 9)
-            // .query('EXEC DevelopERP_Clear..getAddressTable @index');
+            // .query('EXEC DevelopERP_ForTesting2..getAddressTable @index');
             .query(`
             DECLARE @addressTable IdType
             INSERT INTO @addressTable
-            EXEC DevelopERP_Clear..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
             FROM (
@@ -30,7 +30,7 @@ async function getAddressTable(index: number, filterLocation: string) {
                         COALESCE(province + ', ', '') +
                         COALESCE(postal_code , '') as location,
                         active
-                    FROM DevelopERP_Clear..Address
+                    FROM DevelopERP_ForTesting2..Address
             ) t
             WHERE location LIKE @location AND active = 1
             `)
@@ -60,14 +60,14 @@ async function getAddressData(addressId: string) {
                     COALESCE(A.district, '') AS district,
                     COALESCE(A.province, '') AS province,
                     COALESCE(A.postal_code, '') AS postal_code
-                FROM DevelopERP_Clear..Address A
+                FROM DevelopERP_ForTesting2..Address A
                 WHERE A.address_id = @address_id
 
                 SELECT
                     am.address_type_code_id,
                     m.value as address_type
-                FROM DevelopERP_Clear..Address_MasterCode am
-                LEFT JOIN DevelopERP_Clear..MasterCode m
+                FROM DevelopERP_ForTesting2..Address_MasterCode am
+                LEFT JOIN DevelopERP_ForTesting2..MasterCode m
                 ON am.address_type_code_id = m.code_id
                 WHERE am.address_id = @address_id
             `)
@@ -103,7 +103,7 @@ async function createAddressData(body: AddressType, files: any) {
             .input('action_by', sql.INT, body.create_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+                EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                     @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                     @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
             `)
@@ -116,7 +116,7 @@ async function createAddressData(body: AddressType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -136,7 +136,7 @@ async function createAddressData(body: AddressType, files: any) {
                 .input('action_by', sql.INT, body.create_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -173,7 +173,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
             .input('action_by', sql.INT, body.update_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
+                EXEC DevelopERP_ForTesting2..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
                     @village_no = @village_no, @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                     @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
             `)
@@ -185,7 +185,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                    EXEC DevelopERP_ForTesting2..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -197,7 +197,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                    EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
@@ -217,7 +217,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+                    EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
                         @action_by = @action_by, @action_date = @action_date
@@ -230,7 +230,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
-                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+                    EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
                 `)
         }
 
@@ -252,7 +252,7 @@ async function deleteAddress(addressId: string, body: any) {
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_Clear..sp_delete_address @address_id = @address_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_address @address_id = @address_id, @action_by = @action_by, @action_date = @action_date
             `)
 
     } catch (err) {
@@ -267,7 +267,7 @@ async function getAddressProvince() {
         let result = await pool.request()
             .query(`
                 SELECT DISTINCT province_th
-                FROM DevelopERP_Clear..AddressModel
+                FROM DevelopERP_ForTesting2..AddressModel
                 ORDER BY province_th
             `)
         return {
@@ -286,7 +286,7 @@ async function getAddressDistrict(province: string) {
             .input('province_th', sql.NVARCHAR, province)
             .query(`
                 SELECT DISTINCT district_th
-                FROM DevelopERP_Clear..AddressModel
+                FROM DevelopERP_ForTesting2..AddressModel
                 WHERE province_th LIKE @province_th
                 ORDER BY district_th
             `)
@@ -307,7 +307,7 @@ async function getAddressSubDistrict(province: string, district: string) {
             .input('district_th', sql.NVARCHAR, district)
             .query(`
                 SELECT DISTINCT address_model_id, sub_district_th, postal_code
-                FROM DevelopERP_Clear..AddressModel
+                FROM DevelopERP_ForTesting2..AddressModel
                 WHERE province_th LIKE @province_th AND district_th LIKE @district_th
                 ORDER BY sub_district_th
             `)
