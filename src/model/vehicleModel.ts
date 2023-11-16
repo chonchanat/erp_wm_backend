@@ -392,7 +392,7 @@ async function getVehicleBrand() {
         let result = await pool.request()
             .query(`
                 SELECT distinct brand
-                FROM DevelopERP_ForTesting..VehicleModel
+                FROM DevelopERP_Clear..VehicleModel
                 ORDER BY brand
             `)
 
@@ -412,7 +412,7 @@ async function getVehicleModel(brand: string) {
             .input('brand', sql.NVARCHAR, brand)
             .query(`
                 SELECT vehicle_model_id, model
-                FROM DevelopERP_ForTesting..VehicleModel
+                FROM DevelopERP_Clear..VehicleModel
                 WHERE brand LIKE @brand
                 ORDER BY model
             `)

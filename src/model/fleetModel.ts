@@ -115,6 +115,9 @@ async function createFleetData(body: FleetType) {
             let customer_id = customerResult.recordset[0].customer_id
 
             await operation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+            for (const contact of customer.contactNew) {
+                await operation.createContactNew(transaction, contact, null, customer_id, action_by, datetime)
+            } 
         }
 
         for (const customer of body.customerExist) {
@@ -136,7 +139,7 @@ async function createFleetData(body: FleetType) {
             let person_id = personResult.recordset[0].person_id
 
             await operation.createFleetPerson(transaction, fleet_id, person_id, action_by, datetime)
-            await operation.createContactNew(transaction, person.contactNew, action_by, datetime)
+            await operation.createContactNew(transaction, person.contactNew, person_id, null, action_by, datetime)
         }
         for (const person of body.personExist) {
             let personResult = await transaction.request()
@@ -193,10 +196,13 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
 
         // create customer is fleet menu
         for (const customer of body.customerNew) {
-            let customerResult = await operation.createCustomerNew(transaction, customer, action_by, datetime)
+            let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
             let customer_id = customerResult.recordset[0].customer_id
 
             await operation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+            for (const contact of customer.contactNew) {
+                await operation.createContactNew(transaction, contact, null, customer_id, action_by, datetime)
+            } 
         }
         for (const customer of body.customerDelete) {
             let customerDeleteResult = await transaction.request()
@@ -227,7 +233,7 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
             let person_id = personResult.recordset[0].person_id
 
             await operation.createFleetPerson(transaction, fleet_id, person_id, action_by, datetime)
-            await operation.createContactNew(transaction, person.contactNew, action_by, datetime)
+            await operation.createContactNew(transaction, person.contactNew, person_id, null, action_by, datetime)
         }
         for (const person of body.personDelete) {
             let personDeleteResult = await transaction.request()

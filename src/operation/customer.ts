@@ -1,9 +1,7 @@
 const sql = require('mssql')
+import { Customer } from "../interfaces/customer"
 
-export async function createCustomerNew(transaction: any, customer: any, action_by: number, datetime: object) {
-    if (action_by === undefined) {
-        return 0;
-    }
+export async function createCustomerNew(transaction: any, customer: Customer, action_by: number, datetime: object) {
     return await transaction.request()
         .input('customer_name', sql.NVARCHAR, customer.customer_name)
         .input('sales_type_code_id', sql.INT, customer.sales_type_code_id)

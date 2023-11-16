@@ -1,6 +1,7 @@
 const sql = require('mssql')
 
 export async function createFleetCustomer(transaction: any, fleet_id: string | number, customer_id: string | number, action_by: number, datetime: object) {
+    console.log(fleet_id, customer_id)
     return await transaction.request()
         .input('fleet_id', sql.INT, fleet_id)
         .input('customer_id', sql.INT, customer_id)

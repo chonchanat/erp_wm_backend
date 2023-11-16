@@ -1,6 +1,7 @@
 const sql = require('mssql')
+import { Person } from "../interfaces/person";
 
-export async function createPersonNew(transaction: any, person: any, action_by: number, datetime: object) {
+export async function createPersonNew(transaction: any, person: Person, action_by: number, datetime: object) {
     return await transaction.request()
         .input('firstname', sql.NVARCHAR, person.firstname === "" ? null : person.firstname)
         .input('lastname', sql.NVARCHAR, person.lastname === "" ? null : person.lastname)
