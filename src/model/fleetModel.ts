@@ -3,6 +3,9 @@ const sql = require('mssql')
 import { getDateTime } from "../utils"
 import { FleetType } from "../interfaces/fleet";
 
+import * as customerOperation from "../operation/customer";
+import * as relationOperation from "../operation/relation";
+
 async function getFleetTable(index: number, filterFleet: string) {
     try {
         let pool = await sql.connect(devConfig);
@@ -29,11 +32,11 @@ async function getFleetTable(index: number, filterFleet: string) {
     }
 }
 
-async function getFleetData(fleetId: string) {
+async function getFleetData(fleet_id: string) {
     try {
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
-            .input('fleet_id', sql.INT, fleetId)
+            .input('fleet_id', sql.INT, fleet_id)
             .query(`
                 SELECT F.fleet_id, F.fleet_name, PF.fleet_id AS parent_fleet_id, PF.fleet_name AS parent_fleet_name
                 FROM DevelopERP_Clear..Fleet F
@@ -68,12 +71,12 @@ async function getFleetData(fleetId: string) {
     }
 }
 
-async function deleteFleet(fleetId: string, body: any) {
+async function deleteFleet(fleet_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
-            .input('fleet_id', sql.INT, fleetId)
+            .input('fleet_id', sql.INT, fleet_id)
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
@@ -89,6 +92,7 @@ async function createFleetData(body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by: number = body.create_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin()
@@ -104,6 +108,14 @@ async function createFleetData(body: FleetType) {
             `)
         let fleet_id = fleetResult.recordset[0].fleet_id
 
+        // create customer in fleet menu
+        for (const customer of body.customerNew) {
+            let customerResult = await customerOperation.createCustomerNew(transaction, customer, action_by, datetime)
+            let customer_id = customerResult.recordset[0].customer_id
+
+            await relationOperation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+        }
+
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
@@ -115,6 +127,7 @@ async function createFleetData(body: FleetType) {
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
+        //
 
         for (const person of body.personExist) {
             let personResult = await transaction.request()
@@ -148,16 +161,17 @@ async function createFleetData(body: FleetType) {
     }
 }
 
-async function updateFleetData(fleetId: string, body: FleetType) {
+async function updateFleetData(fleet_id: string, body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by: number = body.update_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
         let fleetResult = await transaction.request()
-            .input('fleet_id', sql.INT, fleetId)
+            .input('fleet_id', sql.INT, fleet_id)
             .input('fleet_name', sql.NVARCHAR, body.fleet.fleet_name)
             .input('parent_fleet_id', sql.INT, body.fleet.parent_fleet_id)
             .input('action_by', sql.INT, body.update_by)
@@ -167,10 +181,17 @@ async function updateFleetData(fleetId: string, body: FleetType) {
                     @parent_fleet_id = @parent_fleet_id, @action_by = @action_by, @action_date = @action_date
             `)
 
+        // create customer is fleet menu
+        for (const customer of body.customerNew) {
+            let customerResult = await customerOperation.createCustomerNew(transaction, customer, action_by, datetime)
+            let customer_id = customerResult.recordset[0].customer_id
+
+            await relationOperation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+        }
         for (const customer of body.customerDelete) {
             let customerDeleteResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
@@ -181,7 +202,7 @@ async function updateFleetData(fleetId: string, body: FleetType) {
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
                 .input('customer_id', sql.INT, customer)
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
@@ -189,10 +210,11 @@ async function updateFleetData(fleetId: string, body: FleetType) {
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
+        //
 
         for (const person of body.personDelete) {
             let personDeleteResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('person_id', sql.INT, person)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -203,7 +225,7 @@ async function updateFleetData(fleetId: string, body: FleetType) {
         }
         for (const person of body.personExist) {
             let personResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('person_id', sql.INT, person)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -215,7 +237,7 @@ async function updateFleetData(fleetId: string, body: FleetType) {
         
         for (const vehicle of body.vehicleDelete) {
             let vehicleDeleteResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -226,7 +248,7 @@ async function updateFleetData(fleetId: string, body: FleetType) {
         }
         for (const vehicle of body.vehicleExist) {
             let vehicleResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleetId)
+                .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
