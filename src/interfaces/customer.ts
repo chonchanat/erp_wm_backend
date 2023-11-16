@@ -1,6 +1,6 @@
 import { Address } from "./address";
 import { Contact } from "./contact";
-import { Person } from "./person";
+import { Persons } from "./person";
 import { Fleet } from "./fleet";
 import { Vehicle } from "./vehicle";
 
@@ -8,13 +8,6 @@ export interface Customer {
     customer_name: string;
     sales_type_code_id: number;
     customer_type_code_id: number;
-}
-
-interface Persons {
-    person: Person;
-    contact: Contact[];
-    addressNew: Address[];
-    addressExist: number[];
 }
 
 export interface CustomerType {

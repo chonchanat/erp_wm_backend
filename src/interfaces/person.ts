@@ -12,6 +12,11 @@ export interface Person {
     roleDelete: number[];
 }
 
+export interface Persons {
+    person: Person;
+    contactNew: Contact[];
+}
+
 export interface PersonType {
     create_by?: number;
     update_by?: number;
