@@ -53,6 +53,7 @@ async function updateCustomerData(req: Request, res: Response, next: NextFunctio
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
+        console.log(body.addressNew)
         
         await customerModel.updateCustomerData(id, body, files);
         res.status(200).json({ status: 1, message: "updated successfully" })
