@@ -35,11 +35,11 @@ async function getPersonTable(index: number, filterPerson: string) {
     }
 }
 
-async function getPersonData(personId: string) {
+async function getPersonData(person_id: string) {
     try {
         let pool = await sql.connect(devConfig)
         let result = await pool.request()
-            .input('person_id', sql.INT, personId)
+            .input('person_id', sql.INT, person_id)
             .query(`
                 SELECT
                     p.person_id as person_id,
@@ -92,12 +92,12 @@ async function getPersonData(personId: string) {
     }
 }
 
-async function deletePerson(personId: string, body: any) {
+async function deletePerson(person_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
-            .input('person_id', sql.INT, personId)
+            .input('person_id', sql.INT, person_id)
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
@@ -140,6 +140,43 @@ async function createPersonData(body: PersonType, files: any) {
                     EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
                         @action_by = @action_by, @action_date = @action_date
                 `)
+        }
+
+        for (const customer of body.customerNew) {
+            let customerResult = await transaction.request()
+                .input('customer_name', sql.NVARCHAR, customer.customer.customer_name)
+                .input('sales_type_code_id', sql.INT, customer.customer.sales_type_code_id)
+                .input('customer_type_code_id', sql.INT, customer.customer.customer_type_code_id)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
+                        @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @action_date = @action_date
+                `)
+            let customer_id = customerResult.recordset[0].customer_id
+            
+            let personCustomerResult = await transaction.request()
+                .input('customer_id', sql.INT, customer_id)
+                .input('person_id', sql.INT, person_id)
+                .input('action_by', sql.INT, body.create_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
+
+            for (const contact of customer.contactNew) {
+                let contactResult = await transaction.request()
+                    .input('customer_id', sql.INT, customer_id)
+                    .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
+                    .input('contact_code_id', sql.INT, contact.contact_code_id)
+                    .input('action_by', sql.INT, body.create_by)
+                    .input('action_date', sql.DATETIME, datetime)
+                    .query(`
+                        EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = NULL, 
+                            @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
+                    `)
+            }
         }
 
         for (const customer of body.customerExist) {
@@ -264,7 +301,7 @@ async function createPersonData(body: PersonType, files: any) {
     }
 }
 
-async function updatePersonDate(personId: string, body: PersonType, files:any) {
+async function updatePersonDate(person_id: string, body: PersonType, files:any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -272,7 +309,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         transaction = pool.transaction();
         await transaction.begin();
         let personResult = await transaction.request()
-            .input('person_id', sql.INT, personId)
+            .input('person_id', sql.INT, person_id)
             .input('firstname', sql.NVARCHAR, body.person.firstname === "" ? null : body.person.firstname)
             .input('lastname', sql.NVARCHAR, body.person.lastname === "" ? null : body.person.lastname)
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
@@ -288,7 +325,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
 
         for (const role of body.person.roleDelete) {
             let roleResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('role_code_id', sql.INT, role)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -299,7 +336,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         }
         for (const role of body.person.role) {
             let roleResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('role_code_id', sql.INT, role)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -309,9 +346,46 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 `)
         }
 
+        for (const customer of body.customerNew) {
+            let customerResult = await transaction.request()
+                .input('customer_name', sql.NVARCHAR, customer.customer.customer_name)
+                .input('sales_type_code_id', sql.INT, customer.customer.sales_type_code_id)
+                .input('customer_type_code_id', sql.INT, customer.customer.customer_type_code_id)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
+                        @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @action_date = @action_date
+                `)
+            let customer_id = customerResult.recordset[0].customer_id
+            
+            let personCustomerResult = await transaction.request()
+                .input('customer_id', sql.INT, customer_id)
+                .input('person_id', sql.INT, person_id)
+                .input('action_by', sql.INT, body.update_by)
+                .input('action_date', sql.DATETIME, datetime)
+                .query(`
+                    EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+                        @action_by = @action_by, @action_date = @action_date
+                `)
+
+            for (const contact of customer.contactNew) {
+                let contactResult = await transaction.request()
+                    .input('customer_id', sql.INT, customer_id)
+                    .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
+                    .input('contact_code_id', sql.INT, contact.contact_code_id)
+                    .input('action_by', sql.INT, body.update_by)
+                    .input('action_date', sql.DATETIME, datetime)
+                    .query(`
+                        EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = NULL, 
+                            @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
+                    `)
+            }
+        }
+
         for (const customer of body.customerDelete) {
             let customerResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('customer_id', sql.INT, customer)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -322,7 +396,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         }
         for (const customer of body.customerExist) {
             let customerResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('customer_id', sql.INT, customer)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -343,7 +417,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         }
         for (const contact of body.contactNew) {
             let contactResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
                 .input('action_by', sql.INT, body.update_by)
@@ -374,7 +448,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 `)
             const address_id = addressResult.recordset[0].address_id
             let addressPersonResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address_id)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -397,7 +471,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
 
         for (const address of body.addressDelete) {
             let addressResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -408,7 +482,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         }
         for (const address of body.addressExist) {
             let addressResult = await transaction.request()
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
@@ -422,7 +496,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let cardResult = await transaction.request()
                 .input('card_code_id', sql.INT, card.card_code_id)
                 .input('value', sql.NVARCHAR, card.value)
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('action_by', sql.INT, body.update_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
@@ -447,7 +521,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let documentResult = await transaction.request()
                 .input('document_code_id', sql.INT, body.documentCodeNew[i])
                 .input('customer_id', sql.INT, null)
-                .input('person_id', sql.INT, personId)
+                .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, null)
                 .input('vehicle_id', sql.INT, null)
                 .input('document_name', sql.NVARCHAR, files[i].originalname)

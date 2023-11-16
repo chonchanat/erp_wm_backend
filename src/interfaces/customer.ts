@@ -10,6 +10,11 @@ export interface Customer {
     customer_type_code_id: number;
 }
 
+export interface Customers {
+    customer: Customer,
+    contactNew: Contact[],
+}
+
 export interface CustomerType {
     create_by?: number;
     update_by?: number;

@@ -1,6 +1,7 @@
 import { Address } from "./address";
 import { Contact } from "./contact";
 import { Card } from "./card";
+import { Customers } from "./customer";
 
 export interface Person {
     firstname: string;
@@ -21,6 +22,7 @@ export interface PersonType {
     create_by?: number;
     update_by?: number;
     person: Person;
+    customerNew: Customers[];
     customerDelete: number[];
     customerExist: number[];
     contactDelete: number[];
