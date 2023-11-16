@@ -3,8 +3,9 @@ const sql = require('mssql')
 import { getDateTime } from "../utils"
 import { FleetType } from "../interfaces/fleet";
 
-import * as customerOperation from "../operation/customer";
-import * as relationOperation from "../operation/relation";
+// import * as customerOperation from "../operation/customer";
+// import * as relationOperation from "../operation/relation";
+import * as operation from "../operation/index"
 
 async function getFleetTable(index: number, filterFleet: string) {
     try {
@@ -110,10 +111,10 @@ async function createFleetData(body: FleetType) {
 
         // create customer in fleet menu
         for (const customer of body.customerNew) {
-            let customerResult = await customerOperation.createCustomerNew(transaction, customer, action_by, datetime)
+            let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
             let customer_id = customerResult.recordset[0].customer_id
 
-            await relationOperation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+            await operation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
         }
 
         for (const customer of body.customerExist) {
@@ -129,6 +130,14 @@ async function createFleetData(body: FleetType) {
         }
         //
 
+        // create person in fleet menu
+        for (const person of body.personNew) {
+            let personResult = await operation.createPersonNew(transaction, person.person, action_by, datetime)
+            let person_id = personResult.recordset[0].person_id
+
+            await operation.createFleetPerson(transaction, fleet_id, person_id, action_by, datetime)
+            await operation.createContactNew(transaction, person.contactNew, action_by, datetime)
+        }
         for (const person of body.personExist) {
             let personResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
@@ -140,6 +149,7 @@ async function createFleetData(body: FleetType) {
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
+        //
         
         for (const vehicle of body.vehicleExist) {
             let vehicleResult = await transaction.request()
@@ -183,10 +193,10 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
 
         // create customer is fleet menu
         for (const customer of body.customerNew) {
-            let customerResult = await customerOperation.createCustomerNew(transaction, customer, action_by, datetime)
+            let customerResult = await operation.createCustomerNew(transaction, customer, action_by, datetime)
             let customer_id = customerResult.recordset[0].customer_id
 
-            await relationOperation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
+            await operation.createFleetCustomer(transaction, fleet_id, customer_id, action_by, datetime)
         }
         for (const customer of body.customerDelete) {
             let customerDeleteResult = await transaction.request()
@@ -210,8 +220,15 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
                         @action_by = @action_by, @action_date = @action_date
                 `)
         }
+        
         //
+        for (const person of body.personNew) {
+            let personResult = await operation.createPersonNew(transaction, person.person, action_by, datetime)
+            let person_id = personResult.recordset[0].person_id
 
+            await operation.createFleetPerson(transaction, fleet_id, person_id, action_by, datetime)
+            await operation.createContactNew(transaction, person.contactNew, action_by, datetime)
+        }
         for (const person of body.personDelete) {
             let personDeleteResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)

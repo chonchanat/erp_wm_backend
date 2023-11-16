@@ -5,9 +5,9 @@ export async function createCustomerNew(transaction: any, customer: any, action_
         return 0;
     }
     return await transaction.request()
-        .input('customer_name', sql.NVARCHAR, customer.customer.customer_name)
-        .input('sales_type_code_id', sql.INT, customer.customer.sales_type_code_id)
-        .input('customer_type_code_id', sql.INT, customer.customer.customer_type_code_id)
+        .input('customer_name', sql.NVARCHAR, customer.customer_name)
+        .input('sales_type_code_id', sql.INT, customer.sales_type_code_id)
+        .input('customer_type_code_id', sql.INT, customer.customer_type_code_id)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
