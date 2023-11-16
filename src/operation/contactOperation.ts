@@ -1,7 +1,6 @@
 const sql = require('mssql')
 
 export async function createContactNew(transaction: any, contact: any, person_id: string | number | null, customer_id: string | number | null, action_by: string | number, datetime: object) {
-    console.log(contact, person_id, customer_id)
     return await transaction.request()
         .input('contact_code_id', sql.INT, contact.contact_code_id)
         .input('person_id', sql.INT, person_id)
