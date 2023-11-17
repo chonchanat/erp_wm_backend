@@ -3,6 +3,8 @@ import { DocumentType } from "../interfaces/document";
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
+import * as operation from "../operation/index";
+
 async function getDocumentTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig);
@@ -105,30 +107,17 @@ async function createDocumentData(body: DocumentType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
         for (let i = 0; i < files.length; i++) {
             // let fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString('utf8');
-            
-            let documentResult = await pool.request()
-                .input('document_code_id', sql.INT, body.document.document_code_id)
-                .input('customer_id', sql.INT, body.document.customer_id)
-                .input('person_id', sql.INT, body.document.person_id)
-                .input('address_id', sql.INT, body.document.address_id)
-                .input('vehicle_id', sql.INT, body.document.vehicle_id)
-                .input('document_name', sql.NVARCHAR, files[i].originalname)
-                .input('value', sql.VARBINARY, files[i].buffer)
-                .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
-                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
-                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+
+            await operation.createDocumentNew(transaction, body.document.document_code_id, files[i].originalname, files[i].buffer,
+                body.document.customer_id, body.document.person_id, body.document.address_id, body.document.vehicle_id,
+                action_by, datetime)
         }
 
         await transaction.commit();
@@ -143,20 +132,12 @@ async function updateDocumentData(document_id: string, body: DocumentType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let documentResult = await transaction.request()
-            .input('document_id', sql.INT, document_id)
-            .input('document_code_id', sql.INT, body.document.document_code_id)
-            .input('document_name', sql.NVARCHAR, body.document.document_name)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,
-                    @document_name = @document_name, @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateDocument(transaction, document_id, body.document, action_by, datetime)
 
         await transaction.commit();
 
