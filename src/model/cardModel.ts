@@ -90,7 +90,7 @@ async function createCardData(body: CardType) {
             .input('card_code_id', sql.INT, body.card.card_code_id)
             .input('value', sql.NVARCHAR, body.card.value)
             .input('person_id', sql.INT, body.card.person_id)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
@@ -120,7 +120,7 @@ async function updateCardData(card_id: string, body: CardType) {
             .input('card_code_id', sql.INT, body.card.card_code_id)
             .input('value', sql.NVARCHAR, body.card.value)
             .input('person_id', sql.INT, body.card.person_id)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 

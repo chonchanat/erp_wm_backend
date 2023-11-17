@@ -91,7 +91,7 @@ async function createDeviceData(body: DeviceType) {
         let deviceResult = await transaction.request()
             .input('veh_id', sql.INT, body.device.veh_id)
             .input('device_serial_id', sql.INT, body.device.device_serial_id)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('create_date', sql.DATETIME, datetime)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
@@ -114,7 +114,7 @@ async function createDeviceData(body: DeviceType) {
             .input('network', sql.NVARCHAR, body.deviceConfig.network)
             .input('username', sql.NVARCHAR, body.deviceConfig.username)
             .input('password', sql.NVARCHAR, body.deviceConfig.password)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
@@ -145,7 +145,7 @@ async function updateDeviceData (device_id: string, body: DeviceType) {
             .input('device_id', sql.INT, device_id)
             .input('veh_id', sql.INT, body.device.veh_id)
             .input('device_serial_id', sql.INT, body.device.device_serial_id)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('create_date', sql.DATETIME, body.device.create_date)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
@@ -168,7 +168,7 @@ async function updateDeviceData (device_id: string, body: DeviceType) {
             .input('network', sql.NVARCHAR, body.deviceConfig.network)
             .input('username', sql.NVARCHAR, body.deviceConfig.username)
             .input('password', sql.NVARCHAR, body.deviceConfig.password)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 

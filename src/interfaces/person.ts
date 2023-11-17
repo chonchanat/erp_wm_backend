@@ -13,8 +13,7 @@ export interface Person {
 }
 
 export interface PersonType {
-    create_by?: number;
-    update_by?: number;
+    action_by: number;
     person: Person;
     customerDelete: number[];
     customerExist: number[];

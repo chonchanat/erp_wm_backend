@@ -38,8 +38,7 @@ interface VehiclePermit {
 } 
 
 export interface VehicleType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     vehicle: Vehicle,
     vehicleConfig: VehicleConfig,
     vehiclePermit: VehiclePermit,

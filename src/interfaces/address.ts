@@ -14,8 +14,7 @@ export interface Address {
 }
 
 export interface AddressType {
-    create_by?: number;
-    update_by?: number;
+    action_by: number;
     address: Address;
     documentCodeNew: number[];
     documentDelete: number[];

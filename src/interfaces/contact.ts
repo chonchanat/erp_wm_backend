@@ -7,7 +7,6 @@ export interface Contact {
 }
 
 export interface ContactType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     contact: Contact,
 }

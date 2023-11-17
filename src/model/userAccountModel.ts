@@ -99,7 +99,7 @@ async function createUserAccountData (body: UserAccountType) {
             .input('uid', sql.NVARCHAR, body.userAccount.uid)
             .input('person_id', sql.INT, body.userAccount.person_id)
             .input('profile_id', sql.INT, body.userAccount.profile_id)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_insert_userAccount @username = @username, @password = @password,
@@ -128,7 +128,7 @@ async function updateUserAccount(user_id: string, body: UserAccountType) {
             .input('user_id', sql.INT, user_id)
             .input('uid', sql.NVARCHAR, body.userAccount.uid)
             .input('profile_id', sql.INT, body.userAccount.profile_id)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,

@@ -8,7 +8,6 @@ export interface Document {
 }
 
 export interface DocumentType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     document: Document
 }

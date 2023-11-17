@@ -7,7 +7,6 @@ export interface UserAccount {
 }
 
 export interface UserAccountType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     userAccount: UserAccount
 }

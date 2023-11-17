@@ -122,7 +122,7 @@ async function createPersonData(body: PersonType, files: any) {
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
@@ -134,7 +134,7 @@ async function createPersonData(body: PersonType, files: any) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('role_code_id', sql.INT, role)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
@@ -146,7 +146,7 @@ async function createPersonData(body: PersonType, files: any) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
@@ -159,7 +159,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('person_id', sql.INT, person_id)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
@@ -178,7 +178,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
@@ -189,7 +189,7 @@ async function createPersonData(body: PersonType, files: any) {
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address_id)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
@@ -199,7 +199,7 @@ async function createPersonData(body: PersonType, files: any) {
                 let addressMaterCodeResult = await transaction.request()
                     .input('address_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .input('action_by', sql.INT, body.create_by)
+                    .input('action_by', sql.INT, body.action_by)
                     .input('action_date', sql.DATETIME, datetime)
                     .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
@@ -212,7 +212,7 @@ async function createPersonData(body: PersonType, files: any) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, person_id)
                 .input('address_id', sql.INT, address)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
@@ -225,7 +225,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('card_code_id', sql.INT, card.card_code_id)
                 .input('value', sql.NVARCHAR, card.value)
                 .input('person_id', sql.INT, person_id)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
@@ -245,7 +245,7 @@ async function createPersonData(body: PersonType, files: any) {
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -278,7 +278,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
             .input('title_code_id', sql.INT, body.person.title_code_id)
             .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
@@ -290,7 +290,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('role_code_id', sql.INT, role)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
@@ -301,7 +301,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let roleResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('role_code_id', sql.INT, role)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
@@ -313,7 +313,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
@@ -324,7 +324,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let customerResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
@@ -335,7 +335,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         for (const contact of body.contactDelete) {
             let contactResult = await transaction.request()
                 .input('contact_id', sql.INT, contact)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
@@ -346,7 +346,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('person_id', sql.INT, personId)
                 .input('value', sql.NVARCHAR, contact.value)
                 .input('contact_code_id', sql.INT, contact.contact_code_id)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
@@ -365,7 +365,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
                 .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
                 .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
@@ -376,7 +376,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let addressPersonResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address_id)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
@@ -386,7 +386,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 let addressMasterCodeResult = await transaction.request()
                     .input('addrsss_id', sql.INT, address_id)
                     .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .input('action_by', sql.INT, body.update_by)
+                    .input('action_by', sql.INT, body.action_by)
                     .input('action_date', sql.DATETIME, datetime)
                     .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
@@ -399,7 +399,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
@@ -410,7 +410,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
             let addressResult = await transaction.request()
                 .input('person_id', sql.INT, personId)
                 .input('address_id', sql.INT, address)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
@@ -423,7 +423,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('card_code_id', sql.INT, card.card_code_id)
                 .input('value', sql.NVARCHAR, card.value)
                 .input('person_id', sql.INT, personId)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
@@ -434,7 +434,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         for (const card of body.cardDelete) {
             let cardResult = await transaction.request()
                 .input('card_id', sql.INT, card)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
@@ -453,7 +453,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -466,7 +466,7 @@ async function updatePersonDate(personId: string, body: PersonType, files:any) {
         for (const document of body.documentDelete) {
             let documentResult = await transaction.request()
                 .input('document_id', sql.INT, document)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date

@@ -5,7 +5,6 @@ export interface Card {
 }
 
 export interface CardType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     card: Card,
 }

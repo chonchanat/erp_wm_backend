@@ -86,7 +86,7 @@ async function createDeviceSerialData(body: DeviceSerialType) {
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
             .input('create_date', sql.DATETIME, datetime)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
@@ -116,7 +116,7 @@ async function updateDeviceSerialData(device_serial_id: string, body: DeviceSeri
             .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
             .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
             .input('create_date', sql.DATETIME, body.deviceSerial.create_date)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_ForTesting2..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
