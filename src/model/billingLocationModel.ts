@@ -123,13 +123,13 @@ async function createBillingLocationData(body: any) {
             .input('customer_id', sql.INT, body.billingLocation.customer_id)
             .input('address_id', sql.INT, body.billingLocation.address_id)
             .input('person_id', sql.INT, body.billingLocation.person_id)
-            .input('create_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('create_date', sql.DATETIME, datetime)
             .input('active', sql.INT, 0)
             .query(`
-                INSERT INTO DevelopERP_Clear..BillingLocation (name, tin, branch, customer_id, address_id, person_id, create_by, create_date, active)
+                INSERT INTO DevelopERP_Clear..BillingLocation (name, tin, branch, customer_id, address_id, person_id, action_by, create_date, active)
                 OUTPUT INSERTED.billing_location_id
-                VALUES (@name, @tin, @branch, @customer_id, @address_id, @person_id, @create_by, @create_date, @active)
+                VALUES (@name, @tin, @branch, @customer_id, @address_id, @person_id, @action_by, @create_date, @active)
             `)
         const billing_location_id = billingLocationResult.recordset[0].billing_location_id
 

@@ -7,7 +7,6 @@ export interface DeviceSerial {
 }
 
 export interface DeviceSerialType {
-    create_by?: number;
-    update_by?: number;
+    action_by: number;
     deviceSerial: DeviceSerial
 }

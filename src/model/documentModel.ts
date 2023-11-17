@@ -121,7 +121,7 @@ async function createDocumentData(body: DocumentType, files: any) {
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -151,7 +151,7 @@ async function updateDocumentData(document_id: string, body: DocumentType) {
             .input('document_id', sql.INT, document_id)
             .input('document_code_id', sql.INT, body.document.document_code_id)
             .input('document_name', sql.NVARCHAR, body.document.document_name)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,

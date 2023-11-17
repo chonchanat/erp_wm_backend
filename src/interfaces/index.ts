@@ -4,8 +4,7 @@
 // import { Person } from "./person";
 
 // interface CustomerType {
-//     create_by?: number;
-//     update_by?: number;
+//     action_by: number;
 //     customer: Customer;
 //     addressNew: Address[];
 //     addressExist: number[];

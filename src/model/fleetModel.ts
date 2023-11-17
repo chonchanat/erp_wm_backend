@@ -93,7 +93,7 @@ async function createFleetData(body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();
-        let action_by: number = body.create_by as number;
+        let action_by: number = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin()
@@ -131,7 +131,7 @@ async function createFleetData(body: FleetType) {
             let vehicleResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
@@ -151,7 +151,7 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
     let transaction;
     try {
         let datetime = getDateTime();
-        let action_by: number = body.update_by as number;
+        let action_by: number = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
@@ -194,7 +194,7 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
             let vehicleDeleteResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
@@ -205,7 +205,7 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
             let vehicleResult = await transaction.request()
                 .input('fleet_id', sql.INT, fleet_id)
                 .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 

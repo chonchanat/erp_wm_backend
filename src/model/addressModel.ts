@@ -100,7 +100,7 @@ async function createAddressData(body: AddressType, files: any) {
             .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
             .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
@@ -113,7 +113,7 @@ async function createAddressData(body: AddressType, files: any) {
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, address_id)
                 .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
@@ -133,7 +133,7 @@ async function createAddressData(body: AddressType, files: any) {
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -170,7 +170,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
             .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
             .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
             .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
@@ -182,7 +182,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
@@ -194,7 +194,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
             let addressMasterCodeResult = await transaction.request()
                 .input('address_id', sql.INT, addressId)
                 .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
@@ -214,7 +214,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -227,7 +227,7 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
         for (const document of body.documentDelete) {
             let documentResult = await transaction.request()
                 .input('document_id', sql.INT, document)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date

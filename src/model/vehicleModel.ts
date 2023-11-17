@@ -113,7 +113,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('number_of_wheels', sql.INT, body.vehicle.number_of_wheels)
             .input('number_of_tires', sql.INT, body.vehicle.number_of_tires)
             .input('vehicle_type_code_id', sql.INT, body.vehicle.vehicle_type_code_id)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
@@ -142,7 +142,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('max_empty_voltage_2', sql.INT, body.vehicleConfig.max_empty_voltage_2)
             .input('max_empty_voltage_3', sql.INT, body.vehicleConfig.max_empty_voltage_3)
             .input('fuel_status', sql.INT, body.vehicleConfig.fuel_status)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_insert_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
@@ -161,7 +161,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             .input('tls', sql.BIT, body.vehiclePermit.tls)
             .input('scgl', sql.BIT, body.vehiclePermit.scgl)
             .input('diw', sql.BIT, body.vehiclePermit.diw)
-            .input('action_by', sql.INT, body.create_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
@@ -172,7 +172,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             let vehicleCustomerResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicle_id)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
@@ -184,7 +184,7 @@ async function createVehicleData(body: VehicleType, files: any) {
             let vehiclePersonResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicle_id)
                 .input('person_id', sql.INT, person)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
@@ -204,7 +204,7 @@ async function createVehicleData(body: VehicleType, files: any) {
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.create_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -243,7 +243,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('number_of_wheels', sql.INT, body.vehicle.number_of_wheels)
             .input('number_of_tires', sql.INT, body.vehicle.number_of_tires)
             .input('vehicle_type_code_id', sql.INT, body.vehicle.vehicle_type_code_id)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_update_vehicle @vehicle_id = @vehicle_id, @frame_no = @frame_no, @license_plate = @license_plate, 
@@ -272,7 +272,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('max_empty_voltage_2', sql.INT, body.vehicleConfig.max_empty_voltage_2)
             .input('max_empty_voltage_3', sql.INT, body.vehicleConfig.max_empty_voltage_3)
             .input('fuel_status', sql.INT, body.vehicleConfig.fuel_status)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_Clear..sp_update_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
@@ -290,7 +290,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             .input('tls', sql.BIT, body.vehiclePermit.tls)
             .input('scgl', sql.BIT, body.vehiclePermit.scgl)
             .input('diw', sql.BIT, body.vehiclePermit.diw)
-            .input('action_by', sql.INT, body.update_by)
+            .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`
                 EXEC DevelopERP_CLear..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
@@ -301,7 +301,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             let vehicleCustomerDeleteResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicleId)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id, 
@@ -313,7 +313,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             let vehicleCustomerResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicleId)
                 .input('customer_id', sql.INT, customer)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
@@ -325,7 +325,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             let vehiclePersonDeleteResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicleId)
                 .input('person_id', sql.INT, person)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id, 
@@ -337,7 +337,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
             let vehiclePersonResult = await transaction.request()
                 .input('vehicle_id', sql.INT, vehicleId)
                 .input('person_id', sql.INT, person)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
@@ -357,7 +357,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
                 .input('document_name', sql.NVARCHAR, files[i].originalname)
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
@@ -370,7 +370,7 @@ async function updateVehicleData(vehicleId: string, body: VehicleType, files: an
         for (const document of body.documentDelete) {
             let documentResult = await transaction.request()
                 .input('document_id', sql.INT, document)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date

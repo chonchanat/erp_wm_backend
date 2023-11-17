@@ -7,8 +7,7 @@ export interface Fleet {
 }
 
 export interface FleetType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     fleet: Fleet,
     customerNew: Customers[],
     customerDelete: number[],

@@ -20,8 +20,7 @@ interface DeviceConfig {
 }
   
 export interface DeviceType {
-    create_by?: number,
-    update_by?: number,
+    action_by: number,
     device: Device,
     deviceConfig: DeviceConfig,
 }

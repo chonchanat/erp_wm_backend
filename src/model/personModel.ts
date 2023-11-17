@@ -113,7 +113,7 @@ async function createPersonData(body: PersonType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
-        let action_by = body.create_by as number;
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin()
@@ -177,7 +177,7 @@ async function updatePersonDate(person_id: string, body: PersonType, files: any)
     let transaction;
     try {
         let datetime = getDateTime();
-        let action_by = body.update_by as number;
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
@@ -211,7 +211,7 @@ async function updatePersonDate(person_id: string, body: PersonType, files: any)
         for (const contact of body.contactDelete) {
             let contactResult = await transaction.request()
                 .input('contact_id', sql.INT, contact)
-                .input('action_by', sql.INT, body.update_by)
+                .input('action_by', sql.INT, body.action_by)
                 .input('action_date', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
