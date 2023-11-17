@@ -3,6 +3,8 @@ import { UserAccountType } from "../interfaces/userAccount";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
+import * as operation from "../operation/index"
+
 async function getUserAccountTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -57,7 +59,7 @@ async function getUserAccountData(user_id: string) {
                 EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
             `)
-        
+
         return {
             userAccount: result.recordsets[0][0],
             person: result.recordsets[1],
@@ -68,7 +70,7 @@ async function getUserAccountData(user_id: string) {
     }
 }
 
-async function deleteUserAccountData (user_id: string, body: any) {
+async function deleteUserAccountData(user_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig)
@@ -85,27 +87,16 @@ async function deleteUserAccountData (user_id: string, body: any) {
     }
 }
 
-async function createUserAccountData (body: UserAccountType) {
+async function createUserAccountData(body: UserAccountType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig)
         transaction = pool.transaction();
         await transaction.begin()
 
-        let userAccountResult = await transaction.request()
-            .input('username', sql.NVARCHAR, body.userAccount.username)
-            .input('password', sql.NVARCHAR, body.userAccount.password)
-            .input('uid', sql.NVARCHAR, body.userAccount.uid)
-            .input('person_id', sql.INT, body.userAccount.person_id)
-            .input('profile_id', sql.INT, body.userAccount.profile_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_insert_userAccount @username = @username, @password = @password,
-                    @uid = @uid, @person_id = @person_id, @profile_id = @profile_id,
-                    @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.createUserAccountNew(transaction, body.userAccount, action_by, datetime)
 
         await transaction.commit()
 
@@ -120,27 +111,19 @@ async function updateUserAccount(user_id: string, body: UserAccountType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig)
         transaction = pool.transaction()
         await transaction.begin()
 
-        let userAccountResult = await transaction.request()
-            .input('user_id', sql.INT, user_id)
-            .input('uid', sql.NVARCHAR, body.userAccount.uid)
-            .input('profile_id', sql.INT, body.userAccount.profile_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,
-                    @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateUserAccount(transaction, user_id, body.userAccount, action_by, datetime)
 
         await transaction.commit()
 
     } catch (err) {
         console.log(err)
         await transaction.rollback()
-        throw err; 
+        throw err;
     }
 }
 
