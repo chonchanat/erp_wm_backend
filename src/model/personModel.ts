@@ -77,7 +77,7 @@ async function getPersonData(person_id: string) {
                 EXEC DevelopERP_Clear..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
             `)
-            
+
         return {
             person: {
                 ...result.recordsets[0][0],
@@ -124,7 +124,7 @@ async function createPersonData(body: PersonType, files: any) {
         for (const role of body.person.role) {
             await operation.linkPersonRole(transaction, person_id, role, action_by, datetime)
         }
-      
+
         for (const customer of body.customerNew) {
             let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
             let customer_id = customerResult.recordset[0].customer_id
@@ -137,7 +137,7 @@ async function createPersonData(body: PersonType, files: any) {
         for (const customer of body.customerExist) {
             await operation.linkCustomerPerson(transaction, customer, person_id, action_by, datetime)
         }
- 
+
         for (const contact of body.contactNew) {
             await operation.createContactNew(transaction, contact, person_id, null, action_by, datetime)
         }
@@ -160,7 +160,7 @@ async function createPersonData(body: PersonType, files: any) {
         }
 
         for (let i = 0; i < files.length; i++) {
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer, 
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
                 null, person_id, null, null, action_by, datetime)
         }
 
@@ -173,7 +173,7 @@ async function createPersonData(body: PersonType, files: any) {
     }
 }
 
-async function updatePersonDate(person_id: string, body: PersonType, files:any) {
+async function updatePersonDate(person_id: string, body: PersonType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -181,115 +181,30 @@ async function updatePersonDate(person_id: string, body: PersonType, files:any) 
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
-        // let personResult = await transaction.request()
-        //     .input('person_id', sql.INT, person_id)
-        //     .input('firstname', sql.NVARCHAR, body.person.firstname === "" ? null : body.person.firstname)
-        //     .input('lastname', sql.NVARCHAR, body.person.lastname === "" ? null : body.person.lastname)
-        //     .input('nickname', sql.NVARCHAR, body.person.nickname === "" ? null : body.person.nickname)
-        //     .input('title_code_id', sql.INT, body.person.title_code_id)
-        //     .input('description', sql.NVARCHAR, body.person.description === "" ? null : body.person.description)
-        //     .input('action_by', sql.INT, body.update_by)
-        //     .input('action_date', sql.DATETIME, datetime)
-        //     .query(`
-        //         EXEC DevelopERP_Clear..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
-        //             @nickname = @nickname, @title_code_id = @title_code_id, @description = @description, 
-        //             @action_by = @action_by, @action_date = @action_date
-        //     `)
+
         await operation.updatePerson(transaction, person_id, body.person, action_by, datetime)
 
-        // for (const role of body.person.roleDelete) {
-        //     let roleResult = await transaction.request()
-        //         .input('person_id', sql.INT, person_id)
-        //         .input('role_code_id', sql.INT, role)
-        //         .input('action_by', sql.INT, body.update_by)
-        //         .input('action_date', sql.DATETIME, datetime)
-        //         .query(`
-        //             EXEC DevelopERP_Clear..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
-        //                 @action_by = @action_by, @action_date = @action_date
-        //         `)
-        // }
         for (const role of body.person.roleDelete) {
             await operation.unlinkPersonRole(transaction, person_id, role, action_by, datetime)
         }
-        // for (const role of body.person.role) {
-        //     let roleResult = await transaction.request()
-        //         .input('person_id', sql.INT, person_id)
-        //         .input('role_code_id', sql.INT, role)
-        //         .input('action_by', sql.INT, body.update_by)
-        //         .input('action_date', sql.DATETIME, datetime)
-        //         .query(`
-        //             EXEC DevelopERP_Clear..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
-        //                 @action_by = @action_by, @action_date = @action_date
-        //         `)
-        // }
         for (const role of body.person.role) {
             await operation.linkPersonRole(transaction, person_id, role, action_by, datetime)
         }
 
         for (const customer of body.customerNew) {
-            // let customerResult = await transaction.request()
-            //     .input('customer_name', sql.NVARCHAR, customer.customer.customer_name)
-            //     .input('sales_type_code_id', sql.INT, customer.customer.sales_type_code_id)
-            //     .input('customer_type_code_id', sql.INT, customer.customer.customer_type_code_id)
-            //     .input('action_by', sql.INT, body.update_by)
-            //     .input('action_date', sql.DATETIME, datetime)
-            //     .query(`
-            //         EXEC DevelopERP_Clear..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
-            //             @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @action_date = @action_date
-            //     `)
             let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
             let customer_id = customerResult.recordset[0].customer_id
-            
-            // let personCustomerResult = await transaction.request()
-            //     .input('customer_id', sql.INT, customer_id)
-            //     .input('person_id', sql.INT, person_id)
-            //     .input('action_by', sql.INT, body.update_by)
-            //     .input('action_date', sql.DATETIME, datetime)
-            //     .query(`
-            //         EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-            //             @action_by = @action_by, @action_date = @action_date
-            //     `)
+
             await operation.linkCustomerPerson(transaction, customer_id, person_id, action_by, datetime)
 
-            // for (const contact of customer.contactNew) {
-            //     let contactResult = await transaction.request()
-            //         .input('customer_id', sql.INT, customer_id)
-            //         .input('value', sql.NVARCHAR, contact.value === "" ? null : contact.value)
-            //         .input('contact_code_id', sql.INT, contact.contact_code_id)
-            //         .input('action_by', sql.INT, body.update_by)
-            //         .input('action_date', sql.DATETIME, datetime)
-            //         .query(`
-            //             EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = NULL, 
-            //                 @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
-            //         `)
-            // }
             for (const contact of customer.contactNew) {
                 await operation.createContactNew(transaction, contact, null, customer_id, action_by, datetime)
             }
         }
-
         for (const customer of body.customerDelete) {
-            // let customerResult = await transaction.request()
-            //     .input('person_id', sql.INT, person_id)
-            //     .input('customer_id', sql.INT, customer)
-            //     .input('action_by', sql.INT, body.update_by)
-            //     .input('action_date', sql.DATETIME, datetime)
-            //     .query(`
-            //         EXEC DevelopERP_Clear..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
-            //             @action_by = @action_by, @action_date = @action_date
-            //     `)
             await operation.unlinkCustomerPerson(transaction, customer, person_id, action_by, datetime)
         }
         for (const customer of body.customerExist) {
-            // let customerResult = await transaction.request()
-            //     .input('person_id', sql.INT, person_id)
-            //     .input('customer_id', sql.INT, customer)
-            //     .input('action_by', sql.INT, body.update_by)
-            //     .input('action_date', sql.DATETIME, datetime)
-            //     .query(`
-            //         EXEC DevelopERP_Clear..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
-            //             @action_by = @action_by, @action_date = @action_date
-            //     `)
             await operation.linkCustomerPerson(transaction, customer, person_id, action_by, datetime)
         }
 
@@ -303,136 +218,41 @@ async function updatePersonDate(person_id: string, body: PersonType, files:any) 
                 `)
         }
         for (const contact of body.contactNew) {
-            // let contactResult = await transaction.request()
-            //     .input('person_id', sql.INT, person_id)
-            //     .input('value', sql.NVARCHAR, contact.value)
-            //     .input('contact_code_id', sql.INT, contact.contact_code_id)
-            //     .input('action_by', sql.INT, body.update_by)
-            //     .input('action_date', sql.DATETIME, datetime)
-            //     .query(`
-            //         EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
-            //             @customer_id = NULL, @value = @value, @action_by = @action_by, @action_date = @action_date
-            //     `)
             await operation.createContactNew(transaction, contact, person_id, null, action_by, datetime)
         }
 
         for (const address of body.addressNew) {
-            let addressResult = await transaction.request()
-                .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
-                .input('house_no', sql.NVARCHAR, address.house_no === "" ? null : address.house_no)
-                .input('village_no', sql.NVARCHAR, address.village_no === "" ? null : address.village_no)
-                .input('alley', sql.NVARCHAR, address.alley === "" ? null : address.alley)
-                .input('road', sql.NVARCHAR, address.road === "" ? null : address.road)
-                .input('sub_district', sql.NVARCHAR, address.sub_district === "" ? null : address.sub_district)
-                .input('district', sql.NVARCHAR, address.district === "" ? null : address.district)
-                .input('province', sql.NVARCHAR, address.province === "" ? null : address.province)
-                .input('postal_code', sql.NVARCHAR, address.postal_code === "" ? null : address.postal_code)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
-                        @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                        @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
-                `)
+            let addressResult = await operation.createAddressNew(transaction, address, action_by, datetime)
             const address_id = addressResult.recordset[0].address_id
-            let addressPersonResult = await transaction.request()
-                .input('person_id', sql.INT, person_id)
-                .input('address_id', sql.INT, address_id)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+
+            await operation.linkAddressPerson(transaction, address_id, person_id, action_by, datetime)
             for (const addressMasterCode of address.address_type_code_id) {
-                let addressMasterCodeResult = await transaction.request()
-                    .input('addrsss_id', sql.INT, address_id)
-                    .input('address_type_code_id', sql.INT, addressMasterCode)
-                    .input('action_by', sql.INT, body.update_by)
-                    .input('action_date', sql.DATETIME, datetime)
-                    .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                    `)
+                await operation.linkAddressMasterCode(transaction, address_id, addressMasterCode, action_by, datetime)
             }
         }
-
         for (const address of body.addressDelete) {
-            let addressResult = await transaction.request()
-                .input('person_id', sql.INT, person_id)
-                .input('address_id', sql.INT, address)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.unlinkAddressPerson(transaction, address, person_id, action_by, datetime)
         }
         for (const address of body.addressExist) {
-            let addressResult = await transaction.request()
-                .input('person_id', sql.INT, person_id)
-                .input('address_id', sql.INT, address)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.linkAddressPerson(transaction, address, person_id, action_by, datetime)
         }
 
         for (const card of body.cardNew) {
-            let cardResult = await transaction.request()
-                .input('card_code_id', sql.INT, card.card_code_id)
-                .input('value', sql.NVARCHAR, card.value)
-                .input('person_id', sql.INT, person_id)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.createCardNew(transaction, card, person_id, action_by, datetime)
         }
-
         for (const card of body.cardDelete) {
-            let cardResult = await transaction.request()
-                .input('card_id', sql.INT, card)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
-                `)
+            await operation.deleteCard(transaction, card, action_by, datetime)
         }
 
         for (let i = 0; i < files.length; i++) {
             // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            let documentResult = await transaction.request()
-                .input('document_code_id', sql.INT, body.documentCodeNew[i])
-                .input('customer_id', sql.INT, null)
-                .input('person_id', sql.INT, person_id)
-                .input('address_id', sql.INT, null)
-                .input('vehicle_id', sql.INT, null)
-                .input('document_name', sql.NVARCHAR, files[i].originalname)
-                .input('value', sql.VARBINARY, files[i].buffer)
-                .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
-                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
-                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+                null, person_id, null, null, action_by, datetime)
         }
 
         for (const document of body.documentDelete) {
-            let documentResult = await transaction.request()
-                .input('document_id', sql.INT, document)
-                .input('action_by', sql.INT, body.update_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.deleteDocument(transaction, document, action_by, datetime)
         }
 
         await transaction.commit();
