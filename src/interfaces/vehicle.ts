@@ -11,7 +11,7 @@ export interface Vehicle {
     vehicle_type_code_id: number;
 }
 
-interface VehicleConfig {
+export interface VehicleConfig {
     oil_lite: number;
     kilo_rate: number;
     max_speed: number;
@@ -30,7 +30,7 @@ interface VehicleConfig {
     fuel_status: boolean;
 }
  
-interface VehiclePermit {
+export interface VehiclePermit {
     dlt: boolean,
     tls: boolean,
     scgl: boolean,
