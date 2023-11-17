@@ -4,7 +4,7 @@ export interface Device {
     create_date: string,
 }
 
-interface DeviceConfig {
+export interface DeviceConfig {
     config_name: string;
     software_version: string;
     ip_address: string;
