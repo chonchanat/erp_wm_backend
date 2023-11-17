@@ -126,3 +126,14 @@ export async function linkAddressMasterCode(transaction: any, address_id: string
         @action_by = @action_by, @action_by = @action_by
     `)
 }
+export async function unlinkAddressMasterCode(transaction: any, address_id: string | number, address_type_code_id: string | number, action_by: string | number, datetime: object) {
+    return await transaction.request()
+        .input('address_id', sql.INT, address_id)
+        .input('address_type_code_id', sql.INT, address_type_code_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+                @action_by = @action_by, @action_date = @action_date
+        `)
+}

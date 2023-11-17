@@ -3,6 +3,8 @@ const sql = require('mssql')
 import { getDateTime } from "../utils";
 import { AddressType } from "../interfaces/address"
 
+import * as operation from "../operation/index"
+
 async function getAddressTable(index: number, filterLocation: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -44,11 +46,11 @@ async function getAddressTable(index: number, filterLocation: string) {
     }
 }
 
-async function getAddressData(addressId: string) {
+async function getAddressData(address_id: string) {
     try {
         let pool = await sql.connect(devConfig)
         let result = await pool.request()
-            .input('address_id', sql.INT, addressId)
+            .input('address_id', sql.INT, address_id)
             .query(`
                 SELECT
                     COALESCE(A.name, '') AS name,
@@ -86,61 +88,23 @@ async function createAddressData(body: AddressType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig)
         transaction = pool.transaction();
         await transaction.begin();
 
-        let addressResult = await transaction.request()
-            .input('name', sql.NVARCHAR, body.address.name === "" ? null : body.address.name)
-            .input('house_no', sql.NVARCHAR, body.address.house_no === "" ? null : body.address.house_no)
-            .input('village_no', sql.NVARCHAR, body.address.village_no === "" ? null : body.address.village_no)
-            .input('alley', sql.NVARCHAR, body.address.alley === "" ? null : body.address.alley)
-            .input('road', sql.NVARCHAR, body.address.road === "" ? null : body.address.road)
-            .input('sub_district', sql.NVARCHAR, body.address.sub_district === "" ? null : body.address.sub_district)
-            .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
-            .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
-            .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
-                    @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                    @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
-            `)
+        let addressResult = await operation.createAddressNew(transaction, body.address, action_by, datetime)
         let address_id = addressResult.recordset[0].address_id
 
-        for (const addressType of body.address.address_type_code_id) {
-            let addressMasterCodeResult = await transaction.request()
-                .input('address_id', sql.INT, address_id)
-                .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+        for (const addressMasterCode of body.address.address_type_code_id) {
+            await operation.linkAddressMasterCode(transaction, address_id, addressMasterCode, action_by, datetime)
         }
 
         for (let i = 0; i < files.length; i++) {
             // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            let documentResult = await transaction.request()
-                .input('document_code_id', sql.INT, body.documentCodeNew[i])
-                .input('customer_id', sql.INT, null)
-                .input('person_id', sql.INT, null)
-                .input('address_id', sql.INT, address_id)
-                .input('vehicle_id', sql.INT, null)
-                .input('document_name', sql.NVARCHAR, files[i].originalname)
-                .input('value', sql.VARBINARY, files[i].buffer)
-                .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
-                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
-                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+                null, null, address_id, null, action_by, datetime)
         }
 
         transaction.commit();
@@ -151,87 +115,32 @@ async function createAddressData(body: AddressType, files: any) {
     }
 }
 
-async function updateAddressData(addressId: string, body: AddressType, files: any) {
+async function updateAddressData(address_id: string, body: AddressType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig)
         transaction = pool.transaction();
         await transaction.begin();
 
-        let addressResult = await transaction.request()
-            .input('address_id', sql.INT, addressId)
-            .input('name', sql.NVARCHAR, body.address.name === "" ? null : body.address.name)
-            .input('house_no', sql.NVARCHAR, body.address.house_no === "" ? null : body.address.house_no)
-            .input('village_no', sql.NVARCHAR, body.address.village_no === "" ? null : body.address.village_no)
-            .input('alley', sql.NVARCHAR, body.address.alley === "" ? null : body.address.alley)
-            .input('road', sql.NVARCHAR, body.address.road === "" ? null : body.address.road)
-            .input('sub_district', sql.NVARCHAR, body.address.sub_district === "" ? null : body.address.sub_district)
-            .input('district', sql.NVARCHAR, body.address.district === "" ? null : body.address.district)
-            .input('province', sql.NVARCHAR, body.address.province === "" ? null : body.address.province)
-            .input('postal_code', sql.NVARCHAR, body.address.postal_code === "" ? null : body.address.postal_code)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
-                    @village_no = @village_no, @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
-                    @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateAddress(transaction, address_id, body.address, action_by, datetime)
 
-        for (const addressType of body.address.address_type_code_idDelete) {
-            let addressMasterCodeResult = await transaction.request()
-                .input('address_id', sql.INT, addressId)
-                .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+        for (const addressMasterCode of body.address.address_type_code_idDelete) {
+            await operation.unlinkAddressMasterCode(transaction, address_id, addressMasterCode, action_by, datetime)
         }
-
-        for (const addressType of body.address.address_type_code_id) {
-            let addressMasterCodeResult = await transaction.request()
-                .input('address_id', sql.INT, addressId)
-                .input('address_type_code_id', sql.INT, addressType)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+        for (const addressMasterCode of body.address.address_type_code_id) {
+            await operation.linkAddressMasterCode(transaction, address_id, addressMasterCode, action_by, datetime)
         }
 
         for (let i = 0; i < files.length; i++) {
             // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            let documentResult = await transaction.request()
-                .input('document_code_id', sql.INT, body.documentCodeNew[i])
-                .input('customer_id', sql.INT, null)
-                .input('person_id', sql.INT, null)
-                .input('address_id', sql.INT, addressId)
-                .input('vehicle_id', sql.INT, null)
-                .input('document_name', sql.NVARCHAR, files[i].originalname)
-                .input('value', sql.VARBINARY, files[i].buffer)
-                .input('create_date', sql.DATETIME, datetime)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
-                        @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
-                        @document_name = @document_name, @value = @value, @create_date = @create_date, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+                null, null, address_id, null, action_by, datetime)
         }
-
         for (const document of body.documentDelete) {
-            let documentResult = await transaction.request()
-                .input('document_id', sql.INT, document)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.deleteDocument(transaction, document, action_by, datetime)
         }
 
         transaction.commit();
@@ -243,12 +152,12 @@ async function updateAddressData(addressId: string, body: AddressType, files: an
     }
 }
 
-async function deleteAddress(addressId: string, body: any) {
+async function deleteAddress(address_id: string, body: any) {
     try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
-            .input('address_id', sql.INT, addressId)
+            .input('address_id', sql.INT, address_id)
             .input('action_by', sql.INT, body.action_by)
             .input('action_date', sql.DATETIME, datetime)
             .query(`

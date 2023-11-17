@@ -209,13 +209,7 @@ async function updatePersonDate(person_id: string, body: PersonType, files: any)
         }
 
         for (const contact of body.contactDelete) {
-            let contactResult = await transaction.request()
-                .input('contact_id', sql.INT, contact)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.deleteContact(transaction, contact, action_by, datetime)
         }
         for (const contact of body.contactNew) {
             await operation.createContactNew(transaction, contact, person_id, null, action_by, datetime)

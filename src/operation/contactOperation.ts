@@ -13,3 +13,13 @@ export async function createContactNew(transaction: any, contact: any, person_id
             @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
     `)
 }
+
+export async function deleteContact(transaction: any, contact_id: string | number, action_by: string | number, datetime: object) {
+    return await transaction.request()
+        .input('contact_id', sql.INT, contact_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_contact @contact_id = @contact_id, @action_by = @action_by, @action_date = @action_date
+        `)
+}
