@@ -3,6 +3,8 @@ import { ContactType } from "../interfaces/contact"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
+import * as operation from "../operation/index"
+
 async function getContactTable(index: number, filterValue: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -68,7 +70,7 @@ async function getContactData(contactId: string) {
 }
 
 async function deleteContact(contactId: string, body: any) {
-    try { 
+    try {
         let datetime = getDateTime();
         let pool = await sql.connect(devConfig);
         let result = await pool.request()
@@ -88,21 +90,12 @@ async function createContactData(body: ContactType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let contactResult = await transaction.request()
-            .input('contact_code_id', sql.INT, body.contact.contact_code_id)
-            .input('person_id', sql.INT, body.contact.person_id)
-            .input('customer_id', sql.INT, body.contact.customer_id)
-            .input('value', sql.NVARCHAR, body.contact.value)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_insert_contact @contact_code_id = @contact_code_id, @person_id = @person_id, 
-                    @customer_id = @customer_id, @value = @value, @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.createContactNew(transaction, body.contact, body.contact.person_id, body.contact.customer_id, action_by, datetime)
 
         await transaction.commit();
 
@@ -116,23 +109,12 @@ async function updateContactData(contact_id: string, body: ContactType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let contactResult = await transaction.request()
-            .input('contact_id', sql.INT, contact_id)
-            .input('contact_code_id', sql.INT, body.contact.contact_code_id)
-            .input('person_id', sql.INT, body.contact.person_id)
-            .input('customer_id', sql.INT, body.contact.customer_id)
-            .input('value', sql.NVARCHAR, body.contact.value)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_contact @contact_id = @contact_id, @contact_code_id = @contact_code_id, 
-                @person_id = @person_id, @customer_id = @customer_id, @value = @value, 
-                @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateContact(transaction, contact_id, body.contact, body.contact.person_id, body.contact.customer_id, action_by, datetime)
 
         await transaction.commit();
 
