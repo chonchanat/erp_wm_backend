@@ -1,3 +1,7 @@
+import { Customers } from "./customer";
+import { Persons } from "./person";
+import { Fleet } from "./fleet";
+
 export interface Vehicle {
     frame_no: number;
     license_plate: string;
@@ -42,10 +46,15 @@ export interface VehicleType {
     vehicle: Vehicle,
     vehicleConfig: VehicleConfig,
     vehiclePermit: VehiclePermit,
+    customerNew: Customers[],
     customerDelete: number[],
     customerExist: number[],
+    personNew: Persons[],
     personDelete: number[],
     personExist: number[],
+    fleetNew: Fleet[],
+    fleetDelete: number[],
+    fleetExist: number[],
     documentDelete: number[],
     documentCodeNew: number[],
 }

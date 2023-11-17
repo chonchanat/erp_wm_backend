@@ -63,6 +63,16 @@ async function getVehicleData(vehicle_id: string) {
                 EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
 
+                DECLARE @fleetTable IdType
+                INSERT INTO @fleetTable
+                EXEC DevelopERP_Clear..sp_filterFleet @fleet_name = '%', @customer_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
+
+                DECLARE @documentTable IdType
+                INSERT INTO @documentTable
+                EXEC DevelopERP_Clear..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
+                    @address_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
                 `)
 
         return {
@@ -71,6 +81,8 @@ async function getVehicleData(vehicle_id: string) {
             vehiclePermit: result.recordsets[2][0],
             customer: result.recordsets[3],
             person: result.recordsets[4],
+            fleet: result.recordsets[5],
+            document: result.recordsets[6],
         }
     } catch (err) {
         console.log(err)
@@ -111,12 +123,40 @@ async function createVehicleData(body: VehicleType, files: any) {
         await operation.createVehicleConfig(transaction, vehicle_id, body.vehicleConfig, action_by, datetime)
         await operation.createVehiclePermit(transaction, vehicle_id, body.vehiclePermit, action_by, datetime)
 
+        for (const customer of body.customerNew) {
+            let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
+            let customer_id = customerResult.recordset[0].customer_id
+
+            await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
+            for (const contact of customer.contactNew) {
+                await operation.createContactNew(transaction, contact, null, customer_id, action_by, datetime)
+            }
+        }
         for (const customer of body.customerExist) {
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer, action_by, datetime)
         }
 
+        for (const person of body.personNew) {
+            let personResult = await operation.createPersonNew(transaction, person.person, action_by, datetime)
+            let person_id = personResult.recordset[0].person_id
+
+            await operation.linkVehiclePerson(transaction, vehicle_id, person_id, action_by, datetime)
+            for (const contact of person.contactNew) {
+                await operation.createContactNew(transaction, contact, person_id, null, action_by, datetime)
+            }
+        }
         for (const person of body.personExist) {
             await operation.linkVehiclePerson(transaction, vehicle_id, person, action_by, datetime)
+        }
+
+        for (const fleet of body.fleetNew) {
+            let fleetResult = await operation.createFleetNew(transaction, fleet, action_by, datetime)
+            let fleet_id = fleetResult.recordset[0].fleet_id
+
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
+        }
+        for (const fleet of body.fleetExist) {
+            await operation.linkFleetVehicle(transaction, fleet, vehicle_id, action_by, datetime)
         }
 
         for (let i = 0; i < files.length; i++) {
@@ -148,6 +188,15 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
         await operation.updateVehicleConfig(transaction, vehicle_id, body.vehicleConfig, action_by, datetime)
         await operation.updateVehiclePermit(transaction, vehicle_id, body.vehiclePermit, action_by, datetime)
 
+        for (const customer of body.customerNew) {
+            let customerResult = await operation.createCustomerNew(transaction, customer.customer, action_by, datetime)
+            let customer_id = customerResult.recordset[0].customer_id
+
+            await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
+            for (const contact of customer.contactNew) {
+                await operation.createContactNew(transaction, contact, null, customer_id, action_by, datetime)
+            }
+        }
         for (const customer of body.customerDelete) {
             await operation.unlinkVehicleCustomer(transaction, vehicle_id, customer, action_by, datetime)
         }
@@ -155,11 +204,33 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer, action_by, datetime)
         }
 
+        for (const person of body.personNew) {
+            let personResult = await operation.createPersonNew(transaction, person.person, action_by, datetime)
+            let person_id = personResult.recordset[0].person_id
+
+            await operation.linkVehiclePerson(transaction, vehicle_id, person_id, action_by, datetime)
+            for (const contact of person.contactNew) {
+                await operation.createContactNew(transaction, contact, person_id, null, action_by, datetime)
+            }
+        }
         for (const person of body.personDelete) {
             await operation.unlinkVehiclePerson(transaction, vehicle_id, person, action_by, datetime)
         }
         for (const person of body.personExist) {
             await operation.linkVehiclePerson(transaction, vehicle_id, person, action_by, datetime)
+        }
+
+        for (const fleet of body.fleetNew) {
+            let fleetResult = await operation.createFleetNew(transaction, fleet, action_by, datetime)
+            let fleet_id = fleetResult.recordset[0].fleet_id
+
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
+        }
+        for (const fleet of body.fleetExist) {
+            await operation.linkFleetVehicle(transaction, fleet, vehicle_id, action_by, datetime)
+        }
+        for (const fleet of body.fleetDelete) {
+            await operation.unlinkFleetVehicle(transaction, fleet, vehicle_id, action_by, datetime)
         }
 
         for (let i = 0; i < files.length; i++) {
@@ -168,7 +239,6 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
             await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
                 null, null, null, vehicle_id, action_by, datetime)
         }
-
         for (const document of body.documentDelete) {
             await operation.deleteDocument(transaction, document, action_by, datetime)
         }
