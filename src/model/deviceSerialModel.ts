@@ -3,6 +3,8 @@ import { DeviceSerialType } from "../interfaces/deviceSerial"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
+import * as operation from "../operation/index"
+
 async function getDeviceSerialTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -76,23 +78,12 @@ async function createDeviceSerialData(body: DeviceSerialType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let deviceSerialResult = await transaction.request()
-            .input('serial_id', sql.NVARCHAR, body.deviceSerial.serial_id)
-            .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
-            .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
-            .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
-            .input('create_date', sql.DATETIME, datetime)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
-                    @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
-                    @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.createDeviceSerialNew(transaction, body.deviceSerial, action_by, datetime)
 
         await transaction.commit();
     } catch (err) {
@@ -105,25 +96,12 @@ async function updateDeviceSerialData(device_serial_id: string, body: DeviceSeri
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let deviceSerialResult = await transaction.request()
-            .input('device_serial_id', sql.INT, device_serial_id)
-            .input('serial_id', sql.NVARCHAR, body.deviceSerial.serial_id)
-            .input('imei_serial', sql.NVARCHAR, body.deviceSerial.imei_serial)
-            .input('dvr_id', sql.NVARCHAR, body.deviceSerial.dvr_id)
-            .input('device_type_code_id', sql.INT, body.deviceSerial.device_type_code_id)
-            .input('create_date', sql.DATETIME, body.deviceSerial.create_date)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
-                @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
-                @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
-                @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateDeviceSerial(transaction, device_serial_id, body.deviceSerial, action_by, datetime)
 
         await transaction.commit();
     } catch (err) {
