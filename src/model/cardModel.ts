@@ -3,6 +3,8 @@ import { CardType } from "../interfaces/card";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")
 
+import * as operation from "../operation/index"
+
 async function getCardTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig);
@@ -82,20 +84,12 @@ async function createCardData(body: CardType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
         await transaction.begin();
 
-        let cardResult = await transaction.request()
-            .input('card_code_id', sql.INT, body.card.card_code_id)
-            .input('value', sql.NVARCHAR, body.card.value)
-            .input('person_id', sql.INT, body.card.person_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
-                    @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.createCardNew(transaction, body.card, body.card.person_id, action_by, datetime)
 
         await transaction.commit();
 
@@ -110,23 +104,13 @@ async function updateCardData(card_id: string, body: CardType) {
     let transaction;
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
 
         await transaction.begin();
 
-        let cardResult = await transaction.request()
-            .input('card_id', sql.INT, card_id)
-            .input('card_code_id', sql.INT, body.card.card_code_id)
-            .input('value', sql.NVARCHAR, body.card.value)
-            .input('person_id', sql.INT, body.card.person_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 
-                    @value = @value, @person_id = @person_id,
-                    @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.updateCard(transaction, card_id, body.card, body.card.person_id, action_by, datetime)
 
         await transaction.commit();
 
