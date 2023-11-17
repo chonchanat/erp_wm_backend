@@ -1,5 +1,6 @@
 import { Customers } from "./customer";
 import { Persons } from "./person"; 
+import { Vehicle } from "./vehicle";
 
 export interface Fleet {
     fleet_name: string;
@@ -15,6 +16,7 @@ export interface FleetType {
     personNew: Persons[],
     personDelete: number[],
     personExist: number[],
+    vehicleNew: Vehicle[],
     vehicleDelete: number[],
     vehicleExist: number[],
 }

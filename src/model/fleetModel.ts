@@ -127,16 +127,14 @@ async function createFleetData(body: FleetType) {
             await operation.linkFleetPerson(transaction, fleet_id, person, action_by, datetime)
         }
       
+        for (const vehicle of body.vehicleNew) {
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicle_id = vehicleResult.recordset[0].vehicle_id
+
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
+        }
         for (const vehicle of body.vehicleExist) {
-            let vehicleResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleet_id)
-                .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle, action_by, datetime)
         }
 
         await transaction.commit();
@@ -190,27 +188,17 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
             await operation.linkFleetPerson(transaction, fleet_id, person, action_by, datetime)
         }
 
+        for (const vehicle of body.vehicleNew) {
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicle_id = vehicleResult.recordset[0].vehicle_id
+
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
+        }
         for (const vehicle of body.vehicleDelete) {
-            let vehicleDeleteResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleet_id)
-                .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_delete_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.unlinkFleetVehicle(transaction, fleet_id, vehicle, action_by, datetime)
         }
         for (const vehicle of body.vehicleExist) {
-            let vehicleResult = await transaction.request()
-                .input('fleet_id', sql.INT, fleet_id)
-                .input('vehicle_id', sql.INT, vehicle)
-                .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
-                .query(`
-                    EXEC DevelopERP_Clear..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
-                        @action_by = @action_by, @action_date = @action_date
-                `)
+            await operation.linkFleetVehicle(transaction, fleet_id, vehicle, action_by, datetime)
         }
 
         await transaction.commit();
