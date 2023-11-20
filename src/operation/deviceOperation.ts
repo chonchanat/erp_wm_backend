@@ -1,6 +1,58 @@
 const sql = require('mssql')
 import { Device, DeviceConfig } from "../interfaces/device"
 
+export async function getDeviceTable(transaction: any, index: number, filter: string) {
+    return await transaction.request()
+        .input('device_id', sql.NVARCHAR, "%" + filter + "%")
+        .input('firstIndex', sql.INT, index)
+        .input('lastIndex', sql.INT, index + 9)
+        .query(`
+
+            DECLARE @deviceTable IdType
+            INSERT INTO @deviceTable
+            EXEC DevelopERP_Clear..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
+            
+            --EXEC DevelopERP_Clear..sp_filter_format_deviceTable 
+            --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
+
+            SELECT COUNT(*) AS count_data 
+            FROM DevelopERP_Clear..Device
+            WHERE device_id LIKE @device_id AND active = 1    
+        `)
+}
+
+export async function getDeviceData(transaction: any, device_id: string) {
+    return await transaction.request()
+        .input('device_id', sql.INT, device_id)
+        .query(`
+            SELECT device_id, veh_id, create_date
+            FROM DevelopERP_Clear..Device
+            WHERE device_id = @device_id
+
+            DECLARE @deviceSerialTable IdType
+            INSERT INTO @deviceSerialTable 
+            EXEC DevelopERP_Clear..sp_filterDeviceSerial @serial_id = '%', @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = 1
+
+            SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
+            FROM DevelopERP_Clear..DeviceConfig DC
+            LEFT JOIN DevelopERP_Clear..MasterCode M_simtype
+            ON DC.sim_type_code_id = M_simtype.code_id
+            WHERE device_id = @device_id
+        `)
+}
+
+export async function deleteDevice(transaction: any, device_id: string, action_by: number, datetime: object) {
+    return await transaction.request()
+        .input('device_id', sql.INT, device_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_device @device_id = @device_id, @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
 export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('veh_id', sql.INT, device.veh_id)
