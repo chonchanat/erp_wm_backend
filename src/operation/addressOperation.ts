@@ -1,8 +1,8 @@
 const sql = require('mssql')
 import { Address } from "../interfaces/address"
 
-export async function getAddressTable(pool: any, index: number, filter: string) {
-    return await pool.request()
+export async function getAddressTable(transaction: any, index: number, filter: string) {
+    return await transaction.request()
         .input('location', sql.NVARCHAR, "%" + filter + "%")
         .input('firstIndex', sql.INT, index)
         .input('lastIndex', sql.INT, index + 9)
@@ -31,8 +31,8 @@ export async function getAddressTable(pool: any, index: number, filter: string) 
         `)
 }
 
-export async function getAddressData(pool: any, address_id: string) {
-    return await pool.request()
+export async function getAddressData(transaction: any, address_id: string) {
+    return await transaction.request()
         .input('address_id', sql.INT, address_id)
         .query(`
             SELECT
@@ -99,8 +99,8 @@ export async function updateAddress(transaction: any, address_id: string | numbe
         `)
 }
 
-export async function deleteAddressData(pool: any, address_id: string, action_by: number, datetime: object) {
-    return await pool.request()
+export async function deleteAddressData(transaction: any, address_id: string, action_by: number, datetime: object) {
+    return await transaction.request()
         .input('address_id', sql.INT, address_id)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
@@ -109,8 +109,8 @@ export async function deleteAddressData(pool: any, address_id: string, action_by
         `)
 }
 
-export async function getAddressProvince(pool: any) {
-    return await pool.request()
+export async function getAddressProvince(transaction: any) {
+    return await transaction.request()
         .query(`
             SELECT DISTINCT province_th
             FROM DevelopERP_Clear..AddressModel
@@ -118,8 +118,8 @@ export async function getAddressProvince(pool: any) {
         `)
 }
 
-export async function getAddressDistrict(pool: any, province: string) {
-    return await pool.request()
+export async function getAddressDistrict(transaction: any, province: string) {
+    return await transaction.request()
         .input('province_th', sql.NVARCHAR, province)
         .query(`
             SELECT DISTINCT district_th
@@ -129,8 +129,8 @@ export async function getAddressDistrict(pool: any, province: string) {
         `)
 }
 
-export async function getAddressSubDistrict(pool: any, province: string, district: string) {
-    return await pool.request()
+export async function getAddressSubDistrict(transaction: any, province: string, district: string) {
+    return await transaction.request()
         .input('province_th', sql.NVARCHAR, province)
         .input('district_th', sql.NVARCHAR, district)
         .query(`

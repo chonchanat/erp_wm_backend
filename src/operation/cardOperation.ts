@@ -1,8 +1,8 @@
 const sql = require('mssql')
 import { Card } from "../interfaces/card"
 
-export async function getCardTable(pool: any, index: number, filter: string) {
-    return await pool.request()
+export async function getCardTable(transaction: any, index: number, filter: string) {
+    return await transaction.request()
         .input('value', sql.NVARCHAR, "%" + filter + "%")
         .input('firstIndex', sql.INT, index)
         .input('lastIndex', sql.INT, index + 9)
@@ -18,8 +18,8 @@ export async function getCardTable(pool: any, index: number, filter: string) {
         `)
 }
 
-export async function getCardData(pool: any, card_id: string) {
-    return await pool.request()
+export async function getCardData(transaction: any, card_id: string) {
+    return await transaction.request()
         .input('card_id', sql.INT, card_id)
         .query(`
             SELECT 

@@ -1,5 +1,54 @@
 const sql = require('mssql')
 
+export async function getContactTable(transaction: any, index: number, filter: string) {
+    return await transaction.request()
+        .input('firstIndex', sql.INT, index)
+        .input('lastIndex', sql.INT, index + 9)
+        .input('value', sql.NVARCHAR, "%" + filter + "%")
+        .query(`
+            DECLARE @contactTable IdType
+            INSERT INTO @contactTable
+            EXEC DevelopERP_Clear..sp_filterContact @value = @value, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatContactTable @contactTable = @contactTable, @firstIndex = @firstIndex
+
+            SELECT COUNT(*) AS count_data
+            FROM DevelopERP_Clear..Contact
+            WHERE value LIKE @value AND active = 1
+        `)
+}
+
+export async function getContactData(transaction: any, contact_id: string) {
+    return await transaction.request()
+        .input('contact_id', sql.INT, contact_id)
+        .query(`
+            SELECT 
+                ct.contact_id,
+                ct.value,
+                ct.contact_code_id,
+                m.value AS contact_type,
+                CASE
+                    WHEN ct.person_id IS NULL
+                    THEN c.customer_name
+                    WHEN ct.customer_id IS NULL
+                    THEN RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', ''))
+                END AS owner_name,
+                CASE
+                    WHEN ct.person_id IS NULL
+                    THEN 'ลูกค้า'
+                    WHEN ct.customer_id IS NULL
+                    THEN 'บุคคล'
+                END AS owner_type
+            FROM DevelopERP_Clear..Contact ct 
+            LEFT JOIN DevelopERP_Clear..Customer c
+            ON ct.customer_id = c.customer_id
+            LEFT JOIN DevelopERP_Clear..Person p
+            ON ct.person_id = p.person_id
+            LEFT JOIN DevelopERP_Clear..MasterCode m
+            ON ct.contact_code_id = m.code_id
+            WHERE ct.contact_id = @contact_id AND ct.active = 1
+        `)
+}
+
 export async function createContactNew(transaction: any, contact: any, person_id: string | number | null, customer_id: string | number | null, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('contact_code_id', sql.INT, contact.contact_code_id)
