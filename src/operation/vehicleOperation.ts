@@ -58,6 +58,11 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
             EXEC DevelopERP_Clear..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
                 @address_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
             EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+
+            DECLARE @packageHistoryTable IdType
+            INSERT INTO @packageHistoryTable
+            EXEC sp_filterInstallation @vehicle_id = @vehicle_id, @device_id = null, @firstIndex = 0, @lastIndex = 0
+            EXEC sp_formatInstallationTable @packageHistoryTable = @packageHistoryTable, @firstIndex = 1
             `)
 }
 

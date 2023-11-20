@@ -32,6 +32,7 @@ async function getVehicleData(vehicle_id: string) {
             person: result.recordsets[4],
             fleet: result.recordsets[5],
             document: result.recordsets[6],
+            installation: result.recordsets[7],
         }
     } catch (err) {
         console.log(err)
