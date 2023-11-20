@@ -1,6 +1,63 @@
 const sql = require('mssql')
 import { Address } from "../interfaces/address"
 
+export async function getAddressTable(pool: any, index: number, filter: string) {
+    return await pool.request()
+        .input('location', sql.NVARCHAR, "%" + filter + "%")
+        .input('firstIndex', sql.INT, index)
+        .input('lastIndex', sql.INT, index + 9)
+        .query(`
+            DECLARE @addressTable IdType
+            INSERT INTO @addressTable
+            EXEC DevelopERP_Clear..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
+
+            SELECT COUNT(*) AS count_data
+            FROM (
+                    SELECT 
+                        COALESCE(name + ', ', '') +
+                        COALESCE(house_no + ', ', '') +
+                        COALESCE('หมู่ที่ ' + village_no + ', ', '') + 
+                        COALESCE('ซอย' + alley + ', ', '') +
+                        COALESCE('ถนน' + road + ', ', '') + 
+                        COALESCE(sub_district + ', ', '') +
+                        COALESCE(district + ', ', '') +
+                        COALESCE(province + ', ', '') +
+                        COALESCE(postal_code , '') as location,
+                        active
+                    FROM DevelopERP_Clear..Address
+            ) t
+            WHERE location LIKE @location AND active = 1
+        `)
+}
+
+export async function getAddressData(pool: any, address_id: string) {
+    return await pool.request()
+        .input('address_id', sql.INT, address_id)
+        .query(`
+            SELECT
+                COALESCE(A.name, '') AS name,
+                COALESCE(A.house_no, '') AS house_no,
+                COALESCE(A.village_no, '') AS village_no,
+                COALESCE(A.alley, '') AS alley,
+                COALESCE(A.road, '') AS road,
+                COALESCE(A.sub_district, '') AS sub_district,
+                COALESCE(A.district, '') AS district,
+                COALESCE(A.province, '') AS province,
+                COALESCE(A.postal_code, '') AS postal_code
+            FROM DevelopERP_Clear..Address A
+            WHERE A.address_id = @address_id
+
+            SELECT
+                am.address_type_code_id,
+                m.value as address_type
+            FROM DevelopERP_Clear..Address_MasterCode am
+            LEFT JOIN DevelopERP_Clear..MasterCode m
+            ON am.address_type_code_id = m.code_id
+            WHERE am.address_id = @address_id
+        `)
+}
+
 export async function createAddressNew(transaction: any, address: Address, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('name', sql.NVARCHAR, address.name === "" ? null : address.name)
@@ -39,5 +96,47 @@ export async function updateAddress(transaction: any, address_id: string | numbe
             EXEC DevelopERP_Clear..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
                 @village_no = @village_no, @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                 @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
+export async function deleteAddressData(pool: any, address_id: string, action_by: number, datetime: object) {
+    return await pool.request()
+        .input('address_id', sql.INT, address_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_address @address_id = @address_id, @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
+export async function getAddressProvince(pool: any) {
+    return await pool.request()
+        .query(`
+            SELECT DISTINCT province_th
+            FROM DevelopERP_Clear..AddressModel
+            ORDER BY province_th
+        `)
+}
+
+export async function getAddressDistrict(pool: any, province: string) {
+    return await pool.request()
+        .input('province_th', sql.NVARCHAR, province)
+        .query(`
+            SELECT DISTINCT district_th
+            FROM DevelopERP_Clear..AddressModel
+            WHERE province_th LIKE @province_th
+            ORDER BY district_th
+        `)
+}
+
+export async function getAddressSubDistrict(pool: any, province: string, district: string) {
+    return await pool.request()
+        .input('province_th', sql.NVARCHAR, province)
+        .input('district_th', sql.NVARCHAR, district)
+        .query(`
+            SELECT DISTINCT address_model_id, sub_district_th, postal_code
+            FROM DevelopERP_Clear..AddressModel
+            WHERE province_th LIKE @province_th AND district_th LIKE @district_th
+            ORDER BY sub_district_th
         `)
 }
