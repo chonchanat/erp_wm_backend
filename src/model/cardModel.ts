@@ -8,20 +8,7 @@ import * as operation from "../operation/index"
 async function getCardTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('value', sql.NVARCHAR, "%" + filter + "%")
-            .input('firstIndex', sql.INT, index)
-            .input('lastIndex', sql.INT, index + 9)
-            .query(`
-                DECLARE @cardTable IdType
-                INSERT @cardTable
-                EXEC DevelopERP_Clear..sp_filterCard @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
-
-                SELECT COUNT(*) AS count_date
-                FROM Card
-                WHERE value LIKE @value AND active = 1
-            `)
+        let result = await operation.getCardTable(pool, index, filter);
 
         return {
             card: result.recordsets[0],
@@ -36,23 +23,7 @@ async function getCardTable(index: number, filter: string) {
 async function getCardData(card_id: string) {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('card_id', sql.INT, card_id)
-            .query(`
-                SELECT 
-                    C.card_id, 
-                    C.value, 
-                    C.card_code_id, 
-                    COALESCE(M.value, '-') AS card_type,
-                    'ลูกค้า' AS owner_type,
-                    RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '-')) AS owner_name
-                FROM Card C
-                LEFT JOIN Person P
-                ON C.person_id = p.person_id
-                LEFT JOIN MasterCode M
-                ON C.card_code_id = M.code_id
-                WHERE C.card_id = @card_id AND C.active = 1
-            `)
+        let result = await operation.getCardData(pool, card_id);
 
         return {
             card: result.recordsets[0][0]
@@ -66,14 +37,9 @@ async function getCardData(card_id: string) {
 async function deleteCardData(card_id: string, body: any) {
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('card_id', sql.INT, card_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.deleteCard(pool, card_id, action_by, datetime);
     } catch (err) {
         console.log(err);
         throw err;

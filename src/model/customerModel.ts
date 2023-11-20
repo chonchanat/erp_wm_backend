@@ -86,7 +86,7 @@ async function getCustomerData(customer_id: string) {
             address: result.recordsets[3],
             person: result.recordsets[4],
             vehicle: result.recordsets[5],
-            files: result.recordsets[6],
+            document: result.recordsets[6],
         };
     } catch (err) {
         throw err;
