@@ -8,20 +8,8 @@ import * as operation from "../operation/index"
 async function getVehicleTable(index: number, filter: string) {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('license_plate', sql.NVARCHAR, "%" + filter + "%")
-            .input('firstIndex', sql.INT, index)
-            .input('lastIndex', sql.INT, index + 9)
-            .query(`
-                DECLARE @vehicleTable IdType
-                INSERT INTO @vehicleTable 
-                EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-                EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
+        let result = await operation.getVehicleTable(pool, index, filter);
 
-                SELECT COUNT(*) AS count_data
-                FROM DevelopERP_Clear..Vehicle
-                WHERE license_plate LIKE @license_plate AND active = 1
-            `)
         return {
             vehicle: result.recordsets[0],
             count_data: result.recordsets[1][0].count_data
@@ -34,46 +22,7 @@ async function getVehicleTable(index: number, filter: string) {
 async function getVehicleData(vehicle_id: string) {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('vehicle_id', sql.INT, vehicle_id)
-            .query(`
-                SELECT vehicle_id, frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id
-                FROM DevelopERP_Clear..Vehicle
-                WHERE vehicle_id = @vehicle_id AND active = 1
-
-                SELECT 
-                    vehicle_config_id, vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, 
-                    max_fuel_voltage, max_fuel_voltage_2, max_fuel_voltage_3, max_fuel, max_fuel_2, max_fuel_3, 
-                    max_empty_voltage, max_empty_voltage_2, max_empty_voltage_3, fuel_status
-                FROM DevelopERP_Clear..VehicleConfig
-                WHERE vehicle_id = @vehicle_id
-
-                SELECT
-                    dlt, tls, scgl, diw
-                FROM DevelopERP_Clear..VehiclePermit
-                WHERE vehicle_id = @vehicle_id
-
-                DECLARE @customerTable IdType
-                INSERT INTO @customerTable
-                EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
-
-                DECLARE @personTable IdType
-                INSERT INTO @personTable
-                EXEC DevelopERP_Clear..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
-
-                DECLARE @fleetTable IdType
-                INSERT INTO @fleetTable
-                EXEC DevelopERP_Clear..sp_filterFleet @fleet_name = '%', @customer_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
-
-                DECLARE @documentTable IdType
-                INSERT INTO @documentTable
-                EXEC DevelopERP_Clear..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
-                    @address_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-                EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
-                `)
+        let result = await operation.getVehicleData(pool, vehicle_id);
 
         return {
             vehicle: result.recordsets[0][0],
@@ -93,14 +42,9 @@ async function getVehicleData(vehicle_id: string) {
 async function deleteVehicle(vehicle_id: string, body: any) {
     try {
         let datetime = getDateTime();
+        let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('vehicle_id', sql.INT, vehicle_id)
-            .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
-            .query(`
-                EXEC DevelopERP_Clear..sp_delete_vehicle @vehicle_id = @vehicle_id, @action_by = @action_by, @action_date = @action_date
-            `)
+        await operation.deleteVehicle(pool, vehicle_id, action_by, datetime);
 
     } catch (err) {
         console.log(err)
@@ -255,12 +199,7 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
 async function getVehicleBrand() {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .query(`
-                SELECT distinct brand
-                FROM DevelopERP_Clear..VehicleModel
-                ORDER BY brand
-            `)
+        let result = await operation.getVehicleBrand(pool);
 
         return {
             brands: result.recordsets[0]
@@ -274,14 +213,7 @@ async function getVehicleBrand() {
 async function getVehicleModel(brand: string) {
     try {
         let pool = await sql.connect(devConfig);
-        let result = await pool.request()
-            .input('brand', sql.NVARCHAR, brand)
-            .query(`
-                SELECT vehicle_model_id, model
-                FROM DevelopERP_Clear..VehicleModel
-                WHERE brand LIKE @brand
-                ORDER BY model
-            `)
+        let result = await operation.getVehicleModel(pool, brand);
 
         return {
             models: result.recordsets[0]
