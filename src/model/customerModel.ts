@@ -48,7 +48,7 @@ async function getCustomerData(customerId: string) {
                 
                 DECLARE @fleetTable IdType
                 INSERT INTO @fleetTable
-                EXEC DevelopERP_ForTesting2..sp_filterFleet @fleet_name = '%', @customer_id = @customer_id, @firstIndex = 0, @lastIndex = 0
+                EXEC DevelopERP_ForTesting2..sp_filterFleet @fleet_name = '%', @customer_id = @customer_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
                 EXEC DevelopERP_ForTesting2..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
 
                 DECLARE @contactTable IdType
