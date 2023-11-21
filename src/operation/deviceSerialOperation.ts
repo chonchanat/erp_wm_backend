@@ -32,6 +32,11 @@ export async function getDeviceSerialData(transaction: any, device_serial_id: st
             INSERT INTO @deviceTable
             EXEC DevelopERP_Clear..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
             EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
+
+            DECLARE @packageHistoryTable IdType
+            INSERT INTO @packageHistoryTable
+            EXEC sp_filterInstallation @vehicle_id = null, @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
+            EXEC sp_formatInstallationTable @packageHistoryTable = @packageHistoryTable, @firstIndex = 1
         `)
 }
 
