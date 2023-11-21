@@ -122,12 +122,12 @@ async function createDocumentData(body: DocumentType, files: any) {
                 .input('value', sql.VARBINARY, files[i].buffer)
                 .input('create_date', sql.DATETIME, datetime)
                 .input('action_by', sql.INT, body.action_by)
-                .input('action_date', sql.DATETIME, datetime)
+                .input('datetime', sql.DATETIME, datetime)
                 .query(`
                     EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
                         @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
                         @document_name = @document_name, @value = @value, @create_date = @create_date, 
-                        @action_by = @action_by, @action_date = @action_date
+                        @action_by = @action_by, @datetime = @datetime
                 `)
         }
 
@@ -174,9 +174,9 @@ async function deleteDocumentData(document_id: string, body: any) {
         let result = await pool.request()
             .input('document_id', sql.INT, document_id)
             .input('action_by', sql.INT, body.action_by)
-            .input('action_date', sql.DATETIME, datetime)
+            .input('datetime', sql.DATETIME, datetime)
             .query(`
-                EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+                EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @datetime = @datetime
             `)
     } catch (err) {
         console.log(err);
