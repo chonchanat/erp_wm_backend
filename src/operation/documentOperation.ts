@@ -9,12 +9,12 @@ export async function getDocumentTable(transaction: any, index: number, filter: 
         .query(`
             DECLARE @documentTable IdType
             INSERT INTO @documentTable
-            EXEC DevelopERP_Clear..sp_filterDocument @document_name = @document_name, @customer_id = NULL, @person_id = NULL, 
+            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = @document_name, @customer_id = NULL, @person_id = NULL, 
                 @address_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_Clear..Document
+            FROM DevelopERP_ForTesting2..Document
             WHERE document_name LIKE @document_name AND active = 1
         `)
 }
@@ -59,7 +59,7 @@ export async function getDocumentData(transaction: any, document_id: string) {
                         THEN COALESCE(V.license_plate, '-') + COALESCE(' (' + M_province.value + ')', '')
                     END
                 ) AS owner_name
-            FROM DevelopERP_Clear..Document D
+            FROM DevelopERP_ForTesting2..Document D
             LEFT JOIN Customer C
             ON D.customer_id = C.customer_id
             LEFT JOIN Person P
@@ -89,7 +89,7 @@ export async function createDocumentNew(transaction: any, document_code_id: stri
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
+        EXEC DevelopERP_ForTesting2..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
             @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
             @document_name = @document_name, @value = @value, @create_date = @create_date, 
             @action_by = @action_by, @action_date = @action_date
@@ -104,7 +104,7 @@ export async function updateDocument(transaction: any, document_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,
+            EXEC DevelopERP_ForTesting2..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,
                 @document_name = @document_name, @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -115,7 +115,7 @@ export async function deleteDocument(transaction: any, document_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_ForTesting2..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -125,7 +125,7 @@ export async function downloadDocument(transaction: any, document_id: string) {
         .query(`
             SELECT 
                 document_name, value
-            FROM DevelopERP_Clear..Document
+            FROM DevelopERP_ForTesting2..Document
             WHERE document_id = @document_id
         `)
 }

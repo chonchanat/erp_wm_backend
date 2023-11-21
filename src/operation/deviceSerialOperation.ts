@@ -9,11 +9,11 @@ export async function getDeviceSerialTable(transaction: any, index: number, filt
         .query(`
             DECLARE @deviceSerialTable IdType
             INSERT INTO @deviceSerialTable 
-            EXEC DevelopERP_Clear..sp_filterDeviceSerial @serial_id = @serial_id, @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterDeviceSerial @serial_id = @serial_id, @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_Clear..DeviceSerial
+            FROM DevelopERP_ForTesting2..DeviceSerial
             WHERE serial_id LIKE @serial_id AND active = 1
         `)
 }
@@ -23,15 +23,15 @@ export async function getDeviceSerialData(transaction: any, device_serial_id: st
         .input('device_serial_id', sql.NVARCHAR, device_serial_id)
         .query(`
             SELECT DS.device_serial_id, DS.serial_id, COALESCE(DS.imei_serial, '-') AS imei_serial, M.value AS box_type, DS.create_date
-            FROM DevelopERP_Clear..DeviceSerial DS
-            LEFT JOIN DevelopERP_Clear..MasterCode M
+            FROM DevelopERP_ForTesting2..DeviceSerial DS
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M
             ON DS.device_type_code_id = M.code_id
             WHERE DS.device_serial_id = @device_serial_id
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_Clear..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
+            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
         `)
 }
 
@@ -41,7 +41,7 @@ export async function deleteDeviceSerial(transaction: any, device_serial_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_deviceSerial @device_serial_id = @device_serial_id,
+            EXEC DevelopERP_ForTesting2..sp_delete_deviceSerial @device_serial_id = @device_serial_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -56,7 +56,7 @@ export async function createDeviceSerialNew(transaction: any, deviceSerial: Devi
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
+            EXEC DevelopERP_ForTesting2..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
                 @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
                 @action_by = @action_by, @action_date = @action_date
         `)
@@ -73,7 +73,7 @@ export async function updateDeviceSerial(transaction: any, device_serial_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
+            EXEC DevelopERP_ForTesting2..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
             @serial_id = @serial_id, @imei_serial = @imei_serial, @dvr_id = @dvr_id, 
             @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
             @action_by = @action_by, @action_date = @action_date

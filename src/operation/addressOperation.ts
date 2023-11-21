@@ -9,8 +9,8 @@ export async function getAddressTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @addressTable IdType
             INSERT INTO @addressTable
-            EXEC DevelopERP_Clear..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterAddress @location = @location, @customer_id = NULL, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
             FROM (
@@ -25,7 +25,7 @@ export async function getAddressTable(transaction: any, index: number, filter: s
                         COALESCE(province + ', ', '') +
                         COALESCE(postal_code , '') as location,
                         active
-                    FROM DevelopERP_Clear..Address
+                    FROM DevelopERP_ForTesting2..Address
             ) t
             WHERE location LIKE @location AND active = 1
         `)
@@ -45,14 +45,14 @@ export async function getAddressData(transaction: any, address_id: string) {
                 COALESCE(A.district, '') AS district,
                 COALESCE(A.province, '') AS province,
                 COALESCE(A.postal_code, '') AS postal_code
-            FROM DevelopERP_Clear..Address A
+            FROM DevelopERP_ForTesting2..Address A
             WHERE A.address_id = @address_id
 
             SELECT
                 am.address_type_code_id,
                 m.value as address_type
-            FROM DevelopERP_Clear..Address_MasterCode am
-            LEFT JOIN DevelopERP_Clear..MasterCode m
+            FROM DevelopERP_ForTesting2..Address_MasterCode am
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode m
             ON am.address_type_code_id = m.code_id
             WHERE am.address_id = @address_id
         `)
@@ -72,7 +72,7 @@ export async function createAddressNew(transaction: any, address: Address, actio
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
+            EXEC DevelopERP_ForTesting2..sp_insert_address @name = @name, @house_no = @house_no, @village_no = @village_no,
                 @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                 @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
         `)
@@ -93,7 +93,7 @@ export async function updateAddress(transaction: any, address_id: string | numbe
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
+            EXEC DevelopERP_ForTesting2..sp_update_address @address_id = @address_id, @name = @name, @house_no = @house_no,
                 @village_no = @village_no, @alley = @alley, @road = @road, @sub_district = @sub_district, @district = @district,
                 @province = @province, @postal_code = @postal_code, @action_by = @action_by, @action_date = @action_date
         `)
@@ -105,7 +105,7 @@ export async function deleteAddressData(transaction: any, address_id: string, ac
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_address @address_id = @address_id, @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_ForTesting2..sp_delete_address @address_id = @address_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -113,7 +113,7 @@ export async function getAddressProvince(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT DISTINCT province_th
-            FROM DevelopERP_Clear..AddressModel
+            FROM DevelopERP_ForTesting2..AddressModel
             ORDER BY province_th
         `)
 }
@@ -123,7 +123,7 @@ export async function getAddressDistrict(transaction: any, province: string) {
         .input('province_th', sql.NVARCHAR, province)
         .query(`
             SELECT DISTINCT district_th
-            FROM DevelopERP_Clear..AddressModel
+            FROM DevelopERP_ForTesting2..AddressModel
             WHERE province_th LIKE @province_th
             ORDER BY district_th
         `)
@@ -135,7 +135,7 @@ export async function getAddressSubDistrict(transaction: any, province: string, 
         .input('district_th', sql.NVARCHAR, district)
         .query(`
             SELECT DISTINCT address_model_id, sub_district_th, postal_code
-            FROM DevelopERP_Clear..AddressModel
+            FROM DevelopERP_ForTesting2..AddressModel
             WHERE province_th LIKE @province_th AND district_th LIKE @district_th
             ORDER BY sub_district_th
         `)
