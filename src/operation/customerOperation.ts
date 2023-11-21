@@ -24,9 +24,9 @@ export async function getCustomerData(transaction: any, customer_id: string) {
         .query(`
             SELECT C.customer_id, C.customer_name, C.sales_type_code_id, M_salestype.value AS sales_type, C.customer_type_code_id, M_customertype.value as customer_type
             FROM DevelopERP_ForTesting2..Customer C
-            INNER JOIN DevelopERP_ForTesting2..MasterCode M_salestype
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_salestype
             ON C.sales_type_code_id = M_salestype.code_id
-            INNER JOIN DevelopERP_ForTesting2..MasterCode M_customertype
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_customertype
             ON C.customer_type_code_id = M_customertype.code_id
             WHERE customer_id = @customer_id AND active = 1
             
