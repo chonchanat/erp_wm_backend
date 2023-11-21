@@ -87,12 +87,12 @@ export async function createDocumentNew(transaction: any, document_code_id: stri
         .input('value', sql.VARBINARY, value)
         .input('create_date', sql.DATETIME, datetime)
         .input('action_by', sql.INT, action_by)
-        .input('datetime', sql.DATETIME, datetime)
+        .input('action_date', sql.DATETIME, datetime)
         .query(`
         EXEC DevelopERP_Clear..sp_insert_document @document_code_id = @document_code_id, @customer_id = @customer_id,
             @person_id = @person_id, @address_id = @address_id, @vehicle_id = @vehicle_id,
             @document_name = @document_name, @value = @value, @create_date = @create_date, 
-            @action_by = @action_by, @datetime = @datetime
+            @action_by = @action_by, @action_date = @action_date
     `)
 }
 
@@ -102,10 +102,10 @@ export async function updateDocument(transaction: any, document_id: string | num
         .input('document_code_id', sql.INT, document.document_code_id)
         .input('document_name', sql.NVARCHAR, document.document_name)
         .input('action_by', sql.INT, action_by)
-        .input('datetime', sql.DATETIME, datetime)
+        .input('action_date', sql.DATETIME, datetime)
         .query(`
             EXEC DevelopERP_Clear..sp_update_document @document_id = @document_id, @document_code_id = @document_code_id,
-                @document_name = @document_name, @action_by = @action_by, @datetime = @datetime
+                @document_name = @document_name, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -113,9 +113,9 @@ export async function deleteDocument(transaction: any, document_id: string | num
     return await transaction.request()
         .input('document_id', sql.INT, document_id)
         .input('action_by', sql.INT, action_by)
-        .input('datetime', sql.DATETIME, datetime)
+        .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @datetime = @datetime
+            EXEC DevelopERP_Clear..sp_delete_document @document_id = @document_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
