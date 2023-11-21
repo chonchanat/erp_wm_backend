@@ -53,7 +53,7 @@ async function deleteCustomer(customer_id: string, body: any) {
     }
 }
 
-async function createCustomerData(body: CustomerType, files: any) {
+async function createCustomerData(body: any, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -222,9 +222,6 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
 
             await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
                 customer_id, null, null, null, action_by, datetime)
-        }
-        for (const document of body.documentDelete) {
-            await operation.deleteDocument(transaction, document, action_by, datetime)
         }
 
         await transaction.commit();
