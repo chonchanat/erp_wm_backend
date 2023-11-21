@@ -27,6 +27,7 @@ async function getDeviceSerialData(device_serial_id: string) {
         return {
             deviceSerial: result.recordsets[0][0],
             device: result.recordsets[1],
+            installation: result.recordsets[2],
         };
     } catch (err) {
         throw err;
