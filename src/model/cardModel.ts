@@ -76,7 +76,7 @@ async function updateCardData(card_id: string, body: CardType) {
 
         await transaction.begin();
 
-        await operation.updateCard(transaction, card_id, body.card, body.card.person_id, action_by, datetime)
+        await operation.updateCard(transaction, card_id, body.card, action_by, datetime)
 
         await transaction.commit();
 

@@ -71,7 +71,7 @@ async function updateContactData(contact_id: string, body: ContactType) {
         transaction = pool.transaction();
         await transaction.begin();
 
-        await operation.updateContact(transaction, contact_id, body.contact, body.contact.person_id, body.contact.customer_id, action_by, datetime)
+        await operation.updateContact(transaction, contact_id, body.contact, action_by, datetime)
 
         await transaction.commit();
 
