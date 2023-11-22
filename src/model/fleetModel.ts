@@ -19,6 +19,20 @@ async function getFleetTable(index: number, filter: string) {
     }
 }
 
+async function getFleetName() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getFleetName(pool);
+
+        return {
+            fleets: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 async function getFleetData(fleet_id: string) {
     try {
         let pool = await sql.connect(devConfig);
@@ -167,4 +181,4 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
     }
 }
 
-export default { getFleetTable, getFleetData, deleteFleet, createFleetData, updateFleetData }
+export default { getFleetTable, getFleetName, getFleetData, deleteFleet, createFleetData, updateFleetData }
