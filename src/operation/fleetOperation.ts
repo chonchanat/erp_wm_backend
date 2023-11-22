@@ -22,7 +22,7 @@ export async function getFleetName(transaction:any) {
     return await transaction.request()
         .query(`
             SELECT fleet_id, fleet_name
-            FROM DevelopERP_Clear..Fleet
+            FROM DevelopERP_ForTesting2..Fleet
             ORDER BY fleet_name
         `)
 }
