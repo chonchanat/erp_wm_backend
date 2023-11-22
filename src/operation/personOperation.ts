@@ -62,6 +62,17 @@ export async function getPersonData(transaction: any, person_id: string) {
             INSERT INTO @addressTable
             EXEC DevelopERP_Clear..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
             EXEC DevelopERP_Clear..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
+
+            DECLARE @documentTable IdType
+            INSERT INTO @documentTable
+            EXEC DevelopERP_Clear..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = @person_id, 
+                @address_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+
+            DECLARE @cardTable IdType
+            INSERT @cardTable
+            EXEC DevelopERP_Clear..sp_filterCard @value = '%', @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_formatCardTable @cardTable = @cardTable, @firstIndex = 1
         `)
 }
 

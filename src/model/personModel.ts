@@ -30,7 +30,9 @@ async function getPersonData(person_id: string) {
             },
             customer: result.recordsets[2],
             contact: result.recordsets[3],
-            address: result.recordsets[4]
+            address: result.recordsets[4],
+            document: result.recordsets[5],
+            card: result.recordsets[6],
         }
     } catch (err) {
         console.log(err)
