@@ -24,6 +24,17 @@ export async function getPersonTable(transaction: any, index: number, filter: st
         `)
 }
 
+export async function getPersonName(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT 
+                person_id, 
+                RTRIM(COALESCE(firstname + ' ', '') + COALESCE(lastname + ' ', '') + COALESCE('(' + nickname + ')', '')) AS fullname
+            FROM Person
+            ORDER BY fullname
+        `)
+}
+
 export async function getPersonData(transaction: any, person_id: string) {
     return await transaction.request()
         .input('person_id', sql.INT, person_id)

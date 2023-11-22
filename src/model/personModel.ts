@@ -18,6 +18,20 @@ async function getPersonTable(index: number, filter: string) {
     }
 }
 
+async function getPersonName() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getPersonName(pool);
+
+        return {
+            persons: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 async function getPersonData(person_id: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -201,4 +215,4 @@ async function updatePersonDate(person_id: string, body: PersonType, files: any)
     }
 }
 
-export default { getPersonTable, getPersonData, deletePerson, createPersonData, updatePersonDate }
+export default { getPersonTable, getPersonName, getPersonData, deletePerson, createPersonData, updatePersonDate }
