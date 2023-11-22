@@ -30,7 +30,7 @@ export async function getPersonName(transaction: any) {
             SELECT 
                 person_id, 
                 RTRIM(COALESCE(firstname + ' ', '') + COALESCE(lastname + ' ', '') + COALESCE('(' + nickname + ')', '')) AS fullname
-            FROM Person
+            FROM DevelopERP_ForTesting2..Person
             ORDER BY fullname
         `)
 }
