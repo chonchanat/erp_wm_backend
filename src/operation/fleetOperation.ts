@@ -18,6 +18,15 @@ export async function getFleetTable(transaction: any, index: number, filter: str
         `)
 }
 
+export async function getFleetName(transaction:any) {
+    return await transaction.request()
+        .query(`
+            SELECT fleet_id, fleet_name
+            FROM DevelopERP_Clear..Fleet
+            ORDER BY fleet_name
+        `)
+}
+
 export async function getFleetData(transaction: any, fleet_id: string) {
     return await transaction.request()
         .input('fleet_id', sql.INT, fleet_id)
