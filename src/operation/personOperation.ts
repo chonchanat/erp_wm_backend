@@ -39,7 +39,7 @@ export async function getPersonData(transaction: any, person_id: string) {
             FROM DevelopERP_Clear..Person p
             LEFT JOIN DevelopERP_Clear..MasterCode m
             on p.title_code_id = m.code_id
-            WHERE person_id = @person_id AND active = 1
+            WHERE person_id = @person_id AND p.active = 1
 
             SELECT 
                 role_code_id, value AS role_type
