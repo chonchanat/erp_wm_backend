@@ -39,7 +39,7 @@ export async function getPersonData(transaction: any, person_id: string) {
             FROM DevelopERP_ForTesting2..Person p
             LEFT JOIN DevelopERP_ForTesting2..MasterCode m
             on p.title_code_id = m.code_id
-            WHERE person_id = @person_id AND active = 1
+            WHERE person_id = @person_id AND p.active = 1
 
             SELECT 
                 role_code_id, value AS role_type
@@ -62,6 +62,17 @@ export async function getPersonData(transaction: any, person_id: string) {
             INSERT INTO @addressTable
             EXEC DevelopERP_ForTesting2..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
             EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
+
+            DECLARE @documentTable IdType
+            INSERT INTO @documentTable
+            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = @person_id, 
+                @address_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+
+            DECLARE @cardTable IdType
+            INSERT @cardTable
+            EXEC DevelopERP_ForTesting2..sp_filterCard @value = '%', @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_ForTesting2..sp_formatCardTable @cardTable = @cardTable, @firstIndex = 1
         `)
 }
 

@@ -9,7 +9,7 @@ export async function getCardTable(transaction: any, index: number, filter: stri
         .query(`
             DECLARE @cardTable IdType
             INSERT @cardTable
-            EXEC DevelopERP_ForTesting2..sp_filterCard @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_filterCard @value = @value, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
             EXEC DevelopERP_ForTesting2..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_date

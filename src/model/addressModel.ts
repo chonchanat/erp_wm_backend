@@ -29,7 +29,8 @@ async function getAddressData(address_id: string) {
             address: {
                 ...result.recordsets[0][0],
                 address_type: result.recordsets[1],
-            }
+            },
+            document: result.recordsets[2],
         };
     } catch (err) {
         throw err;

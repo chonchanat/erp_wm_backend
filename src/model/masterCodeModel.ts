@@ -1,44 +1,150 @@
+import { getDateTime } from "../utils"
+import { MasterCodeType, MasterCode } from "../interfaces/masterCode"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 
-function masterCodeQuery(categoryQuery: string, classQuery: string) {
-    return `
-        SELECT *
-        FROM DevelopERP_ForTesting2..MasterCode
-        WHERE category ${categoryQuery != "null" ? "LIKE '" + categoryQuery + "'" : "IS NULL"} AND class ${classQuery != "null" ? "LIKE '" + classQuery + "'" : "IS NULL"}
-    `
-}
-async function getMasterCode(body: any) {
+import * as operation from "../operation/index"
+
+async function getMasterCode(body: MasterCode) {
     try {
-        let query = ""
-
         let pool = await sql.connect(devConfig)
-        let request = await pool.request()
 
-        if (body.category === undefined && body.class === undefined) {
-            query += `
-                SELECT *
-                FROM DevelopERP_ForTesting2..MasterCode
-            `
-            const result = await request.query(query)
-            return result.recordsets[0]
-        } else if (typeof (body.category) === typeof ("")) {
-            request.input(`category`, sql.NVARCHAR, body.category)
-            request.input(`class`, sql.NVARCHAR, body.class)
-            query += masterCodeQuery(body.category, body.class)
-        } else {
+        let result = [];
+        if (typeof (body.category) !== typeof ([])) {
+            let temp = await operation.getMasterCode(pool, body.category as string, body.class as string)
+            result.push(temp.recordsets[0])
+
+        } else if (typeof (body.category) === typeof ([])) {
             for (let i = 0; i < body.category.length; i++) {
-                request.input(`category${i}`, sql.NVARCHAR, body.category[i])
-                request.input(`class${i}`, sql.NVARCHAR, body.class[i])
-                query += masterCodeQuery(body.category[i], body.class[i])
+                let temp = await operation.getMasterCode(pool, body.category[i], body.class[i])
+                result.push(temp.recordsets[0])
             }
         }
 
-        const result = await request.query(query)
-        return result.recordsets
+        return result
     } catch (err) {
         throw err
     }
 }
 
-export default { getMasterCode }
+async function getMasterCodeTable(index: number, filter: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getMasterCodeTable(pool, index, filter);
+
+        return {
+            masterCode: result.recordsets[0],
+            count_date: result.recordsets[1][0].count_data,
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getMasterCodeData(code_id: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getMasterCodeData(pool, code_id);
+
+        return {
+            masterCode: result.recordsets[0][0],
+        }
+
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function createMasterCodeData(body: MasterCodeType) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        await operation.createMasterCodeData(transaction, body.masterCode, action_by, datetime)
+
+        await transaction.commit();
+
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function updateMasterCodeData(code_id: string, body: MasterCodeType) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        await operation.updateMasterCodeData(transaction, code_id, body.masterCode, action_by, datetime)
+
+        await transaction.commit();
+        
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function deleteMasterCode(code_id: string, body: MasterCodeType) {
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        await operation.deleteMasterCode(pool, code_id, action_by, datetime);
+
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getMasterCodeCategory() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getMasterCodeCategory(pool);
+
+        return {
+            categories: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getMasterCodeClass(category: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getMasterCodeClass(pool, category);
+
+        return {
+            classes: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default {
+    getMasterCode,
+    getMasterCodeTable,
+    getMasterCodeData,
+    createMasterCodeData,
+    updateMasterCodeData,
+    deleteMasterCode,
+    getMasterCodeCategory,
+    getMasterCodeClass
+}

@@ -55,6 +55,12 @@ export async function getAddressData(transaction: any, address_id: string) {
             LEFT JOIN DevelopERP_ForTesting2..MasterCode m
             ON am.address_type_code_id = m.code_id
             WHERE am.address_id = @address_id
+
+            DECLARE @documentTable IdType
+            INSERT INTO @documentTable
+            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
+                @address_id = @address_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
         `)
 }
 
