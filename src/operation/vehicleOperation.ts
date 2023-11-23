@@ -35,9 +35,13 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
     return await transaction.request()
         .input('vehicle_id', sql.INT, vehicle_id)
         .query(`
-            SELECT vehicle_id, frame_no, license_plate, vehicle_model_id, registration_province_code_id, registration_type_code_id, driving_license_type_code_id, number_of_axles, number_of_wheels, number_of_tires, vehicle_type_code_id
-            FROM DevelopERP_ForTesting2..Vehicle
-            WHERE vehicle_id = @vehicle_id AND active = 1
+            SELECT V.vehicle_id, V.frame_no, V.license_plate, VM.brand AS brand_name, VM.model AS model_name, V.vehicle_model_id, 
+                V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id, 
+                V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id
+            FROM DevelopERP_ForTesting2..Vehicle V
+            LEFT JOIN DevelopERP_ForTesting2..VehicleModel VM
+            ON V.vehicle_model_id = VM.vehicle_model_id
+            WHERE vehicle_id = @vehicle_id AND V.active = 1
 
             SELECT 
                 vehicle_config_id, vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, 

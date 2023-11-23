@@ -1,4 +1,4 @@
-import { getDateTime } from "../utils"
+import { getDateTime, vehicleConfigDefault, vehiclePermitDefault } from "../utils"
 // import { CustomerType } from "../interfaces/type";
 import { CustomerType } from "../interfaces/customer"
 
@@ -117,6 +117,9 @@ async function createCustomerData(body: any, files: any) {
         for (const vehicle of body.vehicleNew) {
             let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
+            
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
 
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
         }
@@ -208,6 +211,9 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
         for (const vehicle of body.vehicleNew) {
             let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
+
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
 
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
         }

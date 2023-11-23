@@ -1,6 +1,6 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
-import { getDateTime } from "../utils"
+import { getDateTime, vehicleConfigDefault, vehiclePermitDefault } from "../utils"
 import { FleetType } from "../interfaces/fleet";
 
 import * as operation from "../operation/index"
@@ -117,6 +117,9 @@ async function createFleetData(body: FleetType) {
             let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
             let vehicle_id = vehicleResult.recordset[0].vehicle_id
 
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
+
             await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
         }
         for (const vehicle of body.vehicleExist) {
@@ -177,6 +180,9 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
         for (const vehicle of body.vehicleNew) {
             let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
             let vehicle_id = vehicleResult.recordset[0].vehicle_id
+
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
 
             await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
         }
