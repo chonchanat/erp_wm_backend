@@ -26,8 +26,7 @@ async function getDeviceData(device_id: string) {
 
         return {
             device: result.recordsets[0][0],
-            deviceSerial: result.recordsets[1],
-            deviceConfig: result.recordsets[2][0],
+            deviceConfig: result.recordsets[1][0],
         }
     } catch (err) {
         throw err;

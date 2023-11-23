@@ -22,7 +22,13 @@ export async function getDeviceSerialData(transaction: any, device_serial_id: st
     return await transaction.request()
         .input('device_serial_id', sql.NVARCHAR, device_serial_id)
         .query(`
-            SELECT DS.device_serial_id, DS.serial_id, COALESCE(DS.imei_serial, '-') AS imei_serial, M.value AS box_type, DS.create_date
+            SELECT 
+                DS.device_serial_id, 
+                DS.serial_id, 
+                COALESCE(DS.imei_serial, '-') AS imei_serial,
+                DS.device_type_code_id,
+                M.value AS device_type, 
+                DS.create_date
             FROM DevelopERP_Clear..DeviceSerial DS
             LEFT JOIN DevelopERP_Clear..MasterCode M
             ON DS.device_type_code_id = M.code_id
