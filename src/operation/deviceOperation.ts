@@ -50,7 +50,7 @@ export async function deleteDevice(transaction: any, device_id: string, action_b
         `)
 }
 
-export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object | string) {
+export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('veh_id', sql.INT, device.veh_id)
         .input('device_serial_id', sql.INT, device.device_serial_id)
@@ -63,7 +63,7 @@ export async function createDeviceNew(transaction: any, device: Device, action_b
         `)
 }
 
-export async function createDeviceConfigNew(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object | string) {
+export async function createDeviceConfigNew(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('config_name', sql.NVARCHAR, deviceConfig.config_name)
@@ -90,7 +90,7 @@ export async function createDeviceConfigNew(transaction: any, device_id: string 
         `)
 }
 
-export async function updateDevice(transaction: any, device_id: string | number, device: Device, action_by: string | number, datetime: object | string) {
+export async function updateDevice(transaction: any, device_id: string | number, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('veh_id', sql.INT, device.veh_id)
@@ -105,7 +105,7 @@ export async function updateDevice(transaction: any, device_id: string | number,
         `)
 }
 
-export async function updateDeviceConfig(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object | string) {
+export async function updateDeviceConfig(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('config_name', sql.NVARCHAR, deviceConfig.config_name)
