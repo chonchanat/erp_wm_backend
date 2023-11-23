@@ -26,9 +26,11 @@ export async function getDeviceData(transaction: any, device_id: string) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .query(`
-            SELECT device_id, veh_id, device_serial_id, create_date
-            FROM DevelopERP_ForTesting2..Device
-            WHERE device_id = @device_id
+            SELECT D.device_id, D.veh_id, D.device_serial_id, DS.serial_id, D.create_date
+            FROM DevelopERP_ForTesting2..Device D
+            LEFT JOIN DevelopERP_ForTesting2..DeviceSerial DS
+            ON D.device_serial_id = DS.device_serial_id
+            WHERE D.device_id = @device_id
 
             SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
             FROM DevelopERP_ForTesting2..DeviceConfig DC
@@ -48,7 +50,7 @@ export async function deleteDevice(transaction: any, device_id: string, action_b
         `)
 }
 
-export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object) {
+export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('veh_id', sql.INT, device.veh_id)
         .input('device_serial_id', sql.INT, device.device_serial_id)
@@ -61,7 +63,7 @@ export async function createDeviceNew(transaction: any, device: Device, action_b
         `)
 }
 
-export async function createDeviceConfigNew(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
+export async function createDeviceConfigNew(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('config_name', sql.NVARCHAR, deviceConfig.config_name)
@@ -88,7 +90,7 @@ export async function createDeviceConfigNew(transaction: any, device_id: string 
         `)
 }
 
-export async function updateDevice(transaction: any, device_id: string | number, device: Device, action_by: string | number, datetime: object) {
+export async function updateDevice(transaction: any, device_id: string | number, device: Device, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('veh_id', sql.INT, device.veh_id)
@@ -103,7 +105,7 @@ export async function updateDevice(transaction: any, device_id: string | number,
         `)
 }
 
-export async function updateDeviceConfig(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
+export async function updateDeviceConfig(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .input('config_name', sql.NVARCHAR, deviceConfig.config_name)

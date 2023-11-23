@@ -18,6 +18,17 @@ export async function getDeviceSerialTable(transaction: any, index: number, filt
         `)
 }
 
+export async function getDeviceSerialId(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT 
+                device_serial_id, serial_id
+            FROM DevelopERP_ForTesting2..DeviceSerial
+            WHERE active = 1
+            ORDER BY device_serial_id DESC
+        `)
+}
+
 export async function getDeviceSerialData(transaction: any, device_serial_id: string) {
     return await transaction.request()
         .input('device_serial_id', sql.NVARCHAR, device_serial_id)
@@ -57,7 +68,7 @@ export async function deleteDeviceSerial(transaction: any, device_serial_id: str
         `)
 }
 
-export async function createDeviceSerialNew(transaction: any, deviceSerial: DeviceSerial, action_by: string | number, datetime: object) {
+export async function createDeviceSerialNew(transaction: any, deviceSerial: DeviceSerial, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('serial_id', sql.NVARCHAR, deviceSerial.serial_id)
         .input('imei_serial', sql.NVARCHAR, deviceSerial.imei_serial)
@@ -73,7 +84,7 @@ export async function createDeviceSerialNew(transaction: any, deviceSerial: Devi
         `)
 }
 
-export async function updateDeviceSerial(transaction: any, device_serial_id: string | number, deviceSerial: DeviceSerial, action_by: string | number, datetime: object) {
+export async function updateDeviceSerial(transaction: any, device_serial_id: string | number, deviceSerial: DeviceSerial, action_by: string | number, datetime: object | string) {
     return await transaction.request()
         .input('device_serial_id', sql.INT, device_serial_id)
         .input('serial_id', sql.NVARCHAR, deviceSerial.serial_id)

@@ -19,6 +19,20 @@ async function getDeviceSerialTable(index: number, filter: string) {
     }
 }
 
+async function getDeviceSerialId() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getDeviceSerialId(pool);
+
+        return {
+            deviceSerials: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 async function getDeviceSerialData(device_serial_id: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -49,7 +63,8 @@ async function deleteDeviceSerial(device_serial_id: string, body: any) {
 async function createDeviceSerialData(body: DeviceSerialType) {
     let transaction;
     try {
-        let datetime = getDateTime();
+        // let datetime = getDateTime();
+        let datetime = body.deviceSerial.create_date
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
@@ -67,7 +82,8 @@ async function createDeviceSerialData(body: DeviceSerialType) {
 async function updateDeviceSerialData(device_serial_id: string, body: DeviceSerialType) {
     let transaction;
     try {
-        let datetime = getDateTime();
+        // let datetime = getDateTime();
+        let datetime = body.deviceSerial.create_date
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
@@ -82,4 +98,4 @@ async function updateDeviceSerialData(device_serial_id: string, body: DeviceSeri
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData, updateDeviceSerialData }
+export default { getDeviceSerialTable, getDeviceSerialId, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData, updateDeviceSerialData }
