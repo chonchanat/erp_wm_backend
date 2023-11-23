@@ -23,6 +23,7 @@ export async function getFleetName(transaction:any) {
         .query(`
             SELECT fleet_id, fleet_name
             FROM DevelopERP_ForTesting2..Fleet
+            WHERE active = 1
             ORDER BY fleet_name
         `)
 }

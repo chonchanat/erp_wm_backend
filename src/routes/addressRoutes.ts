@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const router: Router = express.Router();
 
 router.get('/address', addressController.getAddressTable)
+router.get('/select/address', addressController.getAddressLocation)
 router.get('/select/address/province', addressController.getAddressProvince)
 router.get('/select/address/district', addressController.getAddressDistrict)
 router.get('/select/address/sub_district', addressController.getAddressSubDistrict)

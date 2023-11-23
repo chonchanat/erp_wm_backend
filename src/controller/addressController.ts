@@ -14,6 +14,15 @@ async function getAddressTable(req: Request, res: Response) {
     }
 }
 
+async function getAddressLocation(req: Request, res: Response) {
+    try {
+        const result = await addressModel.getAddressLocation();
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
 async function getAddressData(req: Request, res: Response) {
     try {
         const result = await addressModel.getAddressData(req.params.id)
@@ -93,6 +102,7 @@ async function getAddressSubDistrict(req: Request, res: Response) {
 
 export default {
     getAddressTable,
+    getAddressLocation,
     getAddressData,
     createAddressData,
     updateAddressData,

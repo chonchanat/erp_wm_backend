@@ -20,6 +20,20 @@ async function getAddressTable(index: number, filter: string) {
     }
 }
 
+async function getAddressLocation() {
+    try {
+        let pool = await sql.connect(devConfig)
+        let result = await operation.getAddressLocation(pool)
+
+        return {
+            addresses: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err)
+        throw err;
+    }
+}
+
 async function getAddressData(address_id: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -162,6 +176,7 @@ async function getAddressSubDistrict(province: string, district: string) {
 
 export default {
     getAddressTable,
+    getAddressLocation,
     getAddressData,
     createAddressData,
     updateAddressData,

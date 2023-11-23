@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const router: Router = express.Router();
 
 router.get('/customer', customerController.getCustomerTable)
+router.get('/select/customer', customerController.getCustomerName)
 router.get('/customer/:id', customerController.getCustomerData)
 router.delete('/customer/:id', customerController.deleteCustomer)
 router.post('/customer', upload.array('files'), customerController.createCustomerData)

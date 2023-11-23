@@ -9,6 +9,7 @@ const upload = multer({ storage: storage });
 const router: Router = express.Router();
 
 router.get('/vehicle', vehicleController.getVehicleTable);
+router.get('/select/vehicle', vehicleController.getVehicleLicensePlate)
 router.get('/select/vehicle/brand', vehicleController.getVehicleBrand);
 router.get('/select/vehicle/model', vehicleController.getVehicleModel);
 router.get('/vehicle/:id', vehicleController.getVehicleData);

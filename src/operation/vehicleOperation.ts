@@ -18,6 +18,19 @@ export async function getVehicleTable(transaction: any, index: number, filter: s
         `)
 }
 
+export async function getVehicleLicensePlate(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT
+                V.vehicle_id,
+                COALESCE(V.license_plate, '-') + COALESCE(' (' + M.value + ')', '') AS license_plate
+            FROM DevelopERP_ForTesting2..Vehicle V
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M
+            ON V.registration_province_code_id = M.code_id
+            WHERE active = 1
+        `)
+}
+
 export async function getVehicleData(transaction: any, vehicle_id: string) {
     return await transaction.request()
         .input('vehicle_id', sql.INT, vehicle_id)

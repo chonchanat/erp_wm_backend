@@ -26,14 +26,9 @@ export async function getDeviceData(transaction: any, device_id: string) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
         .query(`
-            SELECT device_id, veh_id, create_date
+            SELECT device_id, veh_id, device_serial_id, create_date
             FROM DevelopERP_ForTesting2..Device
             WHERE device_id = @device_id
-
-            DECLARE @deviceSerialTable IdType
-            INSERT INTO @deviceSerialTable 
-            EXEC DevelopERP_ForTesting2..sp_filterDeviceSerial @serial_id = '%', @device_id = @device_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = 1
 
             SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
             FROM DevelopERP_ForTesting2..DeviceConfig DC

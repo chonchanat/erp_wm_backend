@@ -22,6 +22,20 @@ async function getCustomerTable(index: number, filter: string) {
     }
 }
 
+async function getCustomerName() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getCustomerName(pool);
+
+        return {
+            customers: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err)
+        throw err;
+    }
+}
+
 async function getCustomerData(customer_id: string) {
     try {
         let pool = await sql.connect(devConfig)
@@ -233,4 +247,4 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
     }
 }
 
-export default { getCustomerTable, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 
+export default { getCustomerTable, getCustomerName, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 
