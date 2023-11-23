@@ -14,6 +14,15 @@ async function getDeviceSerialTable(req: Request, res: Response) {
     }
 }
 
+async function getDeviceSerialId(req: Request, res: Response) {
+    try {
+        const result = await deviceSerialModel.getDeviceSerialId();
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
 async function getDeviceSerialData(req: Request, res: Response) {
     try {
         const result = await deviceSerialModel.getDeviceSerialData(req.params.id);
@@ -54,4 +63,4 @@ async function updateDeviceSerialData(req: Request, res: Response, next: NextFun
     }
 }
 
-export default { getDeviceSerialTable, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData, updateDeviceSerialData }
+export default { getDeviceSerialTable, getDeviceSerialId, getDeviceSerialData, deleteDeviceSerial, createDeviceSerialData, updateDeviceSerialData }
