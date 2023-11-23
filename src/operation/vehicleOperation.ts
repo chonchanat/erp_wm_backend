@@ -27,7 +27,7 @@ export async function getVehicleLicensePlate(transaction: any) {
             FROM DevelopERP_Clear..Vehicle V
             LEFT JOIN DevelopERP_Clear..MasterCode M
             ON V.registration_province_code_id = M.code_id
-            WHERE active = 1
+            WHERE V.active = 1
         `)
 }
 
