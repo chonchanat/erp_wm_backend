@@ -23,6 +23,7 @@ export async function getCustomerName(transaction: any) {
         .query(`
             SELECT customer_id, customer_name
             FROM DevelopERP_Clear..Customer
+            WHERE active = 1
             ORDER BY customer_name
         `)
 }

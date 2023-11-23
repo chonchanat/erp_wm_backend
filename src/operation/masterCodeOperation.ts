@@ -8,7 +8,7 @@ export async function getMasterCode(transaction: any, category: string, classes:
         .query(`
             SELECT *
             FROM DevelopERP_Clear..MasterCode
-            WHERE category LIKE @category ${classes === undefined ? "" : `AND class ${classes === "null" ? "IS NULL" : "LIKE @class"}`}
+            WHERE category LIKE @category ${classes === undefined ? "" : `AND class ${classes === "null" ? "IS NULL" : "LIKE @class"}`} AND active = 1
         `)
 }
 
@@ -80,6 +80,7 @@ export async function getMasterCodeCategory(transaction: any) {
         .query(`
             SELECT category
             FROM DevelopERP_Clear..MasterCode
+            WHERE active = 1
             GROUP BY category
         `)
 }
@@ -90,7 +91,7 @@ export async function getMasterCodeClass(transaction: any, category: string) {
         .query(`
             SELECT class
             FROM DevelopERP_Clear..MasterCode
-            WHERE category LIKE @category
+            WHERE category LIKE @category AND active = 1
             GROUP BY class
         `)
 }

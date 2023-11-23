@@ -46,6 +46,7 @@ export async function getAddressLocation(transaction: any) {
                 COALESCE(province + ', ', '') +
                 COALESCE(postal_code , '') as location
             FROM Address
+            WHERE active = 1
         `)
 }
 
