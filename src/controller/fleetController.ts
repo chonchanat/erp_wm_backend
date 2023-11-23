@@ -14,6 +14,15 @@ async function getFleetTable(req: Request, res: Response) {
     }
 }
 
+async function getFleetChild(req: Request, res: Response) {
+    try {
+        const result = await fleetModel.getFleetChild(req.params.id);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
 async function getFleetName(req: Request, res: Response) {
     try {
         const result = await fleetModel.getFleetName()
@@ -67,4 +76,4 @@ async function updateFleetData(req: Request, res: Response, next: NextFunction) 
     }
 }
 
-export default { getFleetTable, getFleetName, getFleetData, deleteFleet, createFleetData, updateFleetData }
+export default { getFleetTable, getFleetChild, getFleetName, getFleetData, deleteFleet, createFleetData, updateFleetData }
