@@ -14,6 +14,15 @@ async function getCustomerTable(req: Request, res: Response) {
     }
 }
 
+async function getCustomerName(req: Request, res: Response) {
+    try {
+        const result = await customerModel.getCustomerName();
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
 async function getCustomerData(req: Request, res: Response) {
     try {
         const result = await customerModel.getCustomerData(req.params.id);
@@ -61,4 +70,4 @@ async function updateCustomerData(req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { getCustomerTable, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 
+export default { getCustomerTable, getCustomerName, getCustomerData, deleteCustomer, createCustomerData, updateCustomerData } 

@@ -3,19 +3,28 @@ import { Customer } from "../interfaces/customer"
 
 export async function getCustomerTable(transaction: any, index: number, filter: string) {
     return await transaction.request()
-    .input('customer_name', sql.NVARCHAR, "%" + filter + "%")
-    .input('firstIndex', sql.INT, index)
-    .input('lastIndex', sql.INT, index + 9)
-    .query(`
-        DECLARE @customerTable IdType
-        INSERT INTO @customerTable
-        EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = @customer_name, @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-        EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = @firstIndex
+        .input('customer_name', sql.NVARCHAR, "%" + filter + "%")
+        .input('firstIndex', sql.INT, index)
+        .input('lastIndex', sql.INT, index + 9)
+        .query(`
+            DECLARE @customerTable IdType
+            INSERT INTO @customerTable
+            EXEC DevelopERP_Clear..sp_filterCustomer @customer_name = @customer_name, @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = @firstIndex
 
-        SELECT COUNT(*) AS count_data 
-        FROM DevelopERP_Clear..Customer
-        WHERE customer_name LIKE @customer_name AND active = 1
-    `)
+            SELECT COUNT(*) AS count_data 
+            FROM DevelopERP_Clear..Customer
+            WHERE customer_name LIKE @customer_name AND active = 1
+        `)
+}
+
+export async function getCustomerName(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT customer_id, customer_name
+            FROM DevelopERP_Clear..Customer
+            ORDER BY customer_name
+        `)
 }
 
 export async function getCustomerData(transaction: any, customer_id: string) {

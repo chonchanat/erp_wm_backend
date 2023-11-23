@@ -31,6 +31,24 @@ export async function getAddressTable(transaction: any, index: number, filter: s
         `)
 }
 
+export async function getAddressLocation(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT
+                address_id,
+                COALESCE(name + ', ', '') +
+                COALESCE(house_no + ', ', '') +
+                COALESCE('หมู่ที่ ' + village_no + ', ', '') + 
+                COALESCE('ซอย' + alley + ', ', '') +
+                COALESCE('ถนน' + road + ', ', '') + 
+                COALESCE(sub_district + ', ', '') +
+                COALESCE(district + ', ', '') +
+                COALESCE(province + ', ', '') +
+                COALESCE(postal_code , '') as location
+            FROM Address
+        `)
+}
+
 export async function getAddressData(transaction: any, address_id: string) {
     return await transaction.request()
         .input('address_id', sql.INT, address_id)

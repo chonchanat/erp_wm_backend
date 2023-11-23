@@ -19,6 +19,20 @@ async function getVehicleTable(index: number, filter: string) {
     }
 }
 
+async function getVehicleLicensePlate() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getVehicleLicensePlate(pool);
+
+        return {
+            vehicles: result.recordsets[0],
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 async function getVehicleData(vehicle_id: string) {
     try {
         let pool = await sql.connect(devConfig);
@@ -225,4 +239,4 @@ async function getVehicleModel(brand: string) {
     }
 }
 
-export default { getVehicleTable, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleBrand, getVehicleModel }
+export default { getVehicleTable, getVehicleLicensePlate, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleBrand, getVehicleModel }
