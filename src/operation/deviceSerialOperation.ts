@@ -68,7 +68,7 @@ export async function deleteDeviceSerial(transaction: any, device_serial_id: str
         `)
 }
 
-export async function createDeviceSerialNew(transaction: any, deviceSerial: DeviceSerial, action_by: string | number, datetime: object | string) {
+export async function createDeviceSerialNew(transaction: any, deviceSerial: DeviceSerial, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('serial_id', sql.NVARCHAR, deviceSerial.serial_id)
         .input('imei_serial', sql.NVARCHAR, deviceSerial.imei_serial)
@@ -84,7 +84,7 @@ export async function createDeviceSerialNew(transaction: any, deviceSerial: Devi
         `)
 }
 
-export async function updateDeviceSerial(transaction: any, device_serial_id: string | number, deviceSerial: DeviceSerial, action_by: string | number, datetime: object | string) {
+export async function updateDeviceSerial(transaction: any, device_serial_id: string | number, deviceSerial: DeviceSerial, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_serial_id', sql.INT, device_serial_id)
         .input('serial_id', sql.NVARCHAR, deviceSerial.serial_id)

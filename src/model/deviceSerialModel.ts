@@ -63,8 +63,7 @@ async function deleteDeviceSerial(device_serial_id: string, body: any) {
 async function createDeviceSerialData(body: DeviceSerialType) {
     let transaction;
     try {
-        // let datetime = getDateTime();
-        let datetime = body.deviceSerial.create_date
+        let datetime = getDateTime();
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
@@ -82,8 +81,7 @@ async function createDeviceSerialData(body: DeviceSerialType) {
 async function updateDeviceSerialData(device_serial_id: string, body: DeviceSerialType) {
     let transaction;
     try {
-        // let datetime = getDateTime();
-        let datetime = body.deviceSerial.create_date
+        let datetime = getDateTime();
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();

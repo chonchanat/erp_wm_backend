@@ -48,8 +48,7 @@ async function deleteDevice(device_id: string, body: any) {
 async function createDeviceData(body: DeviceType) {
     let transaction;
     try {
-        // let datetime = getDateTime();
-        let datetime = body.device.create_date
+        let datetime = getDateTime();
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
@@ -71,8 +70,7 @@ async function createDeviceData(body: DeviceType) {
 async function updateDeviceData (device_id: string, body: DeviceType) {
     let transaction;
     try {
-        // let datetime = getDateTime();
-        let datetime = body.device.create_date
+        let datetime = getDateTime();
         let action_by = body.action_by as number;
         let pool = await sql.connect(devConfig);
         transaction = pool.transaction();
