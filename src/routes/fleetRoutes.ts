@@ -4,6 +4,7 @@ import fleetController from "../controller/fleetController";
 const router: Router = express.Router();
 
 router.get('/fleet', fleetController.getFleetTable);
+router.get('/fleet/child/:id', fleetController.getFleetChild);
 router.get('/select/fleet', fleetController.getFleetName)
 router.get('/fleet/:id', fleetController.getFleetData);
 router.delete('/fleet/:id', fleetController.deleteFleet);

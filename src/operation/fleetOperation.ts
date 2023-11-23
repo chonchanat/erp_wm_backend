@@ -14,11 +14,24 @@ export async function getFleetTable(transaction: any, index: number, filter: str
 
             SELECT COUNT(*) AS count_data
             FROM DevelopERP_ForTesting2..Fleet
-            WHERE fleet_name LIKE @fleet_name AND active = 1
+            WHERE fleet_name LIKE @fleet_name AND parent_fleet_id IS NULL AND active = 1
         `)
 }
 
-export async function getFleetName(transaction:any) {
+export async function getFleetChild(transaction: any, fleet_id: string) {
+    return await transaction.request()
+        .input('fleet_id', sql.INT, fleet_id)
+        .query(`
+            DECLARE @fleetTable IdType
+            INSERT INTO @fleetTable
+            SELECT fleet_id
+            FROM DevelopERP_ForTesting2..Fleet
+            WHERE parent_fleet_id = @fleet_id
+            EXEC DevelopERP_ForTesting2..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
+        `)
+}
+
+export async function getFleetName(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT fleet_id, fleet_name
