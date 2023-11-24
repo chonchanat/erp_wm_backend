@@ -28,6 +28,7 @@ async function getPackageData(package_id: string) {
             packge: result.recordsets[0][0],
             vehicle: result.recordsets[1],
             device: result.recordsets[2],
+            installation: result.recordsets[3],
         }
     } catch (err) {
         console.log(err);

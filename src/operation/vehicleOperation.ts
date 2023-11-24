@@ -78,7 +78,7 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
-            EXEC sp_filterInstallation @vehicle_id = @vehicle_id, @device_serial_id = null, @firstIndex = 0, @lastIndex = 0
+            EXEC sp_filterInstallation @vehicle_id = @vehicle_id, @device_serial_id = null, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
             EXEC sp_formatInstallationTable @packageHistoryTable = @packageHistoryTable, @firstIndex = 1
             `)
 }
