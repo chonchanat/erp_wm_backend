@@ -1,4 +1,5 @@
 const sql = require('mssql')
+import { Package, PackageType } from "../interfaces/package"
 
 export async function getPackageTable(transaction: any, index: number, filter: string) {
     return await transaction.request()
@@ -49,5 +50,63 @@ export async function getPackageData(transaction: any, package_id: string) {
             INSERT INTO @packageHistoryTable
             EXEC sp_filterInstallation @vehicle_id = null, @device_serial_id = null, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
             EXEC sp_formatInstallationTable @packageHistoryTable = @packageHistoryTable, @firstIndex = 1
+        `)
+}
+
+export async function createPackageNew(transaction: any, packages: Package, vehicle_id: string | number, action_by: number, datetime: object) {
+    return await transaction.request()
+        .input('vehicle_id', sql.INT, vehicle_id)
+        .input('package_name_code_id', sql.INT, packages.package_name_code_id)
+        .input('package_type_code_id', sql.INT, packages.package_type_code_id)
+        .input('package_price', sql.INT, packages.package_price)
+        .input('package_start_date', sql.DATETIME, packages.package_start_date)
+        .input('package_end_date', sql.DATETIME, packages.package_end_date)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_insert_package @vehicle_id = @vehicle_id, @package_name_code_id = @package_name_code_id,
+                @package_type_code_id = @package_type_code_id, @package_price = @package_price, @package_start_date = @package_start_date,
+                @package_end_date = @package_end_date, @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
+export async function linkPackageHistory(transaction: any, package_id: string | number, vehicle_id: string | number, device_id: string | number) {
+    return await transaction.request()
+        .input('package_id', sql.INT, package_id)
+        .input('vehicle_id', sql.INT, vehicle_id)
+        .input('device_id', sql.INT, device_id)
+        .query(`
+            UPDATE DevelopERP_Clear..PackageHistory
+            SET package_id = @package_id
+            WHERE vehicle_id = @vehicle_id AND device_id = @device_id
+        `)
+}
+
+export async function updatePackage(transaction: any, package_id: string, packages: Package, action_by: number, datetime: object) {
+    return await transaction.request()
+        .input('package_id', sql.INT, package_id)
+        .input('package_name_code_id', sql.INT, packages.package_name_code_id)
+        .input('package_type_code_id', sql.INT, packages.package_type_code_id)
+        .input('package_price', sql.INT, packages.package_price)
+        .input('package_start_date', sql.DATETIME, packages.package_start_date)
+        .input('package_end_date', sql.DATETIME, packages.package_end_date)
+        .input('package_cancel_date', sql.DATETIME, packages.package_cancel_date)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_update_package @package_id = @package_id, @package_name_code_id = @package_name_code_id,
+                @package_type_code_id = @package_type_code_id, @package_price = @package_price,
+                @package_start_date = @package_start_date, @package_end_date = @package_end_date, @package_cancel_date = @package_cancel_date,
+                @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
+export async function deletePackage(transaction: any, package_id: string, action_by: number, datetime: object) {
+    return await transaction.request()
+        .input('package_id', sql.INT, package_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_package @package_id = @package_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
