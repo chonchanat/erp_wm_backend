@@ -9,7 +9,7 @@ export async function getVehicleTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
             EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data

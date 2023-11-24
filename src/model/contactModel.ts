@@ -24,7 +24,9 @@ async function getContactData(contact_id: string) {
         let pool = await sql.connect(devConfig)
         let result = await operation.getContactData(pool, contact_id);
 
-        return result.recordsets[0][0]
+        return {
+            contact: result.recordsets[0][0],
+        }
     } catch (err) {
         throw err;
     }

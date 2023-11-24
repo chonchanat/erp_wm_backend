@@ -63,7 +63,7 @@ export async function getFleetData(transaction: any, fleet_id: string) {
 
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = @fleet_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = @fleet_id, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
             EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
         `)
 }
