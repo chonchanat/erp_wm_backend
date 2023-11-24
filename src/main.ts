@@ -13,6 +13,7 @@ import deviceRoutes from "./routes/deviceRoutes";
 import userAccountRoutes from "./routes/userAccountRoutes";
 import cardRoutes from "./routes/cardRoutes";
 import documentRoutes from "./routes/documentRoutes";
+import packageRoutes from "./routes/packageRoutes"
 
 import handleError from "./middleware/handleError";
 
@@ -51,6 +52,7 @@ app.use('/', deviceRoutes);
 app.use('/', userAccountRoutes);
 app.use('/', cardRoutes);
 app.use('/', documentRoutes);
+app.use('/', packageRoutes);
 
 app.use(handleError.duplicateError);
 

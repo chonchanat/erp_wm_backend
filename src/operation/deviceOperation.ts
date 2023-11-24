@@ -10,7 +10,7 @@ export async function getDeviceTable(transaction: any, index: number, filter: st
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
             EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
             
             --EXEC DevelopERP_ForTesting2..sp_filter_format_deviceTable 

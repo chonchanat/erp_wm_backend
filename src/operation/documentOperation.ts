@@ -36,7 +36,7 @@ export async function getDocumentData(transaction: any, document_id: string) {
                     WHEN D.address_id IS NOT NULL
                     THEN 'ที่อยู่'
                     WHEN D.vehicle_id IS NOT NULL
-                    THEN 'ยานยนต์'
+                    THEN 'ยานพาหนะ'
                 END AS owner_type,
                 RTRIM(
                     CASE

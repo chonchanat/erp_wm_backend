@@ -9,7 +9,7 @@ export async function getVehicleTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
             EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
@@ -78,7 +78,7 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
-            EXEC sp_filterInstallation @vehicle_id = @vehicle_id, @device_serial_id = null, @firstIndex = 0, @lastIndex = 0
+            EXEC sp_filterInstallation @vehicle_id = @vehicle_id, @device_serial_id = null, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
             EXEC sp_formatInstallationTable @packageHistoryTable = @packageHistoryTable, @firstIndex = 1
             `)
 }

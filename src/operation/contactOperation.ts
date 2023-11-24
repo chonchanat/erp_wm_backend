@@ -1,4 +1,5 @@
 const sql = require('mssql')
+import { Contact } from "../interfaces/contact"
 
 export async function getContactTable(transaction: any, index: number, filter: string) {
     return await transaction.request()
@@ -49,7 +50,7 @@ export async function getContactData(transaction: any, contact_id: string) {
         `)
 }
 
-export async function createContactNew(transaction: any, contact: any, person_id: string | number | null, customer_id: string | number | null, action_by: string | number, datetime: object) {
+export async function createContactNew(transaction: any, contact: Contact, person_id: string | number | null, customer_id: string | number | null, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('contact_code_id', sql.INT, contact.contact_code_id)
         .input('person_id', sql.INT, person_id)
@@ -63,7 +64,7 @@ export async function createContactNew(transaction: any, contact: any, person_id
         `)
 }
 
-export async function updateContact(transaction: any, contact_id: string | number, contact: any, action_by: string | number, datetime: object) {
+export async function updateContact(transaction: any, contact_id: string | number, contact: Contact, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('contact_id', sql.INT, contact_id)
         .input('contact_code_id', sql.INT, contact.contact_code_id)
