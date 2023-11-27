@@ -5,18 +5,20 @@ export interface Device {
 }
 
 export interface DeviceConfig {
-    config_name: string;
-    software_version: string;
-    ip_address: string;
-    gateway_port: string;
-    sms_server_number: string;
-    sms_message_center: string;
+    loop_time_engine_on_code_id: number;
+    loop_time_engine_off_code_id: number;
+    software_version_code_id: number;
+    ip_address_code_id: number;
+    gateway_port_code_id: number;
+    sms_server_number_code_id: number;
+    sms_message_center_code_id: number;
     sim_serial: string;
     mobile_number: string;
     sim_type_code_id: number;
     network: string;
     username: string;
     password: string;
+    description: string;
 }
   
 export interface DeviceType {
