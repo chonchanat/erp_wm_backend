@@ -34,7 +34,7 @@ export async function getCardData(transaction: any, card_id: string) {
             ON C.person_id = p.person_id
             LEFT JOIN MasterCode M
             ON C.card_code_id = M.code_id
-            WHERE C.card_id = 1 AND C.active = 1
+            WHERE C.card_id = @card_id AND C.active = 1
         `)
 }
 

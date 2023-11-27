@@ -32,10 +32,19 @@ export async function getDeviceData(transaction: any, device_id: string) {
             ON D.device_serial_id = DS.device_serial_id
             WHERE D.device_id = @device_id
 
-            SELECT DC.device_config_id, DC.device_id, DC.config_name, DC.software_version, DC.ip_address, DC.gateway_port, DC.sms_server_number, DC.sms_message_center, DC.sim_serial, DC.mobile_number, DC.sim_type_code_id, M_simtype.value AS sim_type, DC.network, DC.username ,DC.password
-            FROM DevelopERP_Clear..DeviceConfig DC
-            LEFT JOIN DevelopERP_Clear..MasterCode M_simtype
-            ON DC.sim_type_code_id = M_simtype.code_id
+            SELECT 
+                loop_time_engine_on_code_id, 
+                loop_time_engine_off_code_id, 
+                software_version_code_id, 
+                ip_address_code_id, 
+                gateway_port_code_id, 
+                sms_server_number_code_id, 
+                sms_message_center_code_id, 
+                sim_serial, 
+                mobile_number, 
+                sim_type_code_id, 
+                description
+            FROM DevelopERP_Clear..DeviceConfig
             WHERE device_id = @device_id
         `)
 }
@@ -66,27 +75,29 @@ export async function createDeviceNew(transaction: any, device: Device, action_b
 export async function createDeviceConfigNew(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
-        .input('config_name', sql.NVARCHAR, deviceConfig.config_name)
-        .input('software_version', sql.NVARCHAR, deviceConfig.software_version)
-        .input('ip_address', sql.NVARCHAR, deviceConfig.ip_address)
-        .input('gateway_port', sql.NVARCHAR, deviceConfig.gateway_port)
-        .input('sms_server_number', sql.NVARCHAR, deviceConfig.sms_server_number)
-        .input('sms_message_center', sql.NVARCHAR, deviceConfig.sms_message_center)
+        .input('loop_time_engine_on_code_id', sql.INT, deviceConfig.loop_time_engine_on_code_id)
+        .input('loop_time_engine_off_code_id', sql.INT, deviceConfig.loop_time_engine_off_code_id)
+        .input('software_version_code_id', sql.INT, deviceConfig.software_version_code_id)
+        .input('ip_address_code_id', sql.INT, deviceConfig.ip_address_code_id)
+        .input('gateway_port_code_id', sql.INT, deviceConfig.gateway_port_code_id)
+        .input('sms_server_number_code_id', sql.INT, deviceConfig.sms_server_number_code_id)
+        .input('sms_message_center_code_id', sql.INT, deviceConfig.sms_message_center_code_id)
         .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial)
         .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number)
         .input('sim_type_code_id', sql.INT, deviceConfig.sim_type_code_id)
         .input('network', sql.NVARCHAR, deviceConfig.network)
         .input('username', sql.NVARCHAR, deviceConfig.username)
         .input('password', sql.NVARCHAR, deviceConfig.password)
+        .input('description', sql.NVARCHAR, deviceConfig.description)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_deviceConfig @device_id = @device_id, @config_name = @config_name, 
-            @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
-            @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
-            @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
-            @network = @network, @username = @username, @password = @password,
-            @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_Clear..sp_insert_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
+                @loop_time_engine_off_code_id = @loop_time_engine_off_code_id, @software_version_code_id = @software_version_code_id,
+                @ip_address_code_id = @ip_address_code_id, @gateway_port_code_id = @gateway_port_code_id, @sms_server_number_code_id = @sms_server_number_code_id,
+                @sms_message_center_code_id = @sms_message_center_code_id, @sim_serial = @sim_serial, @mobile_number = @mobile_number,
+                @sim_type_code_id = @sim_type_code_id, @network = @network, @username = @username, @password = @password, @description = @description,
+                @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -108,26 +119,28 @@ export async function updateDevice(transaction: any, device_id: string | number,
 export async function updateDeviceConfig(transaction: any, device_id: string | number, deviceConfig: DeviceConfig, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
-        .input('config_name', sql.NVARCHAR, deviceConfig.config_name)
-        .input('software_version', sql.NVARCHAR, deviceConfig.software_version)
-        .input('ip_address', sql.NVARCHAR, deviceConfig.ip_address)
-        .input('gateway_port', sql.NVARCHAR, deviceConfig.gateway_port)
-        .input('sms_server_number', sql.NVARCHAR, deviceConfig.sms_server_number)
-        .input('sms_message_center', sql.NVARCHAR, deviceConfig.sms_message_center)
+        .input('loop_time_engine_on_code_id', sql.INT, deviceConfig.loop_time_engine_on_code_id)
+        .input('loop_time_engine_off_code_id', sql.INT, deviceConfig.loop_time_engine_off_code_id)
+        .input('software_version_code_id', sql.INT, deviceConfig.software_version_code_id)
+        .input('ip_address_code_id', sql.INT, deviceConfig.ip_address_code_id)
+        .input('gateway_port_code_id', sql.INT, deviceConfig.gateway_port_code_id)
+        .input('sms_server_number_code_id', sql.INT, deviceConfig.sms_server_number_code_id)
+        .input('sms_message_center_code_id', sql.INT, deviceConfig.sms_message_center_code_id)
         .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial)
         .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number)
         .input('sim_type_code_id', sql.INT, deviceConfig.sim_type_code_id)
         .input('network', sql.NVARCHAR, deviceConfig.network)
         .input('username', sql.NVARCHAR, deviceConfig.username)
         .input('password', sql.NVARCHAR, deviceConfig.password)
+        .input('description', sql.NVARCHAR, deviceConfig.description)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @config_name = @config_name, 
-                @software_version = @software_version, @ip_address = @ip_address, @gateway_port = @gateway_port, 
-                @sms_server_number = @sms_server_number, @sms_message_center = @sms_message_center, 
-                @sim_serial = @sim_serial, @mobile_number = @mobile_number, @sim_type_code_id = @sim_type_code_id, 
-                @network = @network, @username = @username, @password = @password,
-                @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
+            @loop_time_engine_off_code_id = @loop_time_engine_off_code_id, @software_version_code_id = @software_version_code_id,
+            @ip_address_code_id = @ip_address_code_id, @gateway_port_code_id = @gateway_port_code_id, @sms_server_number_code_id = @sms_server_number_code_id,
+            @sms_message_center_code_id = @sms_message_center_code_id, @sim_serial = @sim_serial, @mobile_number = @mobile_number,
+            @sim_type_code_id = @sim_type_code_id, @network = @network, @username = @username, @password = @password, @description = @description,
+            @action_by = @action_by, @action_date = @action_date
         `)
 }
