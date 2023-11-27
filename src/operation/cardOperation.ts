@@ -27,14 +27,14 @@ export async function getCardData(transaction: any, card_id: string) {
                 C.value, 
                 C.card_code_id, 
                 COALESCE(M.value, '-') AS card_type,
-                'ลูกค้า' AS owner_type,
-                RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '-')) AS owner_name
+                'บุคคล' AS owner_type,
+                C.person_id
             FROM Card C
             LEFT JOIN Person P
             ON C.person_id = p.person_id
             LEFT JOIN MasterCode M
             ON C.card_code_id = M.code_id
-            WHERE C.card_id = @card_id AND C.active = 1
+            WHERE C.card_id = 1 AND C.active = 1
         `)
 }
 

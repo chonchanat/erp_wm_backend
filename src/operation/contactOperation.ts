@@ -29,16 +29,12 @@ export async function getContactData(transaction: any, contact_id: string) {
                 m.value AS contact_type,
                 CASE
                     WHEN ct.person_id IS NULL
-                    THEN c.customer_name
-                    WHEN ct.customer_id IS NULL
-                    THEN RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', ''))
-                END AS owner_name,
-                CASE
-                    WHEN ct.person_id IS NULL
                     THEN 'ลูกค้า'
                     WHEN ct.customer_id IS NULL
                     THEN 'บุคคล'
-                END AS owner_type
+                END AS owner_type,
+                ct.customer_id,
+                ct.person_id
             FROM DevelopERP_Clear..Contact ct 
             LEFT JOIN DevelopERP_Clear..Customer c
             ON ct.customer_id = c.customer_id

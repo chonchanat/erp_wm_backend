@@ -38,27 +38,10 @@ export async function getDocumentData(transaction: any, document_id: string) {
                     WHEN D.vehicle_id IS NOT NULL
                     THEN 'ยานพาหนะ'
                 END AS owner_type,
-                RTRIM(
-                    CASE
-                        WHEN D.customer_id IS NOT NULL
-                        THEN C.customer_name
-                        WHEN D.person_id IS NOT NULL
-                        THEN COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '')
-                        WHEN D.address_id IS NOT NULL
-                        THEN 
-                            COALESCE(A.name + ', ', '') + 
-                            COALESCE(A.house_no + ', ', '') +
-                            COALESCE('หมู่ที่ ' + A.village_no + ', ', '') + 
-                            COALESCE('ซอย' + A.alley + ', ', '') +
-                            COALESCE('ถนน' + A.road + ', ', '') + 
-                            COALESCE(A.sub_district + ', ', '') +
-                            COALESCE(A.district + ', ', '') +
-                            COALESCE(A.province + ', ', '') +
-                            COALESCE(A.postal_code, '')
-                        WHEN D.vehicle_id IS NOT NULL
-                        THEN COALESCE(V.license_plate, '-') + COALESCE(' (' + M_province.value + ')', '')
-                    END
-                ) AS owner_name
+                D.customer_id,
+                D.person_id,
+                D.address_id,
+                D.vehicle_id
             FROM DevelopERP_Clear..Document D
             LEFT JOIN Customer C
             ON D.customer_id = C.customer_id
