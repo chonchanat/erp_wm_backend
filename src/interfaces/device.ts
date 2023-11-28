@@ -1,7 +1,7 @@
 export interface Device {
-    veh_id: number,
+    veh_id: string,
     device_serial_id: number,
-    create_date: string,
+    create_date?: string,
 }
 
 export interface DeviceConfig {

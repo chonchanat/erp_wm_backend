@@ -61,7 +61,7 @@ export async function deleteDevice(transaction: any, device_id: string, action_b
 
 export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
-        .input('veh_id', sql.INT, device.veh_id)
+        .input('veh_id', sql.NVARCHAR, device.veh_id !== "" ? device.veh_id : null)
         .input('device_serial_id', sql.INT, device.device_serial_id)
         .input('action_by', sql.INT, action_by)
         .input('create_date', sql.DATETIME, datetime)
