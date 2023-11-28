@@ -85,7 +85,7 @@ export async function deleteCustomer(transaction: any, customer_id: string, acti
 
 export async function createCustomerNew(transaction: any, customer: Customer, action_by: number, datetime: object) {
     return await transaction.request()
-        .input('customer_name', sql.NVARCHAR, customer.customer_name)
+        .input('customer_name', sql.NVARCHAR, customer.customer_name !== "" ? customer.customer_name : null)
         .input('sales_type_code_id', sql.INT, customer.sales_type_code_id)
         .input('customer_type_code_id', sql.INT, customer.customer_type_code_id)
         .input('action_by', sql.INT, action_by)
@@ -99,7 +99,7 @@ export async function createCustomerNew(transaction: any, customer: Customer, ac
 export async function updateCustomer(transaction: any, customer_id: string | number, customer: Customer, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('customer_id', sql.INT, customer_id)
-        .input('customer_name', sql.NVARCHAR, customer.customer_name)
+        .input('customer_name', sql.NVARCHAR, customer.customer_name !== "" ? customer.customer_name : null)
         .input('sales_type_code_id', sql.INT, customer.sales_type_code_id)
         .input('customer_type_code_id', sql.INT, customer.customer_type_code_id)
         .input('action_by', sql.INT, action_by)

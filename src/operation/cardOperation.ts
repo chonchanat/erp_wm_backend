@@ -41,7 +41,7 @@ export async function getCardData(transaction: any, card_id: string) {
 export async function createCardNew(transaction: any, card: Card, person_id: string | number | null, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('card_code_id', sql.INT, card.card_code_id)
-        .input('value', sql.NVARCHAR, card.value)
+        .input('value', sql.NVARCHAR, card.value !== "" ? card.value : null)
         .input('person_id', sql.INT, person_id)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
@@ -55,8 +55,7 @@ export async function updateCard(transaction: any, card_id: string | number, car
     return await transaction.request()
         .input('card_id', sql.INT, card_id)
         .input('card_code_id', sql.INT, card.card_code_id)
-        .input('value', sql.NVARCHAR, card.value)
-        // .input('person_id', sql.INT, card.person_id)
+        .input('value', sql.NVARCHAR, card.value !== "" ? card.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`

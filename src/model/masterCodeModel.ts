@@ -13,7 +13,7 @@ async function getMasterCode(body: MasterCode) {
         if (typeof (body.category) !== typeof ([])) {
             let temp = await operation.getMasterCode(pool, body.category as string, body.class as string)
             result.push(temp.recordsets[0])
-
+            
         } else if (typeof (body.category) === typeof ([])) {
             for (let i = 0; i < body.category.length; i++) {
                 let temp = await operation.getMasterCode(pool, body.category[i], body.class[i])

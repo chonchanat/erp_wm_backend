@@ -51,7 +51,7 @@ export async function createContactNew(transaction: any, contact: Contact, perso
         .input('contact_code_id', sql.INT, contact.contact_code_id)
         .input('person_id', sql.INT, person_id)
         .input('customer_id', sql.INT, customer_id)
-        .input('value', sql.NVARCHAR, contact.value)
+        .input('value', sql.NVARCHAR, contact.value !== "" ? contact.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
@@ -64,7 +64,7 @@ export async function updateContact(transaction: any, contact_id: string | numbe
     return await transaction.request()
         .input('contact_id', sql.INT, contact_id)
         .input('contact_code_id', sql.INT, contact.contact_code_id)
-        .input('value', sql.NVARCHAR, contact.value)
+        .input('value', sql.NVARCHAR, contact.value !== "" ? contact.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`

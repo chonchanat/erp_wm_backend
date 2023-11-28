@@ -81,7 +81,7 @@ export async function deleteFleet(transaction: any, fleet_id: string, action_by:
 
 export async function createFleetNew(transaction: any, fleet: Fleet, action_by: string | number, datetime: object) {
     return await transaction.request()
-        .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
+        .input('fleet_name', sql.NVARCHAR, fleet.fleet_name !== "" ? fleet.fleet_name : null)
         .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id ? fleet.parent_fleet_id : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
@@ -94,8 +94,8 @@ export async function createFleetNew(transaction: any, fleet: Fleet, action_by: 
 export async function updateFleet(transaction: any, fleet_id: string | number, fleet: Fleet, action: string | number, datetime: object) {
     return await transaction.request()
         .input('fleet_id', sql.INT, fleet_id)
-        .input('fleet_name', sql.NVARCHAR, fleet.fleet_name)
-        .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id)
+        .input('fleet_name', sql.NVARCHAR, fleet.fleet_name !== "" ? fleet.fleet_name : null)
+        .input('parent_fleet_id', sql.INT, fleet.parent_fleet_id ? fleet.parent_fleet_id : null)
         .input('action_by', sql.INT, action)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
