@@ -44,7 +44,7 @@ export async function getDeviceData(transaction: any, device_id: string) {
                 COALESCE(mobile_number, '') AS mobile_number, 
                 sim_type_code_id, 
                 COALESCE(description, '') AS description
-            FROM DevelopERP_ForTesting2..DeviceConfig
+            FROM DevelopERP_Clear..DeviceConfig
             WHERE device_id = @device_id
         `)
 }
@@ -61,7 +61,7 @@ export async function deleteDevice(transaction: any, device_id: string, action_b
 
 export async function createDeviceNew(transaction: any, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
-        .input('veh_id', sql.INT, device.veh_id)
+        .input('veh_id', sql.NVARCHAR, device.veh_id !== "" ? device.veh_id : null)
         .input('device_serial_id', sql.INT, device.device_serial_id)
         .input('action_by', sql.INT, action_by)
         .input('create_date', sql.DATETIME, datetime)
@@ -82,13 +82,13 @@ export async function createDeviceConfigNew(transaction: any, device_id: string 
         .input('gateway_port_code_id', sql.INT, deviceConfig.gateway_port_code_id)
         .input('sms_server_number_code_id', sql.INT, deviceConfig.sms_server_number_code_id)
         .input('sms_message_center_code_id', sql.INT, deviceConfig.sms_message_center_code_id)
-        .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial)
-        .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number)
+        .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial !== "" ? deviceConfig.sim_serial : null)
+        .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number !== "" ? deviceConfig.mobile_number : null)
         .input('sim_type_code_id', sql.INT, deviceConfig.sim_type_code_id)
-        .input('network', sql.NVARCHAR, deviceConfig.network)
-        .input('username', sql.NVARCHAR, deviceConfig.username)
-        .input('password', sql.NVARCHAR, deviceConfig.password)
-        .input('description', sql.NVARCHAR, deviceConfig.description)
+        .input('network', sql.NVARCHAR, deviceConfig.network !== "" ? deviceConfig.network : null)
+        .input('username', sql.NVARCHAR, deviceConfig.username !== "" ? deviceConfig.username : null)
+        .input('password', sql.NVARCHAR, deviceConfig.password !== "" ? deviceConfig.password : null)
+        .input('description', sql.NVARCHAR, deviceConfig.description !== "" ? deviceConfig.description : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
@@ -126,13 +126,13 @@ export async function updateDeviceConfig(transaction: any, device_id: string | n
         .input('gateway_port_code_id', sql.INT, deviceConfig.gateway_port_code_id)
         .input('sms_server_number_code_id', sql.INT, deviceConfig.sms_server_number_code_id)
         .input('sms_message_center_code_id', sql.INT, deviceConfig.sms_message_center_code_id)
-        .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial)
-        .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number)
+        .input('sim_serial', sql.NVARCHAR, deviceConfig.sim_serial !== "" ? deviceConfig.sim_serial : null)
+        .input('mobile_number', sql.NVARCHAR, deviceConfig.mobile_number !== "" ? deviceConfig.mobile_number : null)
         .input('sim_type_code_id', sql.INT, deviceConfig.sim_type_code_id)
-        .input('network', sql.NVARCHAR, deviceConfig.network)
-        .input('username', sql.NVARCHAR, deviceConfig.username)
-        .input('password', sql.NVARCHAR, deviceConfig.password)
-        .input('description', sql.NVARCHAR, deviceConfig.description)
+        .input('network', sql.NVARCHAR, deviceConfig.network !== "" ? deviceConfig.network : null)
+        .input('username', sql.NVARCHAR, deviceConfig.username !== "" ? deviceConfig.username : null)
+        .input('password', sql.NVARCHAR, deviceConfig.password !== "" ? deviceConfig.password : null)
+        .input('description', sql.NVARCHAR, deviceConfig.description !== "" ? deviceConfig.description : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`

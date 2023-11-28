@@ -1,4 +1,4 @@
-import { getDateTime } from "../utils";
+import { getDateTime } from "../ultis/datetime";
 import { VehicleType } from "../interfaces/vehicle";
 const devConfig = require("../config/dbconfig")
 const sql = require("mssql")

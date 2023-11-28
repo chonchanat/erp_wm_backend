@@ -1,12 +1,14 @@
+import { Devices } from "./device";
+
 export interface DeviceSerial {
     serial_id: string,
     imei_serial: string,
-    dvr_id: string,
     device_type_code_id: number,
-    create_date: string,
+    create_date?: string,
 }
 
 export interface DeviceSerialType {
-    action_by: number;
-    deviceSerial: DeviceSerial
+    action_by: number,
+    deviceSerial: DeviceSerial,
+    deviceNew: Devices[],
 }

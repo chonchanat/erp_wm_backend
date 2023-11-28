@@ -3,7 +3,7 @@ import { Persons } from "./person";
 import { Fleet } from "./fleet";
 
 export interface Vehicle {
-    frame_no: number;
+    frame_no: string;
     license_plate: string;
     vehicle_model_id: number;
     registration_province_code_id: number;

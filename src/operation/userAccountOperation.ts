@@ -55,9 +55,9 @@ export async function deleteUserAccount(transaction: any, user_id: string, actio
 
 export async function createUserAccountNew(transaction: any, userAccount: UserAccount, action_by: string | number, datetime: object) {
     return await transaction.request()
-        .input('username', sql.NVARCHAR, userAccount.username)
-        .input('password', sql.NVARCHAR, userAccount.password)
-        .input('uid', sql.NVARCHAR, userAccount.uid)
+        .input('username', sql.NVARCHAR, userAccount.username !== "" ? userAccount.username : null)
+        .input('password', sql.NVARCHAR, userAccount.password !== "" ? userAccount.password : null)
+        .input('uid', sql.NVARCHAR, userAccount.uid !== "" ? userAccount.uid : null)
         .input('person_id', sql.INT, userAccount.person_id)
         .input('profile_id', sql.INT, userAccount.profile_id)
         .input('action_by', sql.INT, action_by)
@@ -72,7 +72,7 @@ export async function createUserAccountNew(transaction: any, userAccount: UserAc
 export async function updateUserAccount(transaction: any, user_id: string | number, userAccount: UserAccount, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('user_id', sql.INT, user_id)
-        .input('uid', sql.NVARCHAR, userAccount.uid)
+        .input('uid', sql.NVARCHAR, userAccount.uid !== "" ? userAccount.uid : null)
         .input('profile_id', sql.INT, userAccount.profile_id)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)

@@ -42,9 +42,9 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
 
 export async function createMasterCodeData(transaction: any, masterCode: MasterCode, action_by: number, datetime: object) {
     return transaction.request()
-        .input('category', sql.NVARCHAR, masterCode.category)
-        .input('class', sql.NVARCHAR, masterCode.class)
-        .input('value', sql.NVARCHAR, masterCode.value)
+        .input('category', sql.NVARCHAR, masterCode.category !== "" ? masterCode.category : null)
+        .input('class', sql.NVARCHAR, masterCode.class !== "" ? masterCode.class : null)
+        .input('value', sql.NVARCHAR, masterCode.value !== "" ? masterCode.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
@@ -56,7 +56,7 @@ export async function createMasterCodeData(transaction: any, masterCode: MasterC
 export async function updateMasterCodeData(transaction: any, code_id: string, masterCode: MasterCode, action_by: number, datetime: object) {
     return transaction.request()
         .input('code_id', sql.INT, code_id)
-        .input('value', sql.NVARCHAR, masterCode.value)
+        .input('value', sql.NVARCHAR, masterCode.value !== "" ? masterCode.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`

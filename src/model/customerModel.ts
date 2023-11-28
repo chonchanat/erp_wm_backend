@@ -1,5 +1,5 @@
-import { getDateTime, vehicleConfigDefault, vehiclePermitDefault } from "../utils"
-// import { CustomerType } from "../interfaces/type";
+import { getDateTime } from "../ultis/datetime"
+import { vehicleConfigDefault, vehiclePermitDefault } from "../ultis/default"
 import { CustomerType } from "../interfaces/customer"
 
 import * as operation from "../operation/index"

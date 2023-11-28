@@ -95,8 +95,8 @@ export async function deleteVehicle(transaction: any, vehicle_id: string, action
 
 export async function createVehicleNew(transaction: any, vehicle: Vehicle, action_by: string | number, datetime: object) {
     return await transaction.request()
-        .input('frame_no', sql.NVARCHAR, vehicle.frame_no)
-        .input('license_plate', sql.NVARCHAR, vehicle.license_plate)
+        .input('frame_no', sql.NVARCHAR, vehicle.frame_no !== "" ? vehicle.frame_no : null)
+        .input('license_plate', sql.NVARCHAR, vehicle.license_plate !== "" ? vehicle.license_plate : null)
         .input('vehicle_model_id', sql.INT, vehicle.vehicle_model_id)
         .input('registration_province_code_id', sql.INT, vehicle.registration_province_code_id)
         .input('registration_type_code_id', sql.INT, vehicle.registration_type_code_id)
@@ -167,8 +167,8 @@ export async function createVehiclePermit(transaction: any, vehicle_id: string |
 export async function updateVehicle(transaction: any, vehicle_id: string | number, vehicle: Vehicle, action_by: string | number, datetime: object) {
     return transaction.request()
         .input('vehicle_id', sql.INT, vehicle_id)
-        .input('frame_no', sql.NVARCHAR, vehicle.frame_no)
-        .input('license_plate', sql.NVARCHAR, vehicle.license_plate)
+        .input('frame_no', sql.NVARCHAR, vehicle.frame_no !== "" ? vehicle.frame_no : null)
+        .input('license_plate', sql.NVARCHAR, vehicle.license_plate !== "" ? vehicle.license_plate : null)
         .input('vehicle_model_id', sql.INT, vehicle.vehicle_model_id)
         .input('registration_province_code_id', sql.INT, vehicle.registration_province_code_id)
         .input('registration_type_code_id', sql.INT, vehicle.registration_type_code_id)
