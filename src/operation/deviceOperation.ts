@@ -40,10 +40,10 @@ export async function getDeviceData(transaction: any, device_id: string) {
                 gateway_port_code_id, 
                 sms_server_number_code_id, 
                 sms_message_center_code_id, 
-                sim_serial, 
-                mobile_number, 
+                COALESCE(sim_serial, '') AS sim_serial, 
+                COALESCE(mobile_number, '') AS mobile_number, 
                 sim_type_code_id, 
-                description
+                COALESCE(description, '') AS description
             FROM DevelopERP_ForTesting2..DeviceConfig
             WHERE device_id = @device_id
         `)
