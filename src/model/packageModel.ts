@@ -1,6 +1,6 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
-import { getDateTime } from "../utils";
+import { getDateTime } from "../ultis/datetime";
 
 import * as operation from "../operation/index"
 import { Package, PackageType } from "../interfaces/package";

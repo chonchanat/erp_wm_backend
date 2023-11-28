@@ -1,3 +1,5 @@
+import { Devices } from "./device";
+
 export interface DeviceSerial {
     serial_id: string,
     imei_serial: string,
@@ -6,6 +8,7 @@ export interface DeviceSerial {
 }
 
 export interface DeviceSerialType {
-    action_by: number;
-    deviceSerial: DeviceSerial
+    action_by: number,
+    deviceSerial: DeviceSerial,
+    deviceNew: Devices[],
 }

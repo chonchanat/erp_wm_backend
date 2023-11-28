@@ -1,4 +1,4 @@
-import { getDateTime } from "../utils"
+import { getDateTime } from "../ultis/datetime"
 import { DeviceSerialType } from "../interfaces/deviceSerial"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')

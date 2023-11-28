@@ -1,4 +1,4 @@
-import { getDateTime } from "../utils"
+import { getDateTime } from "../ultis/datetime"
 import { MasterCodeType, MasterCode } from "../interfaces/masterCode"
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
