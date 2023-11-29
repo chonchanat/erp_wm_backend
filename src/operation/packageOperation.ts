@@ -8,7 +8,7 @@ export async function getPackageTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @packageTable IdType
             INSERT INTO @packageTable
-            EXEC DevelopERP_Clear..sp_filterPackage @package_name = '%', @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_filterPackage @firstIndex = @firstIndex, @lastIndex = @lastIndex
             EXEC DevelopERP_Clear..sp_formatPackage @packageTable = @packageTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
