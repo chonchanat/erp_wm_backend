@@ -77,7 +77,7 @@ export async function createDeviceSerialNew(transaction: any, deviceSerial: Devi
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial,  
+            EXEC DevelopERP_ForTesting2..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial,  
                 @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
                 @action_by = @action_by, @action_date = @action_date
         `)
@@ -93,7 +93,7 @@ export async function updateDeviceSerial(transaction: any, device_serial_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
+            EXEC DevelopERP_ForTesting2..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
             @serial_id = @serial_id, @imei_serial = @imei_serial,  
             @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
             @action_by = @action_by, @action_date = @action_date

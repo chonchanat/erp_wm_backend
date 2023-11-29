@@ -44,7 +44,7 @@ export async function getDeviceData(transaction: any, device_id: string) {
                 COALESCE(mobile_number, '') AS mobile_number, 
                 sim_type_code_id, 
                 COALESCE(description, '') AS description
-            FROM DevelopERP_Clear..DeviceConfig
+            FROM DevelopERP_ForTesting2..DeviceConfig
             WHERE device_id = @device_id
         `)
 }
