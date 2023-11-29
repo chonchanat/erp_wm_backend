@@ -104,7 +104,7 @@ export async function createDeviceConfigNew(transaction: any, device_id: string 
 export async function updateDevice(transaction: any, device_id: string | number, device: Device, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('device_id', sql.INT, device_id)
-        .input('veh_id', sql.INT, device.veh_id)
+        .input('veh_id', sql.NVARCHAR, device.veh_id !== "" ? device.veh_id : null)
         .input('device_serial_id', sql.INT, device.device_serial_id)
         .input('action_by', sql.INT, action_by)
         .input('create_date', sql.DATETIME, device.create_date)

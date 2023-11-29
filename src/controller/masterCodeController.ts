@@ -53,7 +53,8 @@ async function updateMasterCodeData(req: Request, res: Response) {
 
 async function deleteMasterCode(req: Request, res: Response) {
     try {
-        await masterCodeModel.deleteMasterCode(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await masterCodeModel.deleteMasterCode(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted seccessfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })

@@ -38,7 +38,8 @@ async function getDeviceSerialData(req: Request, res: Response) {
 
 async function deleteDeviceSerial(req: Request, res: Response) {
     try {
-        const result = await deviceSerialModel.deleteDeviceSerial(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await deviceSerialModel.deleteDeviceSerial(req.params.id, body);
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -47,7 +48,8 @@ async function deleteDeviceSerial(req: Request, res: Response) {
 
 async function createDeviceSerialData(req: Request, res: Response, next: NextFunction) {
     try {
-        await deviceSerialModel.createDeviceSerialData(req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await deviceSerialModel.createDeviceSerialData(body);
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
         next(err);
@@ -56,7 +58,8 @@ async function createDeviceSerialData(req: Request, res: Response, next: NextFun
 
 async function updateDeviceSerialData(req: Request, res: Response, next: NextFunction) {
     try {
-        await deviceSerialModel.updateDeviceSerialData(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await deviceSerialModel.updateDeviceSerialData(req.params.id, body);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);

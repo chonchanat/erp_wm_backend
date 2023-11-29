@@ -29,7 +29,8 @@ async function getDeviceData(req: Request, res: Response) {
 
 async function deleteDevice(req: Request, res: Response) {
     try {
-        await deviceModel.deleteDevice(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await deviceModel.deleteDevice(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted succesfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -38,7 +39,8 @@ async function deleteDevice(req: Request, res: Response) {
 
 async function createDeviceData(req: Request, res: Response, next: NextFunction) {
     try {
-        await deviceModel.createDeviceData(req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await deviceModel.createDeviceData(body)
         res.status(201).json({ status: 1, message: "created succesfully" })
     } catch (err) {
         next(err);
@@ -47,7 +49,8 @@ async function createDeviceData(req: Request, res: Response, next: NextFunction)
 
 async function updateDeviceData(req: Request, res: Response, next: NextFunction) {
     try {
-        await deviceModel.updateDeviceData(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await deviceModel.updateDeviceData(req.params.id, body)
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);

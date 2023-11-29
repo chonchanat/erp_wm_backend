@@ -38,7 +38,8 @@ async function getCustomerData(req: Request, res: Response) {
 
 async function deleteCustomer(req: Request, res: Response) {
     try {
-        await customerModel.deleteCustomer(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await customerModel.deleteCustomer(req.params.id, body);
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -48,8 +49,8 @@ async function deleteCustomer(req: Request, res: Response) {
 async function createCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
-
+        const files = req.body.files;
+        
         await customerModel.createCustomerData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
@@ -61,7 +62,7 @@ async function updateCustomerData(req: Request, res: Response, next: NextFunctio
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
         console.log(body.addressNew)
         
         await customerModel.updateCustomerData(id, body, files);

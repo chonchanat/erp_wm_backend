@@ -38,7 +38,8 @@ async function getVehicleData(req: Request, res: Response) {
 
 async function deleteVehicle(req: Request, res: Response) {
     try {
-        await vehicleModel.deleteVehicle(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await vehicleModel.deleteVehicle(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server" })
@@ -48,8 +49,8 @@ async function deleteVehicle(req: Request, res: Response) {
 async function createVehicleData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
-        // console.log(body, files)
+        const files = req.body.files;
+        
         await vehicleModel.createVehicleData(body, files)
         res.status(201).json({ status: 1, message: "created seccessfully" })
     } catch (err) {
@@ -61,7 +62,7 @@ async function updateVehicleData(req: Request, res: Response, next: NextFunction
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
 
         await vehicleModel.updateVehicleData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully" })

@@ -29,7 +29,8 @@ async function getContactData(req: Request, res: Response) {
 
 async function deleteContact(req: Request, res: Response) {
     try {
-        await contactModel.deleteContact(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await contactModel.deleteContact(req.params.id, body)
         res.status(200).json({ status: 1, message: 'deleted successfully' })
     } catch (err) {
         res.status(500).json({ status: 0, message: 'failed from server', response: err })
@@ -38,8 +39,9 @@ async function deleteContact(req: Request, res: Response) {
 
 async function createContactData (req: Request, res: Response) {
     try {
-        await contactModel.createContactData(req.body)
-        res.status(200).json({ status: 1, message: 'created succesfully'})
+        let body = JSON.parse(req.body.jsonData)
+        await contactModel.createContactData(body)
+        res.status(201).json({ status: 1, message: 'created succesfully'})
     } catch (err) {
         res.status(500).json({ status: 0, message: 'failed from server', response: err })
     }
@@ -47,7 +49,8 @@ async function createContactData (req: Request, res: Response) {
 
 async function updateContactData (req: Request, res: Response) {
     try {
-        await contactModel.updateContactData(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData);
+        await contactModel.updateContactData(req.params.id, body)
         res.status(200).json({ status: 1, message: 'updated succesfully'})
     } catch (err) {
         res.status(500).json({ status: 0, message: 'failed from server', response: err })

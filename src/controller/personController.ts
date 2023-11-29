@@ -38,7 +38,8 @@ async function getPersonData(req: Request, res: Response) {
 
 async function daletePerson(req: Request, res: Response) {
     try {
-        await personModel.deletePerson(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await personModel.deletePerson(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted successfully"})
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -48,7 +49,7 @@ async function daletePerson(req: Request, res: Response) {
 async function createPersonData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
 
         const result = await personModel.createPersonData(body, files)
         res.status(201).json({ status: 1, message: "created successfully"})
@@ -61,7 +62,7 @@ async function updatePersonDate(req: Request, res: Response, next: NextFunction)
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
 
         const result = await personModel.updatePersonDate(id, body, files);
         res.status(200).json({ status: 1, message: "updated successfully"})

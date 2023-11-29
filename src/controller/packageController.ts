@@ -43,7 +43,8 @@ async function updatePackageData(req: Request, res: Response) {
 
 async function deletePackageData(req: Request, res: Response) {
     try {
-        await packageModel.deletePackageData(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await packageModel.deletePackageData(req.params.id, body);
         res.status(200).json({ status: 1, message: "deleted successfully"});
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })

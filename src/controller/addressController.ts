@@ -39,7 +39,7 @@ async function getAddressData(req: Request, res: Response) {
 async function createAddressData(req: Request, res: Response) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
         // console.log(body, files)
         await addressModel.createAddressData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
@@ -52,7 +52,7 @@ async function updateAddressData(req: Request, res: Response, next: NextFunction
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
-        const files = req.files;
+        const files = req.body.files;
 
         await addressModel.updateAddressData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully" })
@@ -63,7 +63,8 @@ async function updateAddressData(req: Request, res: Response, next: NextFunction
 
 async function deleteAddress(req: Request, res: Response) {
     try {
-        await addressModel.deleteAddress(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await addressModel.deleteAddress(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })

@@ -25,7 +25,8 @@ async function getCardData(req: Request, res: Response) {
 
 async function deleteCardData(req: Request, res: Response) {
     try {
-        await cardModel.deleteCardData(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await cardModel.deleteCardData(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -34,7 +35,8 @@ async function deleteCardData(req: Request, res: Response) {
 
 async function createCardData(req: Request, res: Response, next: NextFunction) {
     try {
-        await cardModel.createCardData(req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await cardModel.createCardData(body);
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
         next(err);
@@ -43,7 +45,8 @@ async function createCardData(req: Request, res: Response, next: NextFunction) {
 
 async function updateCardData(req: Request, res: Response, next: NextFunction) {
     try {
-        await cardModel.updateCardData(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await cardModel.updateCardData(req.params.id, body);
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);

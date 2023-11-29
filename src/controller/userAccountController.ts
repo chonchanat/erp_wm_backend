@@ -25,7 +25,8 @@ async function getUserAccountData(req: Request, res: Response) {
 
 async function deleteUserAccountData (req: Request, res: Response) {
     try {
-        await userAccountModel.deleteUserAccountData(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await userAccountModel.deleteUserAccountData(req.params.id, body);
         res.status(200).json({ status: 1, message: "deleted successfully"})
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
