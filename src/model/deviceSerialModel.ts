@@ -113,7 +113,7 @@ async function updateDeviceSerialData(device_serial_id: string, body: DeviceSeri
 
         await transaction.commit();
     } catch (err) {
-        console.log(err)
+        console.log(err);
         await transaction.rollback();
         throw err;
     }
