@@ -11,4 +11,5 @@ export interface DeviceSerialType {
     action_by: number,
     deviceSerial: DeviceSerial,
     deviceNew: Devices[],
+    deviceDelete: number[],
 }

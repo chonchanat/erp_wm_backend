@@ -110,6 +110,9 @@ async function updateDeviceSerialData(device_serial_id: string, body: DeviceSeri
 
             await operation.createDeviceConfigNew(transaction, device_id, deviceWithDeviceSerialId.deviceConfig, action_by, datetime)
         }
+        for (const device of body.deviceDelete) {
+            await operation.deleteDevice(transaction, device, action_by, datetime)
+        }
 
         await transaction.commit();
     } catch (err) {

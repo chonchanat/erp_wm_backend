@@ -9,8 +9,8 @@ export async function getCardTable(transaction: any, index: number, filter: stri
         .query(`
             DECLARE @cardTable IdType
             INSERT @cardTable
-            EXEC DevelopERP_ForTesting2..sp_filterCard @value = @value, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_Clear..sp_filterCard @value = @value, @person_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatCardTable @cardTable = @cardTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_date
             FROM Card
@@ -46,7 +46,7 @@ export async function createCardNew(transaction: any, card: Card, person_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_ForTesting2..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
+        EXEC DevelopERP_Clear..sp_insert_card @card_code_id = @card_code_id, @value = @value, @person_id = @person_id,
             @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -59,7 +59,7 @@ export async function updateCard(transaction: any, card_id: string | number, car
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 
+            EXEC DevelopERP_Clear..sp_update_card @card_id = @card_id, @card_code_id = @card_code_id, 
                 @value = @value, @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -70,6 +70,6 @@ export async function deleteCard(transaction: any, card_id: string | number, act
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
+            EXEC DevelopERP_Clear..sp_delete_card @card_id = @card_id, @action_by = @action_by, @action_date = @action_date    
         `)
 }
