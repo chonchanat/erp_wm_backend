@@ -25,7 +25,7 @@ export async function getDeviceSerialId(transaction: any) {
                 device_serial_id, serial_id
             FROM DevelopERP_Clear..DeviceSerial
             WHERE active = 1
-            ORDER BY device_serial_id DESC
+            ORDER BY device_serial_id
         `)
 }
 

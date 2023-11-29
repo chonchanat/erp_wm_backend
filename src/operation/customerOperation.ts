@@ -38,7 +38,7 @@ export async function getCustomerData(transaction: any, customer_id: string) {
             ON C.sales_type_code_id = M_salestype.code_id
             LEFT JOIN DevelopERP_Clear..MasterCode M_customertype
             ON C.customer_type_code_id = M_customertype.code_id
-            WHERE customer_id = @customer_id AND active = 1
+            WHERE customer_id = @customer_id AND C.active = 1
             
             DECLARE @fleetTable IdType
             INSERT INTO @fleetTable

@@ -30,6 +30,7 @@ export async function getUserAccountData(transaction: any, user_id: string) {
         .input('user_id', sql.INT, user_id)
         .query(`
             SELECT
+                UA.user_id,
                 UA.username,
                 UA.profile_id,
                 COALESCE(UA.uid, '') AS uid
