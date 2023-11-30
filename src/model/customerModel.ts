@@ -1,5 +1,4 @@
 import { getDateTime } from "../ultis/datetime"
-import { vehicleConfigDefault, vehiclePermitDefault } from "../ultis/default"
 import { CustomerType } from "../interfaces/customer"
 
 import * as operation from "../operation/index"
@@ -67,7 +66,7 @@ async function deleteCustomer(customer_id: string, body: any) {
     }
 }
 
-async function createCustomerData(body: any, files: any) {
+async function createCustomerData(body: CustomerType, files: any) {
     let transaction;
     try {
         let datetime = getDateTime();
@@ -115,11 +114,11 @@ async function createCustomerData(body: any, files: any) {
         }
 
         for (const vehicle of body.vehicleNew) {
-            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle.vehicle, action_by, datetime)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
             
-            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
-            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicle.vehicleConfig, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehicle.vehiclePermit, action_by, datetime)
 
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
         }
@@ -209,11 +208,11 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
         }
 
         for (const vehicle of body.vehicleNew) {
-            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle.vehicle, action_by, datetime)
             let vehicle_id = await vehicleResult.recordset[0].vehicle_id
 
-            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
-            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicle.vehicleConfig, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehicle.vehiclePermit, action_by, datetime)
 
             await operation.linkVehicleCustomer(transaction, vehicle_id, customer_id, action_by, datetime)
         }

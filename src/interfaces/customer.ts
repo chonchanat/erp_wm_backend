@@ -2,7 +2,7 @@ import { Address } from "./address";
 import { Contact } from "./contact";
 import { Persons } from "./person";
 import { Fleet } from "./fleet";
-import { Vehicle } from "./vehicle";
+import { Vehicles } from "./vehicle";
 
 export interface Customer {
     customer_name: string;
@@ -26,7 +26,7 @@ export interface CustomerType {
     personNew: Persons[];
     personExist: number[];
     personDelete: number[];
-    vehicleNew: Vehicle[];
+    vehicleNew: Vehicles[];
     vehicleExist: number[];
     vehicleDelete: number[];
     fleetNew: Fleet[];

@@ -39,7 +39,13 @@ export interface VehiclePermit {
     tls: boolean,
     scgl: boolean,
     diw: boolean,
-} 
+}
+
+export interface Vehicles {
+    vehicle: Vehicle,
+    vehicleConfig: VehicleConfig,
+    vehiclePermit: VehiclePermit,
+}
 
 export interface VehicleType {
     action_by: number,

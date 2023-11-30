@@ -115,11 +115,11 @@ async function createFleetData(body: FleetType) {
         }
       
         for (const vehicle of body.vehicleNew) {
-            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle.vehicle, action_by, datetime)
             let vehicle_id = vehicleResult.recordset[0].vehicle_id
 
-            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
-            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicle.vehicleConfig, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehicle.vehiclePermit, action_by, datetime)
 
             await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
         }
@@ -179,11 +179,11 @@ async function updateFleetData(fleet_id: string, body: FleetType) {
         }
 
         for (const vehicle of body.vehicleNew) {
-            let vehicleResult = await operation.createVehicleNew(transaction, vehicle, action_by, datetime)
+            let vehicleResult = await operation.createVehicleNew(transaction, vehicle.vehicle, action_by, datetime)
             let vehicle_id = vehicleResult.recordset[0].vehicle_id
 
-            await operation.createVehicleConfig(transaction, vehicle_id, vehicleConfigDefault, action_by, datetime)
-            await operation.createVehiclePermit(transaction, vehicle_id, vehiclePermitDefault, action_by, datetime)
+            await operation.createVehicleConfig(transaction, vehicle_id, vehicle.vehicleConfig, action_by, datetime)
+            await operation.createVehiclePermit(transaction, vehicle_id, vehicle.vehiclePermit, action_by, datetime)
 
             await operation.linkFleetVehicle(transaction, fleet_id, vehicle_id, action_by, datetime)
         }
