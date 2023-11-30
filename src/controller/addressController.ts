@@ -26,7 +26,7 @@ async function getAddressLocation(req: Request, res: Response) {
 async function getAddressData(req: Request, res: Response) {
     try {
         const result = await addressModel.getAddressData(req.params.id)
-        if (result.address.name === undefined) {
+        if (result.address.address_id === undefined) {
             res.status(422).json({ status: 0, message: "Data not found in the Database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })
@@ -36,15 +36,15 @@ async function getAddressData(req: Request, res: Response) {
     }
 }
 
-async function createAddressData(req: Request, res: Response) {
+async function createAddressData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
         const files = req.body.files;
-        // console.log(body, files)
+
         await addressModel.createAddressData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
-        res.status(500).json({ status: 0, message: "failed from server", response: err })
+        next(err);
     }
 }
 

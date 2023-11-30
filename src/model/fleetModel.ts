@@ -1,7 +1,6 @@
 const devConfig = require('../config/dbconfig')
 const sql = require('mssql')
 import { getDateTime } from "../ultis/datetime"
-import { vehicleConfigDefault, vehiclePermitDefault } from "../ultis/default"
 import { FleetType } from "../interfaces/fleet";
 
 import * as operation from "../operation/index"
