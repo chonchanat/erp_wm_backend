@@ -7,7 +7,7 @@ export async function getMasterCode(transaction: any, category: string, classes:
         .input('class', sql.NVARCHAR, classes !== undefined ? classes : "%")
         .query(`
             SELECT *
-            FROM DevelopERP_Clear..MasterCode
+            FROM DevelopERP_ForTesting2..MasterCode
             WHERE category LIKE @category ${classes === undefined ? "" : `AND class ${classes === "null" ? "IS NULL" : "LIKE @class"}`} AND active = 1
         `)
 }
@@ -20,11 +20,11 @@ export async function getMasterCodeTable(transaction: any, index: number, filter
         .query(`
             DECLARE @masterCodeTable IdType
             INSERT INTO @masterCodeTable
-            EXEC DevelopERP_Clear..sp_filterMasterCode @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatMasterCode @masterCodeTable = @masterCodeTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterMasterCode @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatMasterCode @masterCodeTable = @masterCodeTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_Clear..MasterCode
+            FROM DevelopERP_ForTesting2..MasterCode
             WHERE value LIKE @value AND active = 1
         `)
 }
@@ -37,7 +37,7 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
                 code_id, category, 
                 COALESCE(class, '') AS class, 
                 COALESCE(value, '') AS value
-            FROM DevelopERP_Clear..MasterCode
+            FROM DevelopERP_ForTesting2..MasterCode
             WHERE code_id = @code_id
         `)
 }
@@ -50,7 +50,7 @@ export async function createMasterCodeData(transaction: any, masterCode: MasterC
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_masterCode @category = @category, @class = @class, @value = @value,
+            EXEC DevelopERP_ForTesting2..sp_insert_masterCode @category = @category, @class = @class, @value = @value,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -62,7 +62,7 @@ export async function updateMasterCodeData(transaction: any, code_id: string, ma
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_masterCode @code_id = @code_id, @value = @value, @action_by = @action_by,
+            EXEC DevelopERP_ForTesting2..sp_update_masterCode @code_id = @code_id, @value = @value, @action_by = @action_by,
                 @action_date = @action_date
         `)
 }
@@ -73,7 +73,7 @@ export async function deleteMasterCode(transaction: any, code_id: string, action
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_masterCode @code_id = @code_id, @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_ForTesting2..sp_delete_masterCode @code_id = @code_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -81,7 +81,7 @@ export async function getMasterCodeCategory(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT category
-            FROM DevelopERP_Clear..MasterCode
+            FROM DevelopERP_ForTesting2..MasterCode
             WHERE active = 1
             GROUP BY category
         `)
@@ -92,7 +92,7 @@ export async function getMasterCodeClass(transaction: any, category: string) {
         .input('category', sql.NVARCHAR, category)
         .query(`
             SELECT class
-            FROM DevelopERP_Clear..MasterCode
+            FROM DevelopERP_ForTesting2..MasterCode
             WHERE category LIKE @category AND active = 1
             GROUP BY class
         `)
