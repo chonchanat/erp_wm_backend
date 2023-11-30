@@ -33,8 +33,11 @@ export async function getUserAccountData(transaction: any, user_id: string) {
                 UA.user_id,
                 UA.username,
                 UA.profile_id,
+                COALESCE(P.profile_name, '') AS profile,
                 COALESCE(UA.uid, '') AS uid
             FROM DevelopERP_Clear..UserAccount UA
+            LEFT JOIN DevelopERP_Clear..Profile P
+            ON UA.profile_id = P.profile_id
             WHERE UA.user_id = @user_id 
 
             DECLARE @personTable IdType

@@ -23,8 +23,8 @@ export async function getPackageData(transaction: any, package_id: string) {
         .query(`
             SELECT 
                 P.package_id, 
-                P.package_name_code_id, M_name.value AS package_name,
-                P.package_type_code_id, M_type.value AS package_type,
+                P.package_name_code_id, COALESCE(M_name.value, '') AS package_name,
+                P.package_type_code_id, COALESCE(M_type.value, '') AS package_type,
                 P.package_price,
                 P.package_start_date,
                 P.package_end_date,

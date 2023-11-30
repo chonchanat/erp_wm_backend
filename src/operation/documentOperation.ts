@@ -26,8 +26,29 @@ export async function getDocumentData(transaction: any, document_id: string) {
             SELECT 
                 D.document_id,
                 D.document_code_id,
-                D.document_name,
+                COALESCE(D.document_name, '') AS document_name,
                 D.create_date,
+                RTRIM(
+                    CASE
+                        WHEN D.customer_id IS NOT NULL
+                        THEN COALESCE(C.customer_name, '')
+                        WHEN D.person_id IS NOT NULL
+                        THEN COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '')
+                        WHEN D.address_id IS NOT NULL
+                        THEN 
+                            COALESCE(A.name + ', ', '') + 
+                            COALESCE(A.house_no + ', ', '') +
+                            COALESCE('หมู่ที่ ' + A.village_no + ', ', '') + 
+                            COALESCE('ซอย' + A.alley + ', ', '') +
+                            COALESCE('ถนน' + A.road + ', ', '') + 
+                            COALESCE(A.sub_district + ', ', '') +
+                            COALESCE(A.district + ', ', '') +
+                            COALESCE(A.province + ', ', '') +
+                            COALESCE(A.postal_code, '')
+                        WHEN D.vehicle_id IS NOT NULL
+                        THEN COALESCE(V.license_plate, '-') + COALESCE(' (' + M_province.value + ')', '')
+                    END
+                ) AS owner_name,
                 CASE
                     WHEN D.customer_id IS NOT NULL
                     THEN 'ลูกค้า'

@@ -34,7 +34,9 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
         .input('code_id', sql.INT, code_id)
         .query(`
             SELECT
-                code_id, category, COALESCE(class, '-') AS class, value
+                code_id, category, 
+                COALESCE(class, '') AS class, 
+                COALESCE(value, '') AS value
             FROM DevelopERP_Clear..MasterCode
             WHERE code_id = @code_id
         `)

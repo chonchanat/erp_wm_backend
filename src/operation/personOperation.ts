@@ -46,7 +46,7 @@ export async function getPersonData(transaction: any, person_id: string) {
                 COALESCE(p.lastname, '') as lastname,
                 COALESCE(p.nickname, '') as nickname,
                 m.code_id as title_code_id,
-                m.value as title_type,
+                COALESCE(m.value, '') as title_type,
                 COALESCE(p.description, '') as description
             FROM DevelopERP_Clear..Person p
             LEFT JOIN DevelopERP_Clear..MasterCode m
@@ -54,7 +54,8 @@ export async function getPersonData(transaction: any, person_id: string) {
             WHERE person_id = @person_id AND p.active = 1
 
             SELECT 
-                role_code_id, value AS role_type
+                role_code_id, 
+                COALESCE(value, '') AS role_type
             FROM DevelopERP_Clear..Person_Role PR
             LEFT JOIN DevelopERP_Clear..MasterCode M
             ON PR.role_code_id = M.code_id

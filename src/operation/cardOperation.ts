@@ -26,7 +26,8 @@ export async function getCardData(transaction: any, card_id: string) {
                 C.card_id, 
                 C.value, 
                 C.card_code_id, 
-                COALESCE(M.value, '-') AS card_type,
+                COALESCE(M.value, '') AS card_type,
+                RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', '-')) AS owner_name,
                 'บุคคล' AS owner_type,
                 C.person_id
             FROM Card C

@@ -45,7 +45,8 @@ export async function getFleetData(transaction: any, fleet_id: string) {
     return await transaction.request()
         .input('fleet_id', sql.INT, fleet_id)
         .query(`
-            SELECT F.fleet_id, F.fleet_name, PF.fleet_id AS parent_fleet_id, PF.fleet_name AS parent_fleet_name
+            SELECT F.fleet_id, COALESCE(F.fleet_name, '') as fleet_name, 
+                PF.fleet_id AS parent_fleet_id, COALESCE(PF.fleet_name, '') AS parent_fleet_name
             FROM DevelopERP_Clear..Fleet F
             LEFT JOIN DevelopERP_Clear..Fleet PF
             ON F.parent_fleet_id = PF.fleet_id

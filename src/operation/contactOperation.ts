@@ -26,7 +26,13 @@ export async function getContactData(transaction: any, contact_id: string) {
                 ct.contact_id,
                 ct.value,
                 ct.contact_code_id,
-                m.value AS contact_type,
+                COALESCE(m.value, '') AS contact_type,
+                CASE
+                    WHEN ct.person_id IS NULL
+                    THEN COALESCE(c.customer_name, '')
+                    WHEN ct.customer_id IS NULL
+                    THEN RTRIM(COALESCE(P.firstname + ' ', '') + COALESCE(P.lastname + ' ', '') + COALESCE('(' + P.nickname + ')', ''))
+                END AS owner_name,
                 CASE
                     WHEN ct.person_id IS NULL
                     THEN 'ลูกค้า'

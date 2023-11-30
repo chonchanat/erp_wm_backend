@@ -35,12 +35,25 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
     return await transaction.request()
         .input('vehicle_id', sql.INT, vehicle_id)
         .query(`
-            SELECT V.vehicle_id, V.frame_no, V.license_plate, VM.brand AS brand_name, VM.model AS model_name, V.vehicle_model_id, 
-                V.registration_province_code_id, V.registration_type_code_id, V.driving_license_type_code_id, 
-                V.number_of_axles, V.number_of_wheels, V.number_of_tires, V.vehicle_type_code_id
+            SELECT 
+                V.vehicle_id, V.frame_no, V.license_plate, 
+                COALESCE(VM.brand, '') AS brand_name, COALESCE(VM.model, '') AS model_name, V.vehicle_model_id, 
+                V.registration_province_code_id, COALESCE(M_registration_province.value, '') AS registration_province,
+                V.registration_type_code_id, COALESCE(M_registration_type.value, '') AS registration_type,
+                V.driving_license_type_code_id, COALESCE(M_driving_license_type.value, '') AS driving_license_type,
+                V.number_of_axles, V.number_of_wheels, V.number_of_tires, 
+                V.vehicle_type_code_id, COALESCE(M_vehicle_type.value, '') AS vehicle_type
             FROM DevelopERP_Clear..Vehicle V
             LEFT JOIN DevelopERP_Clear..VehicleModel VM
             ON V.vehicle_model_id = VM.vehicle_model_id
+            LEFT JOIN DevelopERP_Clear..MasterCode M_registration_province
+            ON V.registration_province_code_id = M_registration_province.code_id
+            LEFT JOIN DevelopERP_Clear..MasterCode M_registration_type
+            ON V.registration_type_code_id = M_registration_type.code_id
+            LEFT JOIN DevelopERP_Clear..MasterCode M_driving_license_type
+            ON V.driving_license_type_code_id = M_driving_license_type.code_id
+            LEFT JOIN DevelopERP_Clear..MasterCode M_vehicle_type
+            ON V.vehicle_type_code_id = M_vehicle_type.code_id
             WHERE vehicle_id = @vehicle_id AND V.active = 1
 
             SELECT 

@@ -36,9 +36,9 @@ export async function getDeviceSerialData(transaction: any, device_serial_id: st
             SELECT 
                 DS.device_serial_id, 
                 DS.serial_id, 
-                COALESCE(DS.imei_serial, '-') AS imei_serial,
+                COALESCE(DS.imei_serial, '') AS imei_serial,
                 DS.device_type_code_id,
-                M.value AS device_type, 
+                COALESCE(M.value, '') AS device_type, 
                 DS.create_date
             FROM DevelopERP_Clear..DeviceSerial DS
             LEFT JOIN DevelopERP_Clear..MasterCode M
