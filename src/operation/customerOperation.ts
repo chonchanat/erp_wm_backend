@@ -32,7 +32,10 @@ export async function getCustomerData(transaction: any, customer_id: string) {
     return await transaction.request()
         .input('customer_id', sql.INT, customer_id)
         .query(`
-            SELECT C.customer_id, C.customer_name, C.sales_type_code_id, M_salestype.value AS sales_type, C.customer_type_code_id, M_customertype.value as customer_type
+            SELECT 
+                C.customer_id, C.customer_name, 
+                C.sales_type_code_id, COALESCE(M_salestype.value, '') AS sales_type, 
+                C.customer_type_code_id, COALESCE(M_customertype.value, '') as customer_type
             FROM DevelopERP_Clear..Customer C
             LEFT JOIN DevelopERP_Clear..MasterCode M_salestype
             ON C.sales_type_code_id = M_salestype.code_id
