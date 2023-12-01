@@ -18,7 +18,7 @@ async function getDeviceData(req: Request, res: Response) {
     try {
         const result = await deviceModel.getDeviceData(req.params.id);
         if (result.device === undefined) {
-            res.status(422).json({ status: 0, message: "Data not found in the database" })
+            res.status(404).json({ status: 0, message: "Data not found in the database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })
         }
