@@ -17,7 +17,7 @@ async function getContactTable(req: Request, res: Response) {
 async function getContactData(req: Request, res: Response) {
     try {
         const result = await contactModel.getContactData(req.params.id);
-        if (result === undefined) {
+        if (result.contact === undefined) {
             res.status(422).json({ status: 0, message: "Data not found in the database" })
         } else {
             res.status(200).json({ status: 1, message: 'ok', response: result })

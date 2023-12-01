@@ -55,6 +55,7 @@ export async function getAddressData(transaction: any, address_id: string) {
         .input('address_id', sql.INT, address_id)
         .query(`
             SELECT
+                address_id,
                 COALESCE(A.name, '') AS name,
                 COALESCE(A.house_no, '') AS house_no,
                 COALESCE(A.village_no, '') AS village_no,
