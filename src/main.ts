@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import bp from "body-parser"
 import customerRoutes from "./routes/customerRoutes";
@@ -20,7 +20,7 @@ import handleError from "./middleware/handleError";
 const app = express();
 
 app.use(cors());
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*'); // ให้ทุกโดเมนสามารถเข้าถึงได้
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // กำหนด HTTP Methods ที่อนุญาต
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // กำหนด HTTP Headers ที่อนุญาต
@@ -31,13 +31,13 @@ app.use((req, res, next) => {
 app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 
-app.use((req: Request, res: Response, next: () => void) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
 });
 
 // route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.json({ message: "Hello World" })
 })
 app.use('/', customerRoutes);
@@ -55,6 +55,10 @@ app.use('/', documentRoutes);
 app.use('/', packageRoutes);
 
 app.use(handleError.duplicateError);
+
+app.all('*', (req: Request, res: Response) => {
+    res.status(404).json({ status: 0, message: `Invalid url path: ${req.url}` })
+})
 
 const PORT = 3005
 app.listen(PORT,() => {
