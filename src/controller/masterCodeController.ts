@@ -28,7 +28,7 @@ async function getMasterCodeData(req: Request, res: Response) {
     try {
         let result = await masterCodeModel.getMasterCodeData(req.params.id);
         if (result.masterCode === undefined) {
-            res.status(422).json({ status: 0, message: "Data not found in the Database" })
+            res.status(404).json({ status: 0, message: "Data not found in the Database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })
         }
