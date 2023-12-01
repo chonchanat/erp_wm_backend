@@ -26,6 +26,7 @@ export async function getDocumentData(transaction: any, document_id: string) {
             SELECT 
                 D.document_id,
                 D.document_code_id,
+                COALESCE(M_type.value, '') AS document_type,
                 COALESCE(D.document_name, '') AS document_name,
                 D.create_date,
                 RTRIM(
@@ -72,10 +73,10 @@ export async function getDocumentData(transaction: any, document_id: string) {
             ON D.address_id = A.address_id
             LEFT JOIN Vehicle V
             ON D.vehicle_id = V.vehicle_id
-            LEFT JOIN MasterCode M
-            ON D.document_code_id = M.code_id
+            LEFT JOIN MasterCode M_type
+            ON D.document_code_id = M_type.code_id
             LEFT JOIN MasterCode M_province
-            ON V.registration_province_code_id = M.code_id
+            ON V.registration_province_code_id = M_province.code_id
             WHERE D.document_id = @document_id AND D.active = 1
         `)
 }
