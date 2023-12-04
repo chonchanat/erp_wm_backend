@@ -39,7 +39,8 @@ async function deleteUserAccountData (req: Request, res: Response) {
 
 async function createUserAccountData (req: Request, res: Response, next: NextFunction) {
     try {
-        await userAccountModel.createUserAccountData(req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await userAccountModel.createUserAccountData(body)
         res.status(201).json({ status: 1, message: "created successfully"})
     } catch (err) {
         next(err);
@@ -48,7 +49,8 @@ async function createUserAccountData (req: Request, res: Response, next: NextFun
 
 async function updateUserAccountData (req: Request, res: Response, next: NextFunction) {
     try {
-        await userAccountModel.updateUserAccount(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await userAccountModel.updateUserAccount(req.params.id, body)
         res.status(200).json({ status: 1, message: "updated successfully"})
     } catch (err) {
         next(err);

@@ -39,7 +39,8 @@ async function getMasterCodeData(req: Request, res: Response) {
 
 async function createMasterCodeData(req: Request, res: Response) {
     try {
-        await masterCodeModel.createMasterCodeData(req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await masterCodeModel.createMasterCodeData(body);
         res.status(201).json({ status: 1, message: "created seccessfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -48,7 +49,8 @@ async function createMasterCodeData(req: Request, res: Response) {
 
 async function updateMasterCodeData(req: Request, res: Response) {
     try {
-        await masterCodeModel.updateMasterCodeData(req.params.id, req.body)
+        let body = JSON.parse(req.body.jsonData)
+        await masterCodeModel.updateMasterCodeData(req.params.id, body)
         res.status(200).json({ status: 1, message: "updated seccessfully" })
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
