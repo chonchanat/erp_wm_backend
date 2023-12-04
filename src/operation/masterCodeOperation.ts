@@ -91,7 +91,7 @@ export async function getMasterCodeClass(transaction: any, category: string) {
     return await transaction.request()
         .input('category', sql.NVARCHAR, category)
         .query(`
-            SELECT class
+            SELECT COALESCE(class, 'null') AS class
             FROM DevelopERP_ForTesting2..MasterCode
             WHERE category LIKE @category AND active = 1
             GROUP BY class

@@ -31,9 +31,8 @@ async function createDocumentData(req: any, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
         const files = req.files;
-        // console.log(req.body.files)
-        await documentModel.createDocumentData(body, files);
 
+        await documentModel.createDocumentData(body, files);
         res.status(201).json({ status: 1, message: "created successfully" })
     } catch (err) {
         next(err);
@@ -42,7 +41,10 @@ async function createDocumentData(req: any, res: Response, next: NextFunction) {
 
 async function updateDocumentData(req: Request, res: Response, next: NextFunction) {
     try {
-        await documentModel.updateDocumentData(req.params.id, req.body)
+        const id = req.params.id
+        const body = JSON.parse(req.body.jsonData);
+
+        await documentModel.updateDocumentData(id, body)
         res.status(200).json({ status: 1, message: "updated successfully" })
     } catch (err) {
         next(err);
@@ -52,6 +54,7 @@ async function updateDocumentData(req: Request, res: Response, next: NextFunctio
 async function deleteDocumentData(req: Request, res: Response) {
     try {
         let body = JSON.parse(req.body.jsonData)
+        
         await documentModel.deleteDocumentData(req.params.id, body)
         res.status(200).json({ status: 1, message: "deleted successfully" })
     } catch (err) {
