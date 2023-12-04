@@ -39,7 +39,7 @@ async function getAddressData(req: Request, res: Response) {
 async function createAddressData(req: Request, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.body.files;
+        const files = req.files;
 
         await addressModel.createAddressData(body, files)
         res.status(201).json({ status: 1, message: "created successfully" })
@@ -52,7 +52,7 @@ async function updateAddressData(req: Request, res: Response, next: NextFunction
     try {
         const id = req.params.id;
         const body = JSON.parse(req.body.jsonData);
-        const files = req.body.files;
+        const files = req.files;
 
         await addressModel.updateAddressData(id, body, files)
         res.status(200).json({ status: 1, message: "updated successfully" })
