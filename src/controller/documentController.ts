@@ -30,7 +30,7 @@ async function getDocumentData(req: Request, res: Response) {
 async function createDocumentData(req: any, res: Response, next: NextFunction) {
     try {
         const body = JSON.parse(req.body.jsonData);
-        const files = req.body.files;
+        const files = req.files;
         // console.log(req.body.files)
         await documentModel.createDocumentData(body, files);
 
