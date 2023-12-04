@@ -29,7 +29,8 @@ async function getPackageData(req: Request, res: Response) {
 
 async function createPackageData(req: Request, res: Response) {
     try {
-        await packageModel.createPackageData(req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await packageModel.createPackageData(body);
         res.status(201).json({ status: 1, message: "created successfully"});
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
@@ -38,7 +39,8 @@ async function createPackageData(req: Request, res: Response) {
 
 async function updatePackageData(req: Request, res: Response) {
     try {
-        await packageModel.updatePackageData(req.params.id, req.body);
+        let body = JSON.parse(req.body.jsonData)
+        await packageModel.updatePackageData(req.params.id, body);
         res.status(200).json({ status: 1, message: "updated successfully"});
     } catch (err) {
         res.status(500).json({ status: 0, message: "failed from server", response: err })
