@@ -243,6 +243,10 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
                 customer_id, null, null, null, action_by, datetime)
         }
 
+        for (const document of body.documentDelete) {
+            await operation.deleteDocument(transaction, document, action_by, datetime)
+        }
+
         await transaction.commit();
 
     } catch (err) {

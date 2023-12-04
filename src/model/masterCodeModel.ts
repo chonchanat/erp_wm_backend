@@ -34,7 +34,7 @@ async function getMasterCodeTable(index: number, filter: string) {
 
         return {
             masterCode: result.recordsets[0],
-            count_date: result.recordsets[1][0].count_data,
+            count_data: result.recordsets[1][0].count_data,
         }
     } catch (err) {
         console.log(err);
