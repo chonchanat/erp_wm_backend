@@ -17,7 +17,7 @@ async function getVehicleModelTable(req: Request, res: Response) {
 async function getVehicleModelData(req: Request, res: Response) {
     try {
         const result = await vehicleModelModel.getVehicleModelData(req.params.id);
-        if (result.vehicleModel.vehicle_model_id === undefined) {
+        if (result.vehicleModel === undefined) {
             res.status(404).json({ status: 0, message: "Data not found in the Database" })
         } else {
             res.status(200).json({ status: 1, message: "ok", response: result })

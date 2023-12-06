@@ -24,7 +24,6 @@ async function getVehicleModelData(vehicle_model_id: string) {
     try {
         let pool = await sql.connect(devConfig);
         let result = await operation.getVehicleModelData(pool, vehicle_model_id);
-
         return {
             vehicleModel: result.recordsets[0][0]
         }
