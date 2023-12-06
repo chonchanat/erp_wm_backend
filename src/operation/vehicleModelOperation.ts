@@ -43,6 +43,29 @@ export async function createVehicleModelData(transaction: any, vehicleModel: Veh
         `)
 }
 
+export async function updateVehicleModelData(transaction: any, vehicle_model_id: string, vehicleModel: VehicleModel, action_by: string | number, datetime: object) {
+    return await transaction.request()
+        .input('vehicle_model_id', sql.INT, vehicle_model_id)
+        .input('brand', sql.NVARCHAR, vehicleModel.brand !== "" ? vehicleModel.brand : null)
+        .input('model', sql.NVARCHAR, vehicleModel.model !== "" ? vehicleModel.model : null)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_update_vehicleModel @vehicle_model_id = @vehicle_model_id, @brand = @brand, @model = @model,
+                @action_by = @action_by, @action_date = @action_date
+        `)
+}
+
+export async function deleteVehicleModelData(transaction: any, vehicle_model_id: string, action_by: string | number, datetime: object) {
+    return await transaction.request()
+        .input('vehicle_model_id', sql.INT, vehicle_model_id)
+        .input('action_by', sql.INT, action_by)
+        .input('action_date', sql.DATETIME, datetime)
+        .query(`
+            EXEC DevelopERP_Clear..sp_delete_vehicleModel @vehicle_model_id = @vehicle_model_id, 
+                @action_by = @action_by, @action_date = @action_date
+        `)
+}
 // export async function getVehicleBrand(transaction: any) {
 //     return await transaction.request()
 //         .query(`

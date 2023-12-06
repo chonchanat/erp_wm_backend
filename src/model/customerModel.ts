@@ -54,7 +54,7 @@ async function getCustomerData(customer_id: string) {
     }
 }
 
-async function deleteCustomer(customer_id: string, body: any) {
+async function deleteCustomer(customer_id: string, body: CustomerType) {
     try {
         let datetime = getDateTime();
         let action_by = body.action_by as number;

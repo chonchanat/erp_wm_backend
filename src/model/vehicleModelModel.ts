@@ -34,4 +34,55 @@ async function getVehicleModelData(vehicle_model_id: string) {
     }
 }
 
-export default { getVehicleModelTable, getVehicleModelData }
+async function createVehicleModelData(body: VehicleModelType) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        await operation.createVehicleModelData(transaction, body.vehicleModel, action_by, datetime)
+
+        await transaction.commit();
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function updateVehicleModelData(vehicle_model_id: string, body: VehicleModelType) {
+    let transaction;
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        transaction = pool.transaction();
+        await transaction.begin();
+
+        await operation.updateVehicleModelData(transaction, vehicle_model_id, body.vehicleModel, action_by, datetime);
+
+        await transaction.commit();
+    } catch (err) {
+        console.log(err);
+        await transaction.rollback();
+        throw err;
+    }
+}
+
+async function deleteVehicleModelData(vehicle_model_id: string, body: VehicleModelType) {
+    try {
+        let datetime = getDateTime();
+        let action_by = body.action_by as number;
+        let pool = await sql.connect(devConfig);
+        
+        await operation.deleteVehicleModelData(pool, vehicle_model_id, action_by, datetime);
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData }

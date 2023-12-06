@@ -27,4 +27,41 @@ async function getVehicleModelData(req: Request, res: Response) {
     }
 }
 
-export default { getVehicleModelTable, getVehicleModelData }
+async function createVehicleModelData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const body = req.body.jsonData;
+        // const body = JSON.parse(req.body.jsonData);
+
+        await vehicleModelModel.createVehicleModelData(body);
+        res.status(201).json({ status: 1, message: "created seccessfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function updateVehicleModelData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const id = req.params.id;
+        const body = req.body.jsonData;
+        // const body = JSON.parse(req.body.jsonData);
+
+        await vehicleModelModel.updateVehicleModelData(id, body);
+        res.status(200).json({ status: 1, message: "updated seccessfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+async function deleteVehicleModelData(req: Request, res: Response, next: NextFunction) {
+    try {
+        const id = req.params.id;
+        const body = req.body.jsonData
+
+        await vehicleModelModel.deleteVehicleModelData(id, body)
+        res.status(200).json({ status: 1, message: "deleted seccessfully" })
+    } catch (err) {
+        next(err);
+    }
+}
+
+export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData }
