@@ -211,32 +211,4 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
     }
 }
 
-async function getVehicleBrand() {
-    try {
-        let pool = await sql.connect(devConfig);
-        let result = await operation.getVehicleBrand(pool);
-
-        return {
-            brands: result.recordsets[0]
-        }
-    } catch (err) {
-        console.log(err);
-        throw err;
-    }
-}
-
-async function getVehicleModel(brand: string) {
-    try {
-        let pool = await sql.connect(devConfig);
-        let result = await operation.getVehicleModel(pool, brand);
-
-        return {
-            models: result.recordsets[0]
-        }
-    } catch (err) {
-        console.log(err);
-        throw err;
-    }
-}
-
-export default { getVehicleTable, getVehicleLicensePlate, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData, getVehicleBrand, getVehicleModel }
+export default { getVehicleTable, getVehicleLicensePlate, getVehicleData, deleteVehicle, createVehicleData, updateVehicleData }

@@ -66,22 +66,23 @@ export async function deleteVehicleModelData(transaction: any, vehicle_model_id:
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
-// export async function getVehicleBrand(transaction: any) {
-//     return await transaction.request()
-//         .query(`
-//             SELECT distinct brand
-//             FROM DevelopERP_ForTesting2..VehicleModel
-//             ORDER BY brand
-//         `)
-// }
 
-// export async function getVehicleModel(transaction: any, brand: string) {
-//     return await transaction.request()
-//         .input('brand', sql.NVARCHAR, brand)
-//         .query(`
-//             SELECT vehicle_model_id, model
-//             FROM DevelopERP_ForTesting2..VehicleModel
-//             WHERE brand LIKE @brand
-//             ORDER BY model
-//         `)
-// }
+export async function getVehicleModelBrand(transaction: any) {
+    return await transaction.request()
+        .query(`
+            SELECT distinct brand
+            FROM DevelopERP_ForTesting2..VehicleModel
+            ORDER BY brand
+        `)
+}
+
+export async function getVehicleModelModel(transaction: any, brand: string) {
+    return await transaction.request()
+        .input('brand', sql.NVARCHAR, brand)
+        .query(`
+            SELECT vehicle_model_id, model
+            FROM DevelopERP_ForTesting2..VehicleModel
+            WHERE brand LIKE @brand
+            ORDER BY model
+        `)
+}

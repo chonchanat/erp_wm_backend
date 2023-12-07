@@ -65,4 +65,24 @@ async function deleteVehicleModelData(req: Request, res: Response, next: NextFun
     }
 }
 
-export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData }
+async function getVehicleModelBrand(req: Request, res: Response) {
+    try {
+        const result = await vehicleModelModel.getVehicleModelBrand();
+        res.status(200).json({ status: 1, message: "ok", response: result})
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+async function getVehicleModelModel(req: Request, res: Response) {
+    try {
+        const brand = req.query.brand !== undefined ? req.query.brand as string : "%";
+        const result = await vehicleModelModel.getVehicleModelModel(brand);
+        res.status(200).json({ status: 1, message: "ok", response: result })
+    } catch (err) {
+        res.status(500).json({ status: 0, message: "failed from server", response: err })
+    }
+}
+
+
+export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData, getVehicleModelBrand, getVehicleModelModel }
