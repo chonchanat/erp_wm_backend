@@ -29,8 +29,8 @@ async function getVehicleModelData(req: Request, res: Response) {
 
 async function createVehicleModelData(req: Request, res: Response, next: NextFunction) {
     try {
-        const body = req.body.jsonData;
-        // const body = JSON.parse(req.body.jsonData);
+        // const body = req.body.jsonData;
+        const body = JSON.parse(req.body.jsonData);
 
         await vehicleModelModel.createVehicleModelData(body);
         res.status(201).json({ status: 1, message: "created seccessfully" })
@@ -42,8 +42,8 @@ async function createVehicleModelData(req: Request, res: Response, next: NextFun
 async function updateVehicleModelData(req: Request, res: Response, next: NextFunction) {
     try {
         const id = req.params.id;
-        const body = req.body.jsonData;
-        // const body = JSON.parse(req.body.jsonData);
+        // const body = req.body.jsonData;
+        const body = JSON.parse(req.body.jsonData);
 
         await vehicleModelModel.updateVehicleModelData(id, body);
         res.status(200).json({ status: 1, message: "updated seccessfully" })
@@ -55,7 +55,8 @@ async function updateVehicleModelData(req: Request, res: Response, next: NextFun
 async function deleteVehicleModelData(req: Request, res: Response, next: NextFunction) {
     try {
         const id = req.params.id;
-        const body = req.body.jsonData
+        // const body = req.body.jsonData
+        const body = JSON.parse(req.body.jsonData);
 
         await vehicleModelModel.deleteVehicleModelData(id, body)
         res.status(200).json({ status: 1, message: "deleted seccessfully" })
