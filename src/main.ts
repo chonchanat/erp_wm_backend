@@ -62,7 +62,7 @@ app.all('*', (req: Request, res: Response) => {
     res.status(404).json({ status: 0, message: `Invalid url path: ${req.url}` })
 })
 
-const PORT = 3005
+const PORT = 3001
 app.listen(PORT,() => {
     console.log('server is running on port : ' + PORT)
 })
