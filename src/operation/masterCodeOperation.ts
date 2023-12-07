@@ -50,7 +50,7 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
 export async function createMasterCodeData(transaction: any, masterCode: MasterCode, action_by: number, datetime: object) {
     return transaction.request()
         .input('category', sql.NVARCHAR, masterCode.category !== "" ? masterCode.category : null)
-        .input('class', sql.NVARCHAR, masterCode.class !== "" ? masterCode.class : null)
+        .input('class', sql.NVARCHAR, masterCode.class !== "null" ? masterCode.class : null)
         .input('value', sql.NVARCHAR, masterCode.value !== "" ? masterCode.value : null)
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
