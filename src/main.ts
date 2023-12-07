@@ -20,7 +20,7 @@ import handleError from "./middleware/handleError";
 
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3005
+const PORT = 3001
 
 app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
