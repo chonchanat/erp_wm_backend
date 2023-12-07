@@ -8,11 +8,11 @@ export async function getPackageTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @packageTable IdType
             INSERT INTO @packageTable
-            EXEC DevelopERP_ForTesting2..sp_filterPackage @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatPackage @packageTable = @packageTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_Clear..sp_filterPackage @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_Clear..sp_formatPackage @packageTable = @packageTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_ForTesting2..Package
+            FROM DevelopERP_Clear..Package
             WHERE active = 1
         `)
 }
@@ -38,13 +38,13 @@ export async function getPackageData(transaction: any, package_id: string) {
 
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
+            EXEC DevelopERP_Clear..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = '%', @device_serial_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
+            EXEC DevelopERP_Clear..sp_filterDevice @device_id = '%', @device_serial_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
+            EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
@@ -64,7 +64,7 @@ export async function createPackageNew(transaction: any, packages: Package, vehi
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_package @vehicle_id = @vehicle_id, @package_name_code_id = @package_name_code_id,
+            EXEC DevelopERP_Clear..sp_insert_package @vehicle_id = @vehicle_id, @package_name_code_id = @package_name_code_id,
                 @package_type_code_id = @package_type_code_id, @package_price = @package_price, @package_start_date = @package_start_date,
                 @package_end_date = @package_end_date, @action_by = @action_by, @action_date = @action_date
         `)
@@ -76,7 +76,7 @@ export async function linkPackageHistory(transaction: any, package_id: string | 
         .input('vehicle_id', sql.INT, vehicle_id)
         .input('device_id', sql.INT, device_id)
         .query(`
-            UPDATE DevelopERP_ForTesting2..PackageHistory
+            UPDATE DevelopERP_Clear..PackageHistory
             SET package_id = @package_id
             WHERE vehicle_id = @vehicle_id AND device_id = @device_id
         `)
@@ -94,7 +94,7 @@ export async function updatePackage(transaction: any, package_id: string, packag
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_package @package_id = @package_id, @package_name_code_id = @package_name_code_id,
+            EXEC DevelopERP_Clear..sp_update_package @package_id = @package_id, @package_name_code_id = @package_name_code_id,
                 @package_type_code_id = @package_type_code_id, @package_price = @package_price,
                 @package_start_date = @package_start_date, @package_end_date = @package_end_date, @package_cancel_date = @package_cancel_date,
                 @action_by = @action_by, @action_date = @action_date
@@ -107,6 +107,6 @@ export async function deletePackage(transaction: any, package_id: string, action
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_package @package_id = @package_id, @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_Clear..sp_delete_package @package_id = @package_id, @action_by = @action_by, @action_date = @action_date
         `)
 }

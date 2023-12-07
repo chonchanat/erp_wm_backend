@@ -18,7 +18,9 @@ import vehicleModelRoutes from "./routes/vehicleModelRoutes";
 
 import handleError from "./middleware/handleError";
 
+require('dotenv').config();
 const app = express();
+const PORT = process.env.PORT || 3005
 
 app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +35,7 @@ app.use(bp.json())
 app.use(bp.urlencoded({ extended: true }))
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log(`[${new Date().toISOString()}] port:${PORT} ${req.method} ${req.url}`);
     next();
 });
 
@@ -62,7 +64,6 @@ app.all('*', (req: Request, res: Response) => {
     res.status(404).json({ status: 0, message: `Invalid url path: ${req.url}` })
 })
 
-const PORT = 3001
 app.listen(PORT,() => {
     console.log('server is running on port : ' + PORT)
 })
