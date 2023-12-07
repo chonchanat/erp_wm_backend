@@ -84,4 +84,32 @@ async function deleteVehicleModelData(vehicle_model_id: string, body: VehicleMod
     }
 }
 
-export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData }
+async function getVehicleModelBrand() {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getVehicleModelBrand(pool);
+
+        return {
+            brands: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+async function getVehicleModelModel(brand: string) {
+    try {
+        let pool = await sql.connect(devConfig);
+        let result = await operation.getVehicleModelModel(pool, brand);
+
+        return {
+            models: result.recordsets[0]
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+export default { getVehicleModelTable, getVehicleModelData, createVehicleModelData, updateVehicleModelData, deleteVehicleModelData, getVehicleModelBrand, getVehicleModelModel }

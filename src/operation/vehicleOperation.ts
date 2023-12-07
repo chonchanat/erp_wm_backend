@@ -248,23 +248,3 @@ export async function updateVehiclePermit(transaction: any, vehicle_id: string |
                 @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
         `)
 }
-
-export async function getVehicleBrand(transaction: any) {
-    return await transaction.request()
-        .query(`
-            SELECT distinct brand
-            FROM DevelopERP_Clear..VehicleModel
-            ORDER BY brand
-        `)
-}
-
-export async function getVehicleModel(transaction: any, brand: string) {
-    return await transaction.request()
-        .input('brand', sql.NVARCHAR, brand)
-        .query(`
-            SELECT vehicle_model_id, model
-            FROM DevelopERP_Clear..VehicleModel
-            WHERE brand LIKE @brand
-            ORDER BY model
-        `)
-}
