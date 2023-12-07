@@ -6,7 +6,12 @@ export async function getMasterCode(transaction: any, category: string, classes:
         .input('category', sql.NVARCHAR, category !== undefined ? category : "%")
         .input('class', sql.NVARCHAR, classes !== undefined ? classes : "%")
         .query(`
-            SELECT *
+            SELECT 
+                code_id,
+                COALESCE(category, 'null') AS category,
+                COALESCE(class, 'null') AS class,
+                COALESCE(value, 'null') AS value,
+                active
             FROM DevelopERP_Clear..MasterCode
             WHERE category LIKE @category ${classes === undefined ? "" : `AND class ${classes === "null" ? "IS NULL" : "LIKE @class"}`} AND active = 1
         `)
