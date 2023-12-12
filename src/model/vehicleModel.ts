@@ -119,9 +119,9 @@ async function createVehicleData(body: VehicleType, files: any) {
         }
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 null, null, null, vehicle_id, action_by, datetime)
         }
 
@@ -193,9 +193,9 @@ async function updateVehicleData(vehicle_id: string, body: VehicleType, files: a
         }
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 null, null, null, vehicle_id, action_by, datetime)
         }
         for (const document of body.documentDelete) {

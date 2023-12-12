@@ -40,8 +40,8 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
         .query(`
             SELECT
                 code_id, category, 
-                COALESCE(class, '') AS class, 
-                COALESCE(value, '') AS value
+                COALESCE(class, 'null') AS class, 
+                COALESCE(value, 'null') AS value
             FROM DevelopERP_ForTesting2..MasterCode
             WHERE code_id = @code_id
         `)

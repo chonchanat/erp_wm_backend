@@ -46,9 +46,9 @@ async function createDocumentData(body: DocumentType, files: any) {
         await transaction.begin();
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.document.document_code_id, files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.document.document_code_id, fileNameUTF8, files[i].buffer,
                 body.document.customer_id, body.document.person_id, body.document.address_id, body.document.vehicle_id,
                 action_by, datetime)
         }

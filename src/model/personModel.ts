@@ -117,7 +117,9 @@ async function createPersonData(body: PersonType, files: any) {
         }
 
         for (let i = 0; i < files.length; i++) {
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 null, person_id, null, null, action_by, datetime)
         }
 
@@ -196,9 +198,9 @@ async function updatePersonDate(person_id: string, body: PersonType, files: any)
         }
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 null, person_id, null, null, action_by, datetime)
         }
 

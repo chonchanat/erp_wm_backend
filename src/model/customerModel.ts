@@ -137,9 +137,9 @@ async function createCustomerData(body: CustomerType, files: any) {
         }
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 customer_id, null, null, null, action_by, datetime)
         }
 
@@ -237,9 +237,9 @@ async function updateCustomerData(customer_id: string, body: CustomerType, files
         }
 
         for (let i = 0; i < files.length; i++) {
-            // let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
+            let fileNameUTF8 = Buffer.from(files[i].originalname, 'latin1').toString('utf8');
 
-            await operation.createDocumentNew(transaction, body.documentCodeNew[i], files[i].originalname, files[i].buffer,
+            await operation.createDocumentNew(transaction, body.documentCodeNew[i], fileNameUTF8, files[i].buffer,
                 customer_id, null, null, null, action_by, datetime)
         }
 

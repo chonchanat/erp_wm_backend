@@ -68,6 +68,10 @@ function duplicateError(err: any, req: Request, res: Response, next: NextFunctio
         response.message.en = "Cannot insert duplicate value for person and role";
         response.message.th = "มีการเชื่อมโยงระหว่างบุคคลกับตำแหน่งนี้อยู่ในระบบแล้ว";
 
+    } else if (errMessage.includes('UC_ProfileName') && errMessage.includes('duplicate key')) {
+        response.message.en = "Cannot insert duplicate profile name";
+        response.message.th = "มีชื่อโปรไฟล์นี้อยู่ในระบบแล้ว";
+
     } else if (errMessage.includes('UC_FrameNo') && errMessage.includes('duplicate key')) {
         response.message.en = "Cannot insert duplicate frame no";
         response.message.th = "มีหมายเลขตัวถังนี้อยู่ในระบบแล้ว";
