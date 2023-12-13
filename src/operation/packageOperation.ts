@@ -70,15 +70,60 @@ export async function createPackageNew(transaction: any, packages: Package, vehi
         `)
 }
 
-export async function linkPackageHistory(transaction: any, package_id: string | number, vehicle_id: string | number, device_id: string | number) {
+export async function linkPackageHistory(transaction: any, package_id: string | number, vehicle_id: string | number, device_id: string | number, datetime: object) {
     return await transaction.request()
         .input('package_id', sql.INT, package_id)
         .input('vehicle_id', sql.INT, vehicle_id)
         .input('device_id', sql.INT, device_id)
+        .input('install_date', sql.DATETIME, datetime)
+        .query(`
+            IF NOT EXISTS (
+                SELECT 1
+                FROM PackageHistory
+                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
+            )
+            BEGIN
+                INSERT INTO DevelopERP_Clear..PackageHistory (package_id, vehicle_id, device_id, install_date)
+                VALUES (@package_id, @vehicle_id, @device_id, @install_date)
+
+                UPDATE DevelopERP_Clear..Device
+                SET package_id = @package_id
+                WHERE device_id = @device_id
+            END
+        `)
+}
+export async function unlinkPackageHistory(transaction: any, package_id: string | number, vehicle_id: string | number, device_id: string | number, datetime: object) {
+    return await transaction.request()
+        .input('package_id', sql.INT, package_id)
+        .input('vehicle_id', sql.INT, vehicle_id)
+        .input('device_id', sql.INT, device_id)
+        .input('uninstall_date', sql.DATETIME, datetime)
+        .query(`
+            IF NOT EXISTS (
+                SELECT 1
+                FROM PackageHistory
+                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
+            )
+            BEGIN
+                UPDATE DevelopERP_Clear..PackageHistory
+                SET uninstall_date = @uninstall_date
+                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
+
+                UPDATE DevelopERP_Clear..Device
+                SET package_id = null
+                WHERE device_id = @device_id
+            END
+        `)
+}
+export async function unlinkPackageHistoryVehicle(transaction: any, package_id: string | number, vehicle_id: string | number, datetime: object) {
+    return await transaction.request()
+        .input('package_id', sql.INT, package_id)
+        .input('vehicle_id', sql.INT, vehicle_id)
+        .input('uninstall_date', sql.DATETIME, datetime)
         .query(`
             UPDATE DevelopERP_Clear..PackageHistory
-            SET package_id = @package_id
-            WHERE vehicle_id = @vehicle_id AND device_id = @device_id
+            SET uninstall_date = @uninstall_date
+            WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND uninstall_date IS null
         `)
 }
 

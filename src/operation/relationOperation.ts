@@ -218,6 +218,7 @@ export async function linkVehiclePerson(transaction: any, vehicle_id: string | n
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
+
 export async function unlinkVehiclePerson(transaction: any, vehicle_id: string | number, person_id: string | number, action_by: string | number, datetime: object) {
     return await transaction.request()
         .input('vehicle_id', sql.INT, vehicle_id)

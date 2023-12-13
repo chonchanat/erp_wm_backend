@@ -46,11 +46,11 @@ async function createPackageData(body: PackageType) {
         transaction = pool.transaction();
         await transaction.begin();
 
-        let packageResult = await operation.createPackageNew(transaction, body.package, body.vehicleExist, action_by, datetime);
+        let packageResult = await operation.createPackageNew(transaction, body.package, body.vehicleExist[0], action_by, datetime);
         let package_id = packageResult.recordset[0].package_id
 
         for (const device of body.deviceExist) {
-            await operation.linkPackageHistory(transaction, package_id, body.vehicleExist, device);
+            await operation.linkPackageHistory(transaction, package_id, body.vehicleExist[0], device, datetime);
         }
 
         await transaction.commit();
@@ -71,6 +71,23 @@ async function updatePackageData(package_id: string, body: PackageType) {
         await transaction.begin();
 
         await operation.updatePackage(transaction, package_id, body.package, action_by, datetime);
+
+        if (body.vehicleDelete.length === 0) {
+            let vehicle_id = body.vehicleCurrent[0];
+            for (const device of body.deviceDelete) {
+                await operation.unlinkPackageHistory(transaction, package_id, vehicle_id, device, datetime);
+            }
+            for (const device of body.deviceCurrent) {
+                await operation.linkPackageHistory(transaction, package_id, vehicle_id, device, datetime);
+            }
+        } else {
+            let vehicle_id = body.vehicleDelete[0];
+            await operation.unlinkPackageHistoryVehicle(transaction, package_id, vehicle_id, datetime);
+            vehicle_id = body.vehicleCurrent[0];
+            for (const device of body.deviceCurrent) {
+                await operation.linkPackageHistory(transaction, package_id, vehicle_id, device, datetime);
+            }
+        }
 
         await transaction.commit();
     } catch (err) {
