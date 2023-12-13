@@ -10,14 +10,14 @@ export async function getDeviceTable(transaction: any, index: number, filter: st
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_Clear..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = @device_id, @device_serial_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = @firstIndex
             
-            --EXEC DevelopERP_Clear..sp_filter_format_deviceTable 
+            --EXEC DevelopERP_ForTesting2..sp_filter_format_deviceTable 
             --@device_serial_id=NULL, @device_id = '%', @firstIndex = 0, @lastIndex = 0
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_Clear..Device
+            FROM DevelopERP_ForTesting2..Device
             WHERE device_id LIKE @device_id AND active = 1    
         `)
 }
@@ -32,8 +32,8 @@ export async function getDeviceData(transaction: any, device_id: string) {
                 D.device_serial_id, 
                 COALESCE(DS.serial_id, '') serial_id, 
                 D.create_date
-            FROM DevelopERP_Clear..Device D
-            LEFT JOIN DevelopERP_Clear..DeviceSerial DS
+            FROM DevelopERP_ForTesting2..Device D
+            LEFT JOIN DevelopERP_ForTesting2..DeviceSerial DS
             ON D.device_serial_id = DS.device_serial_id
             WHERE D.device_id = @device_id
 
@@ -57,22 +57,22 @@ export async function getDeviceData(transaction: any, device_id: string) {
                 DC.sim_type_code_id, 
                 COALESCE(M_sim_type.value, '') AS sim_type,
                 COALESCE(DC.description, '') AS description
-            FROM DevelopERP_Clear..DeviceConfig DC
-            LEFT JOIN DevelopERP_Clear..MasterCode M_loop_time_engine_on
+            FROM DevelopERP_ForTesting2..DeviceConfig DC
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_loop_time_engine_on
             ON DC.loop_time_engine_on_code_id = M_loop_time_engine_on.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_loop_time_engine_off
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_loop_time_engine_off
             ON DC.loop_time_engine_off_code_id = M_loop_time_engine_off.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCOde M_software_version
+            LEFT JOIN DevelopERP_ForTesting2..MasterCOde M_software_version
             ON DC.software_version_code_id = M_software_version.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_ip_address
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_ip_address
             ON DC.ip_address_code_id = M_ip_address.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_gateway_port
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_gateway_port
             ON DC.gateway_port_code_id = M_gateway_port.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_sms_server_number
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_sms_server_number
             ON DC.sms_server_number_code_id = M_sms_server_number.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_sms_message_center
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_sms_message_center
             ON DC.sms_message_center_code_id = M_sms_message_center.code_id
-            LEFT JOIN DevelopERP_Clear..MasterCode M_sim_type
+            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_sim_type
             ON DC.sim_type_code_id = M_sim_type.code_id
             WHERE device_id = @device_id
         `)
@@ -84,7 +84,7 @@ export async function deleteDevice(transaction: any, device_id: string | number,
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_device @device_id = @device_id, @action_by = @action_by, @action_date = @action_date
+            EXEC DevelopERP_ForTesting2..sp_delete_device @device_id = @device_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -96,7 +96,7 @@ export async function createDeviceNew(transaction: any, device: Device, action_b
         .input('create_date', sql.DATETIME, datetime)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_device @veh_id = @veh_id, @device_serial_id = @device_serial_id,
+            EXEC DevelopERP_ForTesting2..sp_insert_device @veh_id = @veh_id, @device_serial_id = @device_serial_id,
                 @action_by = @action_by, @create_date = @create_date, @action_date = @action_date
         `)
 }
@@ -121,7 +121,7 @@ export async function createDeviceConfigNew(transaction: any, device_id: string 
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
+            EXEC DevelopERP_ForTesting2..sp_insert_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
                 @loop_time_engine_off_code_id = @loop_time_engine_off_code_id, @software_version_code_id = @software_version_code_id,
                 @ip_address_code_id = @ip_address_code_id, @gateway_port_code_id = @gateway_port_code_id, @sms_server_number_code_id = @sms_server_number_code_id,
                 @sms_message_center_code_id = @sms_message_center_code_id, @sim_serial = @sim_serial, @mobile_number = @mobile_number,
@@ -139,7 +139,7 @@ export async function updateDevice(transaction: any, device_id: string | number,
         .input('create_date', sql.DATETIME, device.create_date)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_device @device_id = @device_id, @veh_id = @veh_id, 
+            EXEC DevelopERP_ForTesting2..sp_update_device @device_id = @device_id, @veh_id = @veh_id, 
                 @device_serial_id = @device_serial_id, @action_by = @action_by, 
                 @create_date = @create_date, @action_date = @action_date
         `)
@@ -165,7 +165,7 @@ export async function updateDeviceConfig(transaction: any, device_id: string | n
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
+            EXEC DevelopERP_ForTesting2..sp_update_deviceConfig @device_id = @device_id, @loop_time_engine_on_code_id = @loop_time_engine_on_code_id,
             @loop_time_engine_off_code_id = @loop_time_engine_off_code_id, @software_version_code_id = @software_version_code_id,
             @ip_address_code_id = @ip_address_code_id, @gateway_port_code_id = @gateway_port_code_id, @sms_server_number_code_id = @sms_server_number_code_id,
             @sms_message_center_code_id = @sms_message_center_code_id, @sim_serial = @sim_serial, @mobile_number = @mobile_number,

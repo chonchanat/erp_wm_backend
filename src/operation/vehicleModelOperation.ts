@@ -9,11 +9,11 @@ export async function getVehicleModelTable(transaction: any, index: number, filt
         .query(`
             DECLARE @vehicleModelTable IdType
             INSERT INTO @vehicleModelTable 
-            EXEC DevelopERP_Clear..sp_filterVehicleModel @filter = @filter, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_Clear..sp_formatVehicleModelTable @vehicleModelTable = @vehicleModelTable, @firstIndex = @firstIndex
+            EXEC DevelopERP_ForTesting2..sp_filterVehicleModel @filter = @filter, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC DevelopERP_ForTesting2..sp_formatVehicleModelTable @vehicleModelTable = @vehicleModelTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_Clear..VehicleModel
+            FROM DevelopERP_ForTesting2..VehicleModel
             WHERE brand LIKE @filter OR model LIKE @filter AND active = 1
         `)
 }
@@ -26,7 +26,7 @@ export async function getVehicleModelData(transaction: any, vehicle_model_id: st
                 vehicle_model_id,
                 COALESCE(brand, '') AS brand,
                 COALESCE(model, '') AS model
-            FROM DevelopERP_Clear..VehicleModel
+            FROM DevelopERP_ForTesting2..VehicleModel
             WHERE vehicle_model_id = @vehicle_model_id AND active = 1
         `)
 }
@@ -38,7 +38,7 @@ export async function createVehicleModelData(transaction: any, vehicleModel: Veh
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_insert_vehicleModel @brand = @brand, @model = @model, 
+            EXEC DevelopERP_ForTesting2..sp_insert_vehicleModel @brand = @brand, @model = @model, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -51,7 +51,7 @@ export async function updateVehicleModelData(transaction: any, vehicle_model_id:
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_update_vehicleModel @vehicle_model_id = @vehicle_model_id, @brand = @brand, @model = @model,
+            EXEC DevelopERP_ForTesting2..sp_update_vehicleModel @vehicle_model_id = @vehicle_model_id, @brand = @brand, @model = @model,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -62,7 +62,7 @@ export async function deleteVehicleModelData(transaction: any, vehicle_model_id:
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_Clear..sp_delete_vehicleModel @vehicle_model_id = @vehicle_model_id, 
+            EXEC DevelopERP_ForTesting2..sp_delete_vehicleModel @vehicle_model_id = @vehicle_model_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -71,7 +71,7 @@ export async function getVehicleModelBrand(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT distinct brand
-            FROM DevelopERP_Clear..VehicleModel
+            FROM DevelopERP_ForTesting2..VehicleModel
             ORDER BY brand
         `)
 }
@@ -81,7 +81,7 @@ export async function getVehicleModelModel(transaction: any, brand: string) {
         .input('brand', sql.NVARCHAR, brand)
         .query(`
             SELECT vehicle_model_id, model
-            FROM DevelopERP_Clear..VehicleModel
+            FROM DevelopERP_ForTesting2..VehicleModel
             WHERE brand LIKE @brand
             ORDER BY model
         `)
