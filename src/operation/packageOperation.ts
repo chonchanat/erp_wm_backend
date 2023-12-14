@@ -124,6 +124,10 @@ export async function unlinkPackageHistoryVehicle(transaction: any, package_id: 
             UPDATE DevelopERP_ForTesting2..PackageHistory
             SET uninstall_date = @uninstall_date
             WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND uninstall_date IS null
+
+            UPDATE DevelopERP_Clear..Device
+            SET package_id = null
+            WHERE package_id = @package_id
         `)
 }
 
