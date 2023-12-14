@@ -46,11 +46,11 @@ async function createPackageData(body: PackageType) {
         transaction = pool.transaction();
         await transaction.begin();
 
-        let packageResult = await operation.createPackageNew(transaction, body.package, body.vehicleExist[0], action_by, datetime);
+        let packageResult = await operation.createPackageNew(transaction, body.package, body.vehicleCurrent[0], action_by, datetime);
         let package_id = packageResult.recordset[0].package_id
 
-        for (const device of body.deviceExist) {
-            await operation.linkPackageHistory(transaction, package_id, body.vehicleExist[0], device, datetime);
+        for (const device of body.deviceCurrent) {
+            await operation.linkPackageHistory(transaction, package_id, body.vehicleCurrent[0], device, datetime);
         }
 
         await transaction.commit();

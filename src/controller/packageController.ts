@@ -29,8 +29,8 @@ async function getPackageData(req: Request, res: Response) {
 
 async function createPackageData(req: Request, res: Response) {
     try {
-        let body = JSON.parse(req.body.jsonData)
-        // let body = req.body;
+        // let body = JSON.parse(req.body.jsonData)
+        let body = req.body;
         await packageModel.createPackageData(body);
         res.status(201).json({ status: 1, message: "created successfully"});
     } catch (err) {
@@ -40,8 +40,8 @@ async function createPackageData(req: Request, res: Response) {
 
 async function updatePackageData(req: Request, res: Response) {
     try {
-        let body = JSON.parse(req.body.jsonData)
-        // let body = req.body;
+        // let body = JSON.parse(req.body.jsonData)
+        let body = req.body;
         await packageModel.updatePackageData(req.params.id, body);
         res.status(200).json({ status: 1, message: "updated successfully"});
     } catch (err) {
