@@ -26,7 +26,7 @@ async function getPackageData(package_id: string) {
         let result = await operation.getPackageData(pool, package_id);
 
         return {
-            packge: result.recordsets[0][0],
+            package: result.recordsets[0][0],
             vehicle: result.recordsets[1],
             device: result.recordsets[2],
             installation: result.recordsets[3],
