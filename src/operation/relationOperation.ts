@@ -7,7 +7,7 @@ export async function linkFleetCustomer(transaction: any, fleet_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_ForTesting2..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
+        EXEC WDMT_MasterData..sp_insert_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id,
             @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -18,7 +18,7 @@ export async function unlinkFleetCustomer(transaction: any, fleet_id: string | n
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id, 
+            EXEC WDMT_MasterData..sp_delete_fleet_customer @fleet_id = @fleet_id, @customer_id = @customer_id, 
                 @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -30,7 +30,7 @@ export async function linkFleetPerson(transaction: any, fleet_id: string | numbe
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
+            EXEC WDMT_MasterData..sp_insert_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
                 @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -41,7 +41,7 @@ export async function unlinkFleetPerson(transaction: any, fleet_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
+            EXEC WDMT_MasterData..sp_delete_fleet_person @fleet_id = @fleet_id, @person_id = @person_id, 
                 @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -53,7 +53,7 @@ export async function linkFleetVehicle(transaction: any, fleet_id: string | numb
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
+            EXEC WDMT_MasterData..sp_insert_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -64,7 +64,7 @@ export async function unlinkFleetVehicle(transaction: any, fleet_id: string | nu
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
+            EXEC WDMT_MasterData..sp_delete_fleet_vehicle @fleet_id = @fleet_id, @vehicle_id = @vehicle_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -76,7 +76,7 @@ export async function linkPersonRole(transaction: any, person_id: string | numbe
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
+            EXEC WDMT_MasterData..sp_insert_person_role @person_id = @person_id, @role_code_id = @role_code_id,
                 @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -87,7 +87,7 @@ export async function unlinkPersonRole(transaction: any, person_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
+            EXEC WDMT_MasterData..sp_delete_person_role @person_id = @person_id, @role_code_id = @role_code_id,    
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -99,7 +99,7 @@ export async function linkCustomerPerson(transaction: any, customer_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
+            EXEC WDMT_MasterData..sp_insert_customer_person @customer_id = @customer_id, @person_id = @person_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -110,7 +110,7 @@ export async function unlinkCustomerPerson(transaction: any, customer_id: string
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
+            EXEC WDMT_MasterData..sp_delete_customer_person @customer_id = @customer_id, @person_id = @person_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -122,7 +122,7 @@ export async function linkAddressCustomer(transaction: any, address_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
+            EXEC WDMT_MasterData..sp_insert_address_customer @address_id = @address_id, @customer_id = @customer_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -133,7 +133,7 @@ export async function unlinkAddressCustomer(transaction: any, address_id: string
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_address_customer @address_id = @address_id, @customer_id = @customer_id, 
+            EXEC WDMT_MasterData..sp_delete_address_customer @address_id = @address_id, @customer_id = @customer_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -145,7 +145,7 @@ export async function linkAddressPerson(transaction: any, address_id: string | n
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_ForTesting2..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
+        EXEC WDMT_MasterData..sp_insert_address_person @address_id = @address_id, @person_id = @person_id,
             @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -156,7 +156,7 @@ export async function unlinkAddressPerson(transaction: any, address_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
+            EXEC WDMT_MasterData..sp_delete_address_person @address_id = @address_id, @person_id = @person_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -168,7 +168,7 @@ export async function linkAddressMasterCode(transaction: any, address_id: string
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-    EXEC DevelopERP_ForTesting2..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+    EXEC WDMT_MasterData..sp_insert_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
         @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -179,7 +179,7 @@ export async function unlinkAddressMasterCode(transaction: any, address_id: stri
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
+            EXEC WDMT_MasterData..sp_delete_address_mastercode @address_id = @address_id, @address_type_code_id = @address_type_code_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -191,7 +191,7 @@ export async function linkVehicleCustomer(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
+            EXEC WDMT_MasterData..sp_insert_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -202,7 +202,7 @@ export async function unlinkVehicleCustomer(transaction: any, vehicle_id: string
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
+            EXEC WDMT_MasterData..sp_delete_vehicle_customer @vehicle_id = @vehicle_id, @customer_id = @customer_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -214,7 +214,7 @@ export async function linkVehiclePerson(transaction: any, vehicle_id: string | n
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
+            EXEC WDMT_MasterData..sp_insert_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -226,7 +226,7 @@ export async function unlinkVehiclePerson(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id, 
+            EXEC WDMT_MasterData..sp_delete_vehicle_person @vehicle_id = @vehicle_id, @person_id = @person_id, 
                 @action_by = @action_by, @action_date = @action_date
         `)
 }

@@ -9,11 +9,11 @@ export async function getDeviceSerialTable(transaction: any, index: number, filt
         .query(`
             DECLARE @deviceSerialTable IdType
             INSERT INTO @deviceSerialTable 
-            EXEC DevelopERP_ForTesting2..sp_filterDeviceSerial @serial_id = @serial_id, @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterDeviceSerial @serial_id = @serial_id, @device_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatDeviceSerialTable @deviceSerialTable = @deviceSerialTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_ForTesting2..DeviceSerial
+            FROM WDMT_MasterData..DeviceSerial
             WHERE serial_id LIKE @serial_id AND active = 1
         `)
 }
@@ -23,7 +23,7 @@ export async function getDeviceSerialId(transaction: any) {
         .query(`
             SELECT 
                 device_serial_id, serial_id
-            FROM DevelopERP_ForTesting2..DeviceSerial
+            FROM WDMT_MasterData..DeviceSerial
             WHERE active = 1
             ORDER BY device_serial_id
         `)
@@ -40,15 +40,15 @@ export async function getDeviceSerialData(transaction: any, device_serial_id: st
                 DS.device_type_code_id,
                 COALESCE(M.value, '') AS device_type, 
                 DS.create_date
-            FROM DevelopERP_ForTesting2..DeviceSerial DS
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M
+            FROM WDMT_MasterData..DeviceSerial DS
+            LEFT JOIN WDMT_MasterData..MasterCode M
             ON DS.device_type_code_id = M.code_id
             WHERE DS.device_serial_id = @device_serial_id
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterDevice @device_id = '%', @device_serial_id = @device_serial_id, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
@@ -63,7 +63,7 @@ export async function deleteDeviceSerial(transaction: any, device_serial_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_deviceSerial @device_serial_id = @device_serial_id,
+            EXEC WDMT_MasterData..sp_delete_deviceSerial @device_serial_id = @device_serial_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -77,7 +77,7 @@ export async function createDeviceSerialNew(transaction: any, deviceSerial: Devi
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial,  
+            EXEC WDMT_MasterData..sp_insert_deviceSerial @serial_id = @serial_id, @imei_serial = @imei_serial,  
                 @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
                 @action_by = @action_by, @action_date = @action_date
         `)
@@ -93,7 +93,7 @@ export async function updateDeviceSerial(transaction: any, device_serial_id: str
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
+            EXEC WDMT_MasterData..sp_update_deviceSerial @device_serial_id = @device_serial_id, 
             @serial_id = @serial_id, @imei_serial = @imei_serial,  
             @device_type_code_id = @device_type_code_id, @create_date = @create_date, 
             @action_by = @action_by, @action_date = @action_date

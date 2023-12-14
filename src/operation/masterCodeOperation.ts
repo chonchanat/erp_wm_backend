@@ -12,7 +12,7 @@ export async function getMasterCode(transaction: any, category: string, classes:
                 COALESCE(class, 'null') AS class,
                 COALESCE(value, 'null') AS value,
                 active
-            FROM DevelopERP_ForTesting2..MasterCode
+            FROM WDMT_MasterData..MasterCode
             WHERE category LIKE @category ${classes === undefined ? "" : `AND class ${classes === "null" ? "IS NULL" : "LIKE @class"}`} AND active = 1
         `)
 }
@@ -25,11 +25,11 @@ export async function getMasterCodeTable(transaction: any, index: number, filter
         .query(`
             DECLARE @masterCodeTable IdType
             INSERT INTO @masterCodeTable
-            EXEC DevelopERP_ForTesting2..sp_filterMasterCode @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatMasterCode @masterCodeTable = @masterCodeTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterMasterCode @value = @value, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatMasterCode @masterCodeTable = @masterCodeTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_ForTesting2..MasterCode
+            FROM WDMT_MasterData..MasterCode
             WHERE value LIKE @value AND active = 1
         `)
 }
@@ -42,7 +42,7 @@ export async function getMasterCodeData(transaction: any, code_id: string) {
                 code_id, category, 
                 COALESCE(class, 'null') AS class, 
                 COALESCE(value, 'null') AS value
-            FROM DevelopERP_ForTesting2..MasterCode
+            FROM WDMT_MasterData..MasterCode
             WHERE code_id = @code_id
         `)
 }
@@ -55,7 +55,7 @@ export async function createMasterCodeData(transaction: any, masterCode: MasterC
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_masterCode @category = @category, @class = @class, @value = @value,
+            EXEC WDMT_MasterData..sp_insert_masterCode @category = @category, @class = @class, @value = @value,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -67,7 +67,7 @@ export async function updateMasterCodeData(transaction: any, code_id: string, ma
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_masterCode @code_id = @code_id, @value = @value, @action_by = @action_by,
+            EXEC WDMT_MasterData..sp_update_masterCode @code_id = @code_id, @value = @value, @action_by = @action_by,
                 @action_date = @action_date
         `)
 }
@@ -78,7 +78,7 @@ export async function deleteMasterCode(transaction: any, code_id: string, action
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_masterCode @code_id = @code_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_masterCode @code_id = @code_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -86,7 +86,7 @@ export async function getMasterCodeCategory(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT category
-            FROM DevelopERP_ForTesting2..MasterCode
+            FROM WDMT_MasterData..MasterCode
             WHERE active = 1
             GROUP BY category
         `)
@@ -97,7 +97,7 @@ export async function getMasterCodeClass(transaction: any, category: string) {
         .input('category', sql.NVARCHAR, category)
         .query(`
             SELECT COALESCE(class, 'null') AS class
-            FROM DevelopERP_ForTesting2..MasterCode
+            FROM WDMT_MasterData..MasterCode
             WHERE category LIKE @category AND active = 1
             GROUP BY class
         `)

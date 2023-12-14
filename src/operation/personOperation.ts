@@ -9,8 +9,8 @@ export async function getPersonTable(transaction: any, index: number, filter: st
         .query(`
             DECLARE @personTable IdType
             INSERT INTO @personTable
-            EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterPerson @fullname = @fullname, @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatPersonTable @personTable = @personTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
             FROM (
@@ -18,7 +18,7 @@ export async function getPersonTable(transaction: any, index: number, filter: st
                 person_id,
                 COALESCE(firstname + ' ', '') + COALESCE(lastname, '') + COALESCE('(' + nickname + ')', '') AS fullname,
                 active
-                FROM DevelopERP_ForTesting2..Person
+                FROM WDMT_MasterData..Person
             ) t
             WHERE fullname LIKE @fullname AND active = 1
         `)
@@ -48,44 +48,44 @@ export async function getPersonData(transaction: any, person_id: string) {
                 m.code_id as title_code_id,
                 COALESCE(m.value, '') as title_type,
                 COALESCE(p.description, '') as description
-            FROM DevelopERP_ForTesting2..Person p
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode m
+            FROM WDMT_MasterData..Person p
+            LEFT JOIN WDMT_MasterData..MasterCode m
             on p.title_code_id = m.code_id
             WHERE person_id = @person_id AND p.active = 1
 
             SELECT 
                 role_code_id, 
                 COALESCE(value, '') AS role_type
-            FROM DevelopERP_ForTesting2..Person_Role PR
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M
+            FROM WDMT_MasterData..Person_Role PR
+            LEFT JOIN WDMT_MasterData..MasterCode M
             ON PR.role_code_id = M.code_id
             WHERE person_id = @person_id
             
             DECLARE @customerTable IdType
             INSERT INTO @customerTable
-            EXEC DevelopERP_ForTesting2..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = @person_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
 
             DECLARE @contactTable IdType
             INSERT INTO @contactTable
-            EXEC DevelopERP_ForTesting2..sp_filterContact @value = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterContact @value = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
             
             DECLARE @addressTable IdType
             INSERT INTO @addressTable
-            EXEC DevelopERP_ForTesting2..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterAddress @location = '%', @customer_id = NULL, @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
 
             DECLARE @documentTable IdType
             INSERT INTO @documentTable
-            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = @person_id, 
+            EXEC WDMT_MasterData..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = @person_id, 
                 @address_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
 
             DECLARE @cardTable IdType
             INSERT @cardTable
-            EXEC DevelopERP_ForTesting2..sp_filterCard @value = '%', @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatCardTable @cardTable = @cardTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterCard @value = '%', @person_id = @person_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatCardTable @cardTable = @cardTable, @firstIndex = 1
         `)
 }
 
@@ -95,7 +95,7 @@ export async function deletePerson(transaction: any, person_id: string, action_b
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_person @person_id = @person_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_person @person_id = @person_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -109,7 +109,7 @@ export async function createPersonNew(transaction: any, person: Person, action_b
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
+            EXEC WDMT_MasterData..sp_insert_person @firstname = @firstname, @lastname = @lastname, @nickname = @nickname,
                 @title_code_id = @title_code_id, @description = @description, @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -125,7 +125,7 @@ export async function updatePerson(transaction: any, person_id: string | number,
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-                EXEC DevelopERP_ForTesting2..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
+                EXEC WDMT_MasterData..sp_update_person @person_id = @person_id, @firstname = @firstname, @lastname = @lastname, 
                     @nickname = @nickname, @title_code_id = @title_code_id, @description = @description, 
                     @action_by = @action_by, @action_date = @action_date
         `)

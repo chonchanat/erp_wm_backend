@@ -9,11 +9,11 @@ export async function getCustomerTable(transaction: any, index: number, filter: 
         .query(`
             DECLARE @customerTable IdType
             INSERT INTO @customerTable
-            EXEC DevelopERP_ForTesting2..sp_filterCustomer @customer_name = @customer_name, @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterCustomer @customer_name = @customer_name, @fleet_id = NULL, @person_id = NULL, @vehicle_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data 
-            FROM DevelopERP_ForTesting2..Customer
+            FROM WDMT_MasterData..Customer
             WHERE customer_name LIKE @customer_name AND active = 1
         `)
 }
@@ -22,7 +22,7 @@ export async function getCustomerName(transaction: any) {
     return await transaction.request()
         .query(`
             SELECT customer_id, customer_name
-            FROM DevelopERP_ForTesting2..Customer
+            FROM WDMT_MasterData..Customer
             WHERE active = 1
             ORDER BY customer_name
         `)
@@ -36,43 +36,43 @@ export async function getCustomerData(transaction: any, customer_id: string) {
                 C.customer_id, C.customer_name, 
                 C.sales_type_code_id, COALESCE(M_salestype.value, '') AS sales_type, 
                 C.customer_type_code_id, COALESCE(M_customertype.value, '') as customer_type
-            FROM DevelopERP_ForTesting2..Customer C
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_salestype
+            FROM WDMT_MasterData..Customer C
+            LEFT JOIN WDMT_MasterData..MasterCode M_salestype
             ON C.sales_type_code_id = M_salestype.code_id
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_customertype
+            LEFT JOIN WDMT_MasterData..MasterCode M_customertype
             ON C.customer_type_code_id = M_customertype.code_id
             WHERE customer_id = @customer_id AND C.active = 1
             
             DECLARE @fleetTable IdType
             INSERT INTO @fleetTable
-            EXEC DevelopERP_ForTesting2..sp_filterFleet @fleet_name = '%', @customer_id = @customer_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterFleet @fleet_name = '%', @customer_id = @customer_id, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
 
             DECLARE @contactTable IdType
             INSERT INTO @contactTable
-            EXEC DevelopERP_ForTesting2..sp_filterContact @value = '%', @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterContact @value = '%', @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatContactTable @contactTable = @contactTable, @firstIndex = 1
 
             DECLARE @addressTable IdType
             INSERT INTO @addressTable
-            EXEC DevelopERP_ForTesting2..sp_filterAddress @location = '%', @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterAddress @location = '%', @customer_id = @customer_id, @person_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatAddressTable @addressTable = @addressTable, @firstIndex = 1
 
             DECLARE @personTable IdType
             INSERT INTO @personTable
-            EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = '%', @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterPerson @fullname = '%', @customer_id = @customer_id, @fleet_id = NULL, @vehicle_id = NULL, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
             
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = '%', @customer_id = @customer_id, @fleet_id = NULL, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterVehicle @license_plate = '%', @customer_id = @customer_id, @fleet_id = NULL, @package_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
 
             DECLARE @documentTable IdType
             INSERT INTO @documentTable
-            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = '%', @customer_id = @customer_id, @person_id = NULL, 
+            EXEC WDMT_MasterData..sp_filterDocument @document_name = '%', @customer_id = @customer_id, @person_id = NULL, 
                 @address_id = NULL, @vehicle_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
         `)
 }
 
@@ -82,7 +82,7 @@ export async function deleteCustomer(transaction: any, customer_id: string, acti
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_customer @customer_id = @customer_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_customer @customer_id = @customer_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -94,7 +94,7 @@ export async function createCustomerNew(transaction: any, customer: Customer, ac
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_ForTesting2..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
+        EXEC WDMT_MasterData..sp_insert_customer @customer_name = @customer_name, @sales_type_code_id = @sales_type_code_id, 
             @customer_type_code_id = @customer_type_code_id, @action_by = @action_by, @action_date = @action_date
     `)
 }
@@ -108,7 +108,7 @@ export async function updateCustomer(transaction: any, customer_id: string | num
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_customer @customer_id = @customer_id, @customer_name = @customer_name,
+            EXEC WDMT_MasterData..sp_update_customer @customer_id = @customer_id, @customer_name = @customer_name,
                 @sales_type_code_id = @sales_type_code_id, @customer_type_code_id = @customer_type_code_id,
                 @action_by = @action_by, @action_date = @action_date
         `)

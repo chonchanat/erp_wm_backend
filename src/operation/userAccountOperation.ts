@@ -9,11 +9,11 @@ export async function getUserAccountTable(transaction: any, index: number, filte
         .query(`
             DECLARE @userAccountTable IdType
             INSERT @userAccountTable
-            EXEC DevelopERP_ForTesting2..sp_filterUserAccount @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatUserAccountTable @userAccountTable = @userAccountTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterUserAccount @fullname = @fullname, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatUserAccountTable @userAccountTable = @userAccountTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_ForTesting2..UserAccount UA
+            FROM WDMT_MasterData..UserAccount UA
             LEFT JOIN (
                 SELECT 
                     person_id,
@@ -35,15 +35,15 @@ export async function getUserAccountData(transaction: any, user_id: string) {
                 UA.profile_id,
                 COALESCE(P.profile_name, '') AS profile,
                 COALESCE(UA.uid, '') AS uid
-            FROM DevelopERP_ForTesting2..UserAccount UA
-            LEFT JOIN DevelopERP_ForTesting2..Profile P
+            FROM WDMT_MasterData..UserAccount UA
+            LEFT JOIN WDMT_MasterData..Profile P
             ON UA.profile_id = P.profile_id
             WHERE UA.user_id = @user_id 
 
             DECLARE @personTable IdType
             INSERT INTO @personTable
-            EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = NULL, @user_id = @user_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
         `)
 }
 
@@ -53,7 +53,7 @@ export async function deleteUserAccount(transaction: any, user_id: string, actio
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_userAccount @user_id = @user_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_userAccount @user_id = @user_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -67,7 +67,7 @@ export async function createUserAccountNew(transaction: any, userAccount: UserAc
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-        EXEC DevelopERP_ForTesting2..sp_insert_userAccount @username = @username, @password = @password,
+        EXEC WDMT_MasterData..sp_insert_userAccount @username = @username, @password = @password,
             @uid = @uid, @person_id = @person_id, @profile_id = @profile_id,
             @action_by = @action_by, @action_date = @action_date
     `)
@@ -81,7 +81,7 @@ export async function updateUserAccount(transaction: any, user_id: string | numb
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,
+            EXEC WDMT_MasterData..sp_update_userAccount @user_id = @user_id, @uid = @uid, @profile_id = @profile_id,
                 @action_by = @action_by, @action_date = @action_date
         `)
 }

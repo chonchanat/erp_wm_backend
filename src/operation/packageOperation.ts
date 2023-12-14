@@ -8,11 +8,11 @@ export async function getPackageTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @packageTable IdType
             INSERT INTO @packageTable
-            EXEC DevelopERP_ForTesting2..sp_filterPackage @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatPackage @packageTable = @packageTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterPackage @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatPackage @packageTable = @packageTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_ForTesting2..Package
+            FROM WDMT_MasterData..Package
             WHERE active = 1
         `)
 }
@@ -38,13 +38,13 @@ export async function getPackageData(transaction: any, package_id: string) {
 
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterVehicle @license_plate = '%', @customer_id = NULL, @fleet_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = 1
 
             DECLARE @deviceTable IdType
             INSERT INTO @deviceTable
-            EXEC DevelopERP_ForTesting2..sp_filterDevice @device_id = '%', @device_serial_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterDevice @device_id = '%', @device_serial_id = NULL, @package_id = @package_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatDeviceTable @deviceTable = @deviceTable, @firstIndex = 1
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
@@ -64,7 +64,7 @@ export async function createPackageNew(transaction: any, packages: Package, vehi
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_package @vehicle_id = @vehicle_id, @package_name_code_id = @package_name_code_id,
+            EXEC WDMT_MasterData..sp_insert_package @vehicle_id = @vehicle_id, @package_name_code_id = @package_name_code_id,
                 @package_type_code_id = @package_type_code_id, @package_price = @package_price, @package_start_date = @package_start_date,
                 @package_end_date = @package_end_date, @action_by = @action_by, @action_date = @action_date
         `)
@@ -83,10 +83,10 @@ export async function linkPackageHistory(transaction: any, package_id: string | 
                 WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
             )
             BEGIN
-                INSERT INTO DevelopERP_ForTesting2..PackageHistory (package_id, vehicle_id, device_id, install_date)
+                INSERT INTO WDMT_MasterData..PackageHistory (package_id, vehicle_id, device_id, install_date)
                 VALUES (@package_id, @vehicle_id, @device_id, @install_date)
 
-                UPDATE DevelopERP_ForTesting2..Device
+                UPDATE WDMT_MasterData..Device
                 SET package_id = @package_id
                 WHERE device_id = @device_id
             END
@@ -105,11 +105,11 @@ export async function unlinkPackageHistory(transaction: any, package_id: string 
                 WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id AND uninstall_date is null
             )
             BEGIN
-                UPDATE DevelopERP_ForTesting2..PackageHistory
+                UPDATE WDMT_MasterData..PackageHistory
                 SET uninstall_date = @uninstall_date
                 WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id AND uninstall_date is null
 
-                UPDATE DevelopERP_ForTesting2..Device
+                UPDATE WDMT_MasterData..Device
                 SET package_id = null
                 WHERE device_id = @device_id
             END
@@ -121,11 +121,11 @@ export async function unlinkPackageHistoryVehicle(transaction: any, package_id: 
         .input('vehicle_id', sql.INT, vehicle_id)
         .input('uninstall_date', sql.DATETIME, datetime)
         .query(`
-            UPDATE DevelopERP_ForTesting2..PackageHistory
+            UPDATE WDMT_MasterData..PackageHistory
             SET uninstall_date = @uninstall_date
             WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND uninstall_date IS null
 
-            UPDATE DevelopERP_ForTesting2..Device
+            UPDATE WDMT_MasterData..Device
             SET package_id = null
             WHERE package_id = @package_id
         `)
@@ -143,7 +143,7 @@ export async function updatePackage(transaction: any, package_id: string, packag
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_package @package_id = @package_id, @package_name_code_id = @package_name_code_id,
+            EXEC WDMT_MasterData..sp_update_package @package_id = @package_id, @package_name_code_id = @package_name_code_id,
                 @package_type_code_id = @package_type_code_id, @package_price = @package_price,
                 @package_start_date = @package_start_date, @package_end_date = @package_end_date, @package_cancel_date = @package_cancel_date,
                 @action_by = @action_by, @action_date = @action_date
@@ -156,6 +156,6 @@ export async function deletePackage(transaction: any, package_id: string, action
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_package @package_id = @package_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_package @package_id = @package_id, @action_by = @action_by, @action_date = @action_date
         `)
 }

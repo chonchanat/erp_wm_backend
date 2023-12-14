@@ -9,11 +9,11 @@ export async function getVehicleTable(transaction: any, index: number, filter: s
         .query(`
             DECLARE @vehicleTable IdType
             INSERT INTO @vehicleTable 
-            EXEC DevelopERP_ForTesting2..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
-            EXEC DevelopERP_ForTesting2..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
+            EXEC WDMT_MasterData..sp_filterVehicle @license_plate = @license_plate, @customer_id = NULL, @fleet_id = NULL, @package_id = NULL, @firstIndex = @firstIndex, @lastIndex = @lastIndex
+            EXEC WDMT_MasterData..sp_formatVehicleTable @vehicleTable = @vehicleTable, @firstIndex = @firstIndex
 
             SELECT COUNT(*) AS count_data
-            FROM DevelopERP_ForTesting2..Vehicle
+            FROM WDMT_MasterData..Vehicle
             WHERE license_plate LIKE @license_plate AND active = 1
         `)
 }
@@ -24,8 +24,8 @@ export async function getVehicleLicensePlate(transaction: any) {
             SELECT
                 V.vehicle_id,
                 COALESCE(V.license_plate, '-') + COALESCE(' (' + M.value + ')', '') AS license_plate
-            FROM DevelopERP_ForTesting2..Vehicle V
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M
+            FROM WDMT_MasterData..Vehicle V
+            LEFT JOIN WDMT_MasterData..MasterCode M
             ON V.registration_province_code_id = M.code_id
             WHERE V.active = 1
         `)
@@ -43,16 +43,16 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
                 V.driving_license_type_code_id, COALESCE(M_driving_license_type.value, '') AS driving_license_type,
                 V.number_of_axles, V.number_of_wheels, V.number_of_tires, 
                 V.vehicle_type_code_id, COALESCE(M_vehicle_type.value, '') AS vehicle_type
-            FROM DevelopERP_ForTesting2..Vehicle V
-            LEFT JOIN DevelopERP_ForTesting2..VehicleModel VM
+            FROM WDMT_MasterData..Vehicle V
+            LEFT JOIN WDMT_MasterData..VehicleModel VM
             ON V.vehicle_model_id = VM.vehicle_model_id
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_registration_province
+            LEFT JOIN WDMT_MasterData..MasterCode M_registration_province
             ON V.registration_province_code_id = M_registration_province.code_id
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_registration_type
+            LEFT JOIN WDMT_MasterData..MasterCode M_registration_type
             ON V.registration_type_code_id = M_registration_type.code_id
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_driving_license_type
+            LEFT JOIN WDMT_MasterData..MasterCode M_driving_license_type
             ON V.driving_license_type_code_id = M_driving_license_type.code_id
-            LEFT JOIN DevelopERP_ForTesting2..MasterCode M_vehicle_type
+            LEFT JOIN WDMT_MasterData..MasterCode M_vehicle_type
             ON V.vehicle_type_code_id = M_vehicle_type.code_id
             WHERE vehicle_id = @vehicle_id AND V.active = 1
 
@@ -60,34 +60,34 @@ export async function getVehicleData(transaction: any, vehicle_id: string) {
                 vehicle_config_id, vehicle_id, oil_lite, kilo_rate, max_speed, idle_time, cc, type, 
                 max_fuel_voltage, max_fuel_voltage_2, max_fuel_voltage_3, max_fuel, max_fuel_2, max_fuel_3, 
                 max_empty_voltage, max_empty_voltage_2, max_empty_voltage_3, fuel_status
-            FROM DevelopERP_ForTesting2..VehicleConfig
+            FROM WDMT_MasterData..VehicleConfig
             WHERE vehicle_id = @vehicle_id
 
             SELECT
                 dlt, tls, scgl, diw
-            FROM DevelopERP_ForTesting2..VehiclePermit
+            FROM WDMT_MasterData..VehiclePermit
             WHERE vehicle_id = @vehicle_id
 
             DECLARE @customerTable IdType
             INSERT INTO @customerTable
-            EXEC DevelopERP_ForTesting2..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterCustomer @customer_name = '%', @fleet_id = NULL, @person_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatCustomerTable @customerTable = @customerTable, @firstIndex = 1
 
             DECLARE @personTable IdType
             INSERT INTO @personTable
-            EXEC DevelopERP_ForTesting2..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterPerson @fullname = '%', @customer_id = NULL, @fleet_id = NULL, @vehicle_id = @vehicle_id, @user_id = NULL, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatPersonTable @personTable = @personTable, @firstIndex = 1
 
             DECLARE @fleetTable IdType
             INSERT INTO @fleetTable
-            EXEC DevelopERP_ForTesting2..sp_filterFleet @fleet_name = '%', @customer_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_filterFleet @fleet_name = '%', @customer_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
+            EXEC WDMT_MasterData..sp_formatFleetTable @fleetTable = @fleetTable, @firstIndex = 1
 
             DECLARE @documentTable IdType
             INSERT INTO @documentTable
-            EXEC DevelopERP_ForTesting2..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
+            EXEC WDMT_MasterData..sp_filterDocument @document_name = '%', @customer_id = NULL, @person_id = NULL, 
                 @address_id = NULL, @vehicle_id = @vehicle_id, @firstIndex = 0, @lastIndex = 0
-            EXEC DevelopERP_ForTesting2..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
+            EXEC WDMT_MasterData..sp_formatDocument @documentTable = @documentTable, @firstIndex = 1
 
             DECLARE @packageHistoryTable IdType
             INSERT INTO @packageHistoryTable
@@ -102,7 +102,7 @@ export async function deleteVehicle(transaction: any, vehicle_id: string, action
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_delete_vehicle @vehicle_id = @vehicle_id, @action_by = @action_by, @action_date = @action_date
+            EXEC WDMT_MasterData..sp_delete_vehicle @vehicle_id = @vehicle_id, @action_by = @action_by, @action_date = @action_date
         `)
 }
 
@@ -121,7 +121,7 @@ export async function createVehicleNew(transaction: any, vehicle: Vehicle, actio
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
+            EXEC WDMT_MasterData..sp_insert_vehicle @frame_no = @frame_no, @license_plate = @license_plate, @vehicle_model_id = @vehicle_model_id, 
                 @registration_province_code_id = @registration_province_code_id, @registration_type_code_id = @registration_type_code_id, 
                 @driving_license_type_code_id = @driving_license_type_code_id, @number_of_axles = @number_of_axles, 
                 @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, @vehicle_type_code_id = @vehicle_type_code_id, 
@@ -151,7 +151,7 @@ export async function createVehicleConfig(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
+            EXEC WDMT_MasterData..sp_insert_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
                 @kilo_rate = @kilo_rate, @max_speed = @max_speed, @idle_time = @idle_time, @cc = @cc, @type = @type, 
                 @max_fuel_voltage = @max_fuel_voltage, @max_fuel_voltage_2 = @max_fuel_voltage_2, 
                 @max_fuel_voltage_3 = @max_fuel_voltage_3, 
@@ -172,7 +172,7 @@ export async function createVehiclePermit(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
+            EXEC WDMT_MasterData..sp_insert_vehiclePermit @vehicle_id = @vehicle_id, 
                 @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
         `)
 }
@@ -193,7 +193,7 @@ export async function updateVehicle(transaction: any, vehicle_id: string | numbe
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_vehicle @vehicle_id = @vehicle_id, @frame_no = @frame_no, @license_plate = @license_plate, 
+            EXEC WDMT_MasterData..sp_update_vehicle @vehicle_id = @vehicle_id, @frame_no = @frame_no, @license_plate = @license_plate, 
             @vehicle_model_id = @vehicle_model_id, @registration_province_code_id = @registration_province_code_id, 
             @registration_type_code_id = @registration_type_code_id, @driving_license_type_code_id = @driving_license_type_code_id, 
             @number_of_axles = @number_of_axles, @number_of_wheels = @number_of_wheels, @number_of_tires = @number_of_tires, 
@@ -224,7 +224,7 @@ export async function updateVehicleConfig(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
+            EXEC WDMT_MasterData..sp_update_vehicleConfig @vehicle_id = @vehicle_id, @oil_lite = @oil_lite, 
                 @kilo_rate = @kilo_rate, @max_speed = @max_speed, @idle_time = @idle_time, @cc = @cc, @type = @type, 
                 @max_fuel_voltage = @max_fuel_voltage, @max_fuel_voltage_2 = @max_fuel_voltage_2, 
                 @max_fuel_voltage_3 = @max_fuel_voltage_3, @max_fuel = @max_fuel, @max_fuel_2 = @max_fuel_2, 
@@ -244,7 +244,7 @@ export async function updateVehiclePermit(transaction: any, vehicle_id: string |
         .input('action_by', sql.INT, action_by)
         .input('action_date', sql.DATETIME, datetime)
         .query(`
-            EXEC DevelopERP_ForTesting2..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
+            EXEC WDMT_MasterData..sp_update_vehiclePermit @vehicle_id = @vehicle_id, 
                 @dlt = @dlt, @tls = @tls, @scgl = @scgl, @diw = @diw, @action_by = @action_by, @action_date = @action_date
         `)
 }
