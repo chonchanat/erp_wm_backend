@@ -25,10 +25,10 @@ export async function getPackageData(transaction: any, package_id: string) {
                 P.package_id, 
                 P.package_name_code_id, COALESCE(M_name.value, '') AS package_name,
                 P.package_type_code_id, COALESCE(M_type.value, '') AS package_type,
-                P.package_price,
-                P.package_start_date,
-                P.package_end_date,
-                P.package_cancel_date
+                COALESCE(P.package_price, '') package_price,
+                COALESCE(CAST(P.package_start_date AS NVARCHAR(MAX)), '-') AS package_start_date,
+                COALESCE(CAST(P.package_end_date AS NVARCHAR(MAX)), '-') AS package_end_date,
+                COALESCE(CAST(P.package_cancel_date AS NVARCHAR(MAX)), '-') AS package_cancel_date
             FROM Package P
             LEFT JOIN MasterCode M_name
             ON P.package_name_code_id = M_name.code_id
@@ -125,7 +125,7 @@ export async function unlinkPackageHistoryVehicle(transaction: any, package_id: 
             SET uninstall_date = @uninstall_date
             WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND uninstall_date IS null
 
-            UPDATE DevelopERP_Clear..Device
+            UPDATE DevelopERP_ForTesting2..Device
             SET package_id = null
             WHERE package_id = @package_id
         `)
