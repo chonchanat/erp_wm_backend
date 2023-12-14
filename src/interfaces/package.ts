@@ -12,9 +12,7 @@ export interface PackageType {
     action_by: number,
     package: Package,
     vehicleDelete: number[],
-    vehicleExist: number[],
     vehicleCurrent: number[],
     deviceDelete: number[],
-    deviceExist: number[],
-    deviceCurrent: number[]
+    deviceCurrent: number[],
 }

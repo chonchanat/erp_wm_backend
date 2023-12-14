@@ -99,15 +99,15 @@ export async function unlinkPackageHistory(transaction: any, package_id: string 
         .input('device_id', sql.INT, device_id)
         .input('uninstall_date', sql.DATETIME, datetime)
         .query(`
-            IF NOT EXISTS (
+            IF EXISTS (
                 SELECT 1
                 FROM PackageHistory
-                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
+                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id AND uninstall_date is null
             )
             BEGIN
                 UPDATE DevelopERP_Clear..PackageHistory
                 SET uninstall_date = @uninstall_date
-                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id
+                WHERE package_id = @package_id AND vehicle_id = @vehicle_id AND device_id = @device_id AND uninstall_date is null
 
                 UPDATE DevelopERP_Clear..Device
                 SET package_id = null
