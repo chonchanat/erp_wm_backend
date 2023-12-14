@@ -26,9 +26,9 @@ export async function getPackageData(transaction: any, package_id: string) {
                 P.package_name_code_id, COALESCE(M_name.value, '') AS package_name,
                 P.package_type_code_id, COALESCE(M_type.value, '') AS package_type,
                 COALESCE(P.package_price, '') AS package_price,
-                P.package_start_date,
-                P.package_end_date,
-                P.package_cancel_date
+                COALESCE(P.package_start_date, '') AS package_start_date,
+                COALESCE(P.package_end_date, '') AS package_end_date,
+                COALESCE(P.package_cancel_date, '') AS package_cancel_date
             FROM Package P
             LEFT JOIN MasterCode M_name
             ON P.package_name_code_id = M_name.code_id
